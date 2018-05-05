@@ -1,8 +1,11 @@
 import db from "./firebaseInit";
 
-var Owners = [];
+
 var Statuses = [];
+
 const ListRef = db.collection("DropDowns");
+
+
 
 ListRef.doc("Statuses")
   .get()
@@ -17,6 +20,7 @@ ListRef.doc("Statuses")
       });
   });
 
+
 export default {  
-  statusesList:Statuses
+  statusesList:Statuses  
 };

@@ -27,6 +27,7 @@
 
 <script>
 import firebase from 'firebase';
+import db from "./firebaseInit";
 
 export default {
   name: 'register',
@@ -38,17 +39,19 @@ export default {
   },
   methods: {
     register: function(e) {
-      var allowedUsers=['ciprian.ciresaru@','ovidiu.calburean@','ionut.tuns@','anamaria.taras@']
-      if(allowedUsers.indexOf( this.email)!=-1){
+      //var allowedUsers=['ciprian.ciresaru@','ovidiu.calburean@','ionut.tuns@','anamaria.taras@']
+      var allowedUsers="@ipsos.com"
+      //if(allowedUsers.indexOf( this.email)!=-1){
+        if(this.email.indexOf(allowedUsers)!=-1){
         firebase
         .auth()
         .createUserWithEmailAndPassword(this.email, this.password)
         .then(
           user => {
             // console.log(user);
-            //alert(`Account Created for ${user.email}`);
+            //alert(`Account Created for ${user.email}`);            
              M.toast({html: `Account Created for ${user.email}`})
-            this.$router.go({ path: this.$router.path });
+              this.$router.go({ path: "/" });
           },
           err => {
             alert(err.message);

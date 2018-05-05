@@ -16,7 +16,7 @@ let router = new Router({
       name: "dashboard",
       component: Dashboard,
       meta: {
-        requiresGuest: true
+        requiresAuth: true
       }
     },
     {
@@ -27,14 +27,14 @@ let router = new Router({
         requiresGuest: true
       }
     },
-    // {
-    //   path: "/register",
-    //   name: "register",
-    //   component: Register,
-    //   meta: {
-    //     requiresGuest: true
-    //   }
-    // },
+    {
+      path: "/register",
+      name: "register",
+      component: Register,
+      meta: {
+        requiresGuest: true
+      }
+    },
     {
       path: "/new",
       name: "new-task",
@@ -64,10 +64,15 @@ let router = new Router({
 
 // Nav Guard
 router.beforeEach((to, from, next) => {
-  // Check for requiresAuth guard
+  //console.log(firebase.auth().currentUser==true)
+  //console.log(!firebase.auth().currentUser)
+  //console.log(firebase.auth().currentUser)  
+  // Check for requiresAuth guard #1
   if (to.matched.some(record => record.meta.requiresAuth)) {
+    //console.log("#1")
     // Check if NO logged user
     if (!firebase.auth().currentUser) {
+      //console.log("#1.1")
       // Go to login
       next({
         path: "/login",
@@ -77,26 +82,35 @@ router.beforeEach((to, from, next) => {
       });
     } else {
       // Proceed to route
+      //console.log("#1.2")
       next();
     }
   } else if (to.matched.some(record => record.meta.requiresGuest)) {
+    //console.log("#2")
     // Check if NO logged user
     if (firebase.auth().currentUser) {
+      //console.log("#2.1")
       // Go to login      
       if (to.name=="login"){
+        //console.log("#2.1.1")
         next({
-          path: '/'
-          
+          path: '/view/cols',
+          query: {
+            redirect: to.fullPath
+          }
         });
       }else{
-        next();
+        //console.log("#2.1.2")
+        next({path:'/'});
       }
       
     } else {
       // Proceed to route
+      //console.log("#2.2")
       next();
     }
   } else {
+    //console.log("#3")
     // Proceed to route
     next();
   }

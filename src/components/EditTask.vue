@@ -16,17 +16,17 @@
               required />
             <label for="textarea1" class="active">Details:</label>
           </div>
-        </div>        
+        </div>            
         <div class="row">
           <div class="input-field col s12">
             <input type="date" placeholder="Task deadline"
-              v-model="task_deadline" required>
+              v-model="task_deadline">
             <label class="active">Deadline:</label>
           </div>
         </div>        
         <div class="row">
           <div class="input-field col s12">
-           <select style="display:block" v-model="task_status">
+           <select required style="display:block" v-model="task_status">
               <option v-for="status in Statuses" v-bind:key="status.id"
                 v-bind:value="status">{{status}}</option>
             </select>
@@ -50,17 +50,14 @@ export default {
   data() {
     return {
       task_name: null,
-      task_details: null,
-      task_deadline: null,
-      // task_owner: null,
+      task_details: null,      
+      task_deadline: null,      
       task_status: null,
       orig_task_name: null,
-      orig_task_details: null,
-      orig_task_deadline: null,
-      //orig_task_owner: null,
+      orig_task_details: null,      
+      orig_task_deadline: null,      
       orig_task_status: null,      
-      Owners:fireList.ownersList,
-      Statuses:fireList.statusesList
+      Statuses:fireList.statusesList      
     };
   },
   methods: {
@@ -70,7 +67,7 @@ export default {
         .doc(this.$route.params.task_id)
         .set({
           tName: this.task_name,
-          tDescription: this.task_details,
+          tDescription: this.task_details,          
           tDeadline: this.task_deadline,          
           tStatus: this.task_status
         })
@@ -102,7 +99,7 @@ export default {
               "##" +
               this.task_deadline +
               "||";
-          }
+          }          
           if (this.orig_task_status != this.task_status) {
             ChangedInfo =
               ChangedInfo +
@@ -117,8 +114,10 @@ export default {
           if (ChangedInfo != "") {
             db
               .collection("Log")
+              .doc(firebase.auth().currentUser.uid)
+              .collection("LogCollection")
               .add({
-                date: new Date().toString().slice(0,9) +" "+new Date(new Date()).toString().split(' ')[4],
+                date: new Date().toString().slice(0,10) +" "+new Date(new Date()).toString().split(' ')[4],
                 tName: this.task_name,
                 updated: ChangedInfo.slice(0, -2)
               })
@@ -126,7 +125,7 @@ export default {
                 console.error("Error adding document ChangedInfo: ", error);
               });
           }
-          this.$router.push("/");
+          this.$router.push("/view/cols");
         })
         .catch(function(error) {
           console.error("Error writing document: ", error);
@@ -140,14 +139,12 @@ export default {
       .get()
       .then(doc => {
         this.task_name = doc.data().tName;
-        this.task_details = doc.data().tDescription;
-        this.task_deadline = doc.data().tDeadline;
-        
+        this.task_details = doc.data().tDescription;        
+        this.task_deadline = doc.data().tDeadline;        
         this.task_status = doc.data().tStatus;
         this.orig_task_name = this.task_name;
-        this.orig_task_details = this.task_details;
-        this.orig_task_deadline = this.task_deadline;
-        
+        this.orig_task_details = this.task_details;        
+        this.orig_task_deadline = this.task_deadline;        
         this.orig_task_status = this.task_status;
       }); 
   }

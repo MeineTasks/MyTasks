@@ -1,11 +1,12 @@
 <template>
   <nav>
-    <div class="nav-wrapper green">
-        <span style="margin-left:20px" class="brand-logo left hide-on-small-only">My tasks</span>
+    <div class="nav-wrapper brown lighten-1">
+        <span v-if="isLoggedIn" style="margin-left:20px" class="brand-logo left hide-on-small-only"> <i class="large material-icons">account_circle</i>{{currentUser}}</span>
       <ul id="nav-mobile" class="right">       
-        <li><router-link to="/" >View Dashboard</router-link></li>        
+        <li v-if="isLoggedIn"><router-link to="/" >View Dashboard</router-link></li>
+        <li v-if="isLoggedIn"><router-link to="/view/cols" class="">Active</router-link></li>  
         <li v-if="!isLoggedIn"><router-link to="/login" class="">Login</router-link></li>
-        <!-- <li v-if="!isLoggedIn"><router-link to="/register" class="">Register</router-link></li> -->
+        <li v-if="!isLoggedIn"><router-link to="/register" class="">Register</router-link></li>
         <li v-if="isLoggedIn"><button v-on:click="logout" class="btn black">Logout</button></li>
       </ul>
     </div>

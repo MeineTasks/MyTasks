@@ -4,5 +4,6 @@ export default {
     databaseURL: "https://mytasks-bb203.firebaseio.com",
     projectId: "mytasks-bb203",
     storageBucket: "mytasks-bb203.appspot.com",
-    messagingSenderId: "225424257486"
+    messagingSenderId: "225424257486",
+    timestampsInSnapshots: true
 }

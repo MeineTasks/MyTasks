@@ -1,19 +1,19 @@
 <template>
   <div id="dashboard" style="margin: 0px 50px;">    
-    <div class="row z-depth-3 teal white-text hide-on-small-only">      
+    <div class="row z-depth-3 brown darken-1 white-text hide-on-small-only">      
         <h6 class="col m2 s12">Task name</h6>
-        <h6 class="col m2 s12">Description</h6>
+        <h6 class="col m3 s12">Description</h6>        
         <h6 class="col m2 s12">Status</h6>
         <h6 class="col m2 s12">Deadline</h6>        
-        <h6 class="secondary-content white-text">Edit</h6>
+        <h6 class="col secondary-content"><span class="secondary-content white-text"> Edit</span></h6>
     </div>
     <div v-bind:class="[{'Completed':task.task_completed},{'Canceled':task.task_canceled},{'inProgress':task.task_inProgress}]" v-for="task in tasks" v-bind:key="task.id" class="row z-depth-2">        
-        <div class="col m2 s12"><b>{{task.task_name}}</b></div>
-        <div class="col m2 s12" v-html="task.task_description"></div>
+        <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
+        <div class="col m3 s12" v-html="task.task_description"></div>        
         <div class="col m2 s12"><i>{{task.task_status}}</i></div>
         <div class="col m2 s12">{{task.task_deadline}}</div>        
-        <router-link v-if="isLoggedIn" class="secondary-content" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
-          <i class="fas fa-edit"></i>
+        <router-link v-if="isLoggedIn" class="col secondary-content" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+          <i class="fas fa-edit secondary-content"></i>
         </router-link>         
     </div>    
 
@@ -61,59 +61,60 @@ export default {
   created() {
     if (firebase.auth().currentUser) {
       this.isLoggedIn = true;
-    }
-    db
-      .collection(firebase.auth().currentUser.uid)
-      .orderBy("tStatus", "desc")
-      .onSnapshot(querySnapshot => {
-        this.tasks = [];
-        querySnapshot.forEach(doc => {
-          const data = {
-            id: doc.id,
-            task_name: doc.data().tName,
-            task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
-            task_deadline: doc.data().tDeadline,
-            //task_owner: doc.data().tOwner,
-            task_status: doc.data().tStatus,
-            task_completed: doc.data().tStatus == "Completed",
-            task_canceled: doc.data().tStatus == "Canceled",
-            task_inProgress: doc.data().tStatus == "In progress"
-          };
-          this.tasks.push(data);
-        });
-      });
-
-    db
-      .collection("Log")
-      .orderBy("date")
-      .onSnapshot(querySnapshot => {
-        this.logData = [];
-        var logDataObj = [];
-
-        querySnapshot.forEach(doc => {
-          logDataObj = [];
-          const data = {
-            id: doc.id,
-            log_date: doc.data().date,
-            log_name: doc.data().tName,
-            log_updated: logDataObj,
-            log_user: doc.data().user
-          };
-          var logUpdates = doc.data().updated;
-          logUpdates.split("||").forEach(camp => {
-            camp.split(":");
-            logDataObj.push({
-              campName: camp.split(":")[0],
-              campValues:
-                "from " +
-                camp.split(":")[1].split("##")[0] +
-                " to " +
-                camp.split(":")[1].split("##")[1]
-            });
+      db
+        .collection(firebase.auth().currentUser.uid)
+        .orderBy("tStatus", "desc")
+        .onSnapshot(querySnapshot => {
+          this.tasks = [];
+          querySnapshot.forEach(doc => {
+            const data = {
+              id: doc.id,
+              task_name: doc.data().tName,
+              task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
+              task_deadline: doc.data().tDeadline,
+              task_status: doc.data().tStatus,
+              task_completed: doc.data().tStatus == "Completed",
+              task_canceled: doc.data().tStatus == "Canceled",
+              task_inProgress: doc.data().tStatus == "In progress"
+            };
+            this.tasks.push(data);
           });
-          this.logData.push(data);
         });
-      });
+
+      db
+        .collection("Log")
+              .doc(firebase.auth().currentUser.uid)
+              .collection("LogCollection")
+        .orderBy("date")
+        .onSnapshot(querySnapshot => {
+          this.logData = [];
+          var logDataObj = [];
+
+          querySnapshot.forEach(doc => {
+            logDataObj = [];
+            const data = {
+              id: doc.id,
+              log_date: doc.data().date,
+              log_name: doc.data().tName,
+              log_updated: logDataObj,
+              log_user: doc.data().user
+            };
+            var logUpdates = doc.data().updated;
+            logUpdates.split("||").forEach(camp => {
+              camp.split(":");
+              logDataObj.push({
+                campName: camp.split(":")[0],
+                campValues:
+                  "from " +
+                  camp.split(":")[1].split("##")[0] +
+                  " to " +
+                  camp.split(":")[1].split("##")[1]
+              });
+            });
+            this.logData.push(data);
+          });
+        });
+    }
   },
   mounted() {
     $(".sidenav").sidenav();
@@ -135,15 +136,16 @@ export default {
 }
 .secondary-content {
   margin-right: 5px;
+  float: right;
 }
 .row {
   margin-bottom: 5px !important;
 }
-.logTigle{
+.logTigle {
   color: teal;
 }
 
-.sidenav>li{
+.sidenav > li {
   padding: 5px;
   background: #ececec;
 }

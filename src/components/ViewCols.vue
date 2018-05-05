@@ -6,10 +6,10 @@
       </router-link>
     </div>
     <div class="row">
-       <div style="background: #c6f3e3" class="col m4 s12">
-        <center><h3>Cip</h3></center>
+       <div style="background: #f2f2f2" class="col m4 s12">
+        <center><h3>No date</h3></center>
         <!-- vue component structure -->
-        <div v-bind:class="[{'Completed':task.task_completed},{'Canceled':task.task_canceled}]" v-for="task in ViewCat1" v-bind:key="task.id" class="col s6">
+        <div v-for="task in ViewCat1" v-bind:key="task.id" class="col s6">
           <div class="card blue-grey darken-1">
             <div class="card-content white-text">
               <span class="card-title truncate cyan-text"> {{task.task_name}} </span>
@@ -36,10 +36,10 @@
           </div>
         </div>
       </div>
-      <div style="background: #c6eef3" class="col m4 s12">
-        <center><h3>Pipo</h3></center>
+      <div style="background: #d9cfc7" class="col m4 s12">
+        <center><h3>Today</h3></center>
         <!-- vue component structure -->
-        <div v-bind:class="[{'Completed':task.task_completed},{'Canceled':task.task_canceled}]" v-for="task in ViewCat2" v-bind:key="task.id" class="col s6">
+        <div v-for="task in ViewCat2" v-bind:key="task.id" class="col s6">
           <div class="card blue-grey darken-1">
             <div class="card-content white-text">
               <span class="card-title truncate cyan-text"> {{task.task_name}} </span>
@@ -47,7 +47,7 @@
               <hr/>
               <div class="row" style="margin-left:0px">
                 <div class="chip col">{{task.task_status}}</div>
-                <span class="col">{{task.task_deadline}}</span>
+                <span v-bind:class="{'Delayed':task.task_Delayed}" class="col">{{task.task_deadline}}</span>
                </div>
               <hr/>
               <div class="row">
@@ -66,10 +66,10 @@
           </div>
         </div>
       </div>
-      <div style="background: #eab7ac" class="col m4 s12">
-        <center><h3>Ana</h3></center>
+      <div style="background:#a69992" class="col m4 s12">
+        <center><h3>Future</h3></center>
         <!-- vue component structure -->
-        <div v-bind:class="[{'Completed':task.task_completed},{'Canceled':task.task_canceled}]" v-for="task in ViewCat3" v-bind:key="task.id" class="col s6">
+        <div v-bind:class="{'Delayed':task.task_Delayed}" v-for="task in ViewCat3" v-bind:key="task.id" class="col s6">
           <div class="card blue-grey darken-1">
             <div class="card-content white-text">
               <span class="card-title truncate cyan-text"> {{task.task_name}} </span>
@@ -113,21 +113,47 @@ export default {
   },
   created() {
     db
-      .collection("Tasks")
+      .collection(firebase.auth().currentUser.uid)
       //.orderBy("tStatus", "desc")
       .where("tStatus", "==", "In progress")
       .onSnapshot(querySnapshot => {
         this.tasks = [];
+
+        function taskCalculated(Deadline) {
+          var aziEOD = new Date().setHours(24);
+          var aziSOD = new Date().setHours(0);
+          var Calculated = { tCategory: null, tDelayed: null };
+          // console.log(Deadline)
+          // console.log(new Date(Deadline))
+
+          if (Deadline == null || Deadline == "") {
+            Calculated.tCategory="1"
+            Calculated.tDelayed=false
+          } else if (new Date(Deadline) < new Date(aziSOD)) {
+            Calculated.tCategory="2"
+            Calculated.tDelayed=true
+          } else if (new Date(Deadline) < new Date(aziEOD)) {
+            Calculated.tCategory="2"
+            Calculated.tDelayed=false
+          } else {
+            Calculated.tCategory="3"
+            Calculated.tDelayed=false
+          }
+          return Calculated
+        }
+
         querySnapshot.forEach(doc => {
+          var tskCalculated= taskCalculated(doc.data().tDeadline)
           const data = {
             id: doc.id,
             task_name: doc.data().tName,
             task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
             task_deadline: doc.data().tDeadline,
-            task_owner: doc.data().tOwner,
             task_status: doc.data().tStatus,
             task_completed: doc.data().tStatus == "Completed",
-            task_canceled: doc.data().tStatus == "Canceled"
+            task_canceled: doc.data().tStatus == "Canceled",
+            task_Category: tskCalculated.tCategory,
+            task_Delayed: tskCalculated.tDelayed
           };
           this.tasks.push(data);
         });
@@ -136,17 +162,17 @@ export default {
   computed: {
     ViewCat1: function() {
       return this.tasks.filter(function(task) {
-        return task.task_owner == "Cip";
+        return task.task_Category == "1";
       });
     },
     ViewCat2: function() {
       return this.tasks.filter(function(task) {
-        return task.task_owner == "Pipo";
+        return task.task_Category == "2";
       });
     },
     ViewCat3: function() {
       return this.tasks.filter(function(task) {
-        return task.task_owner == "Ana";
+        return task.task_Category == "3";
       });
     }
   },
@@ -154,7 +180,7 @@ export default {
     CompleteTask(task) {
       if (!task.task_completed) {
         db
-          .collection("Tasks")
+          .collection(firebase.auth().currentUser.uid)
           .doc(task.id)
           .update({
             tStatus: "Completed"
@@ -163,12 +189,12 @@ export default {
             db
               .collection("Log")
               .add({
-                date: new Date().toString().slice(0,9) +" "+new Date(new Date()).toString().split(' ')[4],
+                date:
+                  new Date().toString().slice(0, 9) +
+                  " " +
+                  new Date(new Date()).toString().split(" ")[4],
                 tName: task.task_name,
-                updated:
-                  "Status:" +
-                  task.task_status +
-                  "##Completed",
+                updated: "Status:" + task.task_status + "##Completed",
                 user: firebase.auth().currentUser.email
               })
               .catch(function(error) {
@@ -187,12 +213,8 @@ export default {
 .card-content {
   padding: 10px !important;
 }
-.Completed {
-  opacity: 0.7;
-}
-.Canceled {
-  text-decoration: line-through;
-  opacity: 0.5;
+.Delayed{
+  color:#ee6e73;
 }
 .row {
   margin-bottom: 0px !important;
