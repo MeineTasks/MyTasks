@@ -12,11 +12,16 @@
         <div v-for="task in ViewCat1" v-bind:key="task.id" class="col s6">
           <div class="card blue-grey darken-1">
             <div class="card-content white-text">
-              <span class="card-title truncate cyan-text"> {{task.task_name}} </span>
+              <span class="card-title truncate cyan-text tooltip"> 
+                <span class="tooltiptext">
+                  {{task.task_name}}
+                </span>
+                {{task.task_name}}
+              </span>
               <span v-html="task.task_description"></span>
               <hr/>
               <div class="row" style="margin-left:0px">
-                <div class="chip col">{{task.task_status}}</div>
+                <!-- <div class="chip col">{{task.task_status}}</div> -->
                 <span class="col">{{task.task_deadline}}</span>
                </div>
               <hr/>
@@ -42,11 +47,16 @@
         <div v-for="task in ViewCat2" v-bind:key="task.id" class="col s6">
           <div class="card blue-grey darken-1">
             <div class="card-content white-text">
-              <span class="card-title truncate cyan-text"> {{task.task_name}} </span>
+              <span class="card-title truncate cyan-text tooltip"> 
+                <span class="tooltiptext">
+                  {{task.task_name}}
+                </span>
+                {{task.task_name}}
+              </span>
               <span v-html="task.task_description"></span>
               <hr/>
               <div class="row" style="margin-left:0px">
-                <div class="chip col">{{task.task_status}}</div>
+                <!-- <div class="chip col">{{task.task_status}}</div> -->
                 <span v-bind:class="{'Delayed':task.task_Delayed}" class="col">{{task.task_deadline}}</span>
                </div>
               <hr/>
@@ -72,11 +82,16 @@
         <div v-bind:class="{'Delayed':task.task_Delayed}" v-for="task in ViewCat3" v-bind:key="task.id" class="col s6">
           <div class="card blue-grey darken-1">
             <div class="card-content white-text">
-              <span class="card-title truncate cyan-text"> {{task.task_name}} </span>
+              <span class="card-title truncate cyan-text tooltip"> 
+                <span class="tooltiptext">
+                  {{task.task_name}}
+                </span>
+                {{task.task_name}}
+              </span>
               <span v-html="task.task_description"></span>
               <hr/>
               <div class="row" style="margin-left:0px">
-                <div class="chip col">{{task.task_status}}</div>
+                <!-- <div class="chip col">{{task.task_status}}</div> -->
                 <span class="col">{{task.task_deadline}}</span>
                </div>
               <hr/>
@@ -115,7 +130,7 @@ export default {
     db
       .collection(firebase.auth().currentUser.uid)
       //.orderBy("tStatus", "desc")
-      .where("tStatus", "==", "In progress")
+      .where("tStatus", "==", "In progress")      
       .onSnapshot(querySnapshot => {
         this.tasks = [];
 
@@ -156,6 +171,7 @@ export default {
             task_Delayed: tskCalculated.tDelayed
           };
           this.tasks.push(data);
+          
         });
       });
   },
@@ -170,11 +186,14 @@ export default {
         return task.task_Category == "2";
       });
     },
-    ViewCat3: function() {
+    ViewCat3: function() {       
       return this.tasks.filter(function(task) {
         return task.task_Category == "3";
       });
     }
+  }, mounted() {     
+    // alert("S")
+    // $('.tooltipped').tooltip();
   },
   methods: {
     CompleteTask(task) {
@@ -237,5 +256,35 @@ export default {
 }
 .fa-clipboard-check {
   color: #a5a5a5;
+}
+
+.tooltiptext {
+    visibility: hidden;   
+    font-size: 20px; 
+    background-color: #484545;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 3px;
+    top: -15px;    
+    
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+.tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 10%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #484545 transparent transparent transparent;
 }
 </style>

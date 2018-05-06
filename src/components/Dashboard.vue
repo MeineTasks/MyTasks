@@ -37,7 +37,7 @@
        Updated: {{log.log_date}}<br/>
        By: {{log.log_user}}<br/>
         <span v-for="update in log.log_updated" v-bind:key="update.id">
-         <b><i>{{update.campName}}</i></b> > {{update.campValues}}<br/>
+         <b><i>{{update.campName}}</i></b> > <span v-html="update.campValues"></span><br/>
         </span>
      </li>
     </ul>
@@ -105,9 +105,9 @@ export default {
               logDataObj.push({
                 campName: camp.split(":")[0],
                 campValues:
-                  "from " +
+                  "<b>from</b> " +
                   camp.split(":")[1].split("##")[0] +
-                  " to " +
+                  " <b>to</b> " +
                   camp.split(":")[1].split("##")[1]
               });
             });

@@ -46,7 +46,7 @@ export default {
             //this.$router.go({ path: this.$router.path });
             M.toast({ html: `You are logged in as ${user.email}` });
             this.$router.go({ path: "/view/cols" });
-            //this.$router.push("/")
+            //this.$router.push("/view/cols")
           },
           err => {
             alert(err.message);
