@@ -6,6 +6,8 @@ import EditTask from "@/components/EditTask";
 import ViewCols from "@/components/ViewCols";
 import Login from "@/components/Login";
 import Register from "@/components/Register";
+import AdminDash from "@/components/admn";
+import ViewAll from "@/components/ViewAll";
 import firebase from "firebase";
 Vue.use(Router);
 
@@ -55,6 +57,23 @@ let router = new Router({
       path: "/view/cols",
       name: "view-cols",
       component: ViewCols,
+      meta: {
+        requiresAuth: true
+      }
+    }
+    ,
+    {
+      path: "/admn",
+      name: "admin",
+      component: AdminDash,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: "/view/all",
+      name: "viewall",
+      component: ViewAll,
       meta: {
         requiresAuth: true
       }

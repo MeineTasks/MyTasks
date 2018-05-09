@@ -64,7 +64,8 @@ export default {
           tName: this.task_name,
           tDescription: this.task_details,          
           tDeadline: this.task_deadline,
-          tStatus: this.task_status
+          tStatus: this.task_status,
+          t_isActive:true
         })
         .then(docRef => this.$router.push("/"))
         .catch(error => console.log(err));

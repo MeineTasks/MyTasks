@@ -33,6 +33,15 @@
             <label class="active">Status:</label>
           </div>
         </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <select required style="display:block" v-model="task_isActive">
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+            <label class="active">Is active:</label>            
+          </div>
+        </div>
         <button type="submit" class="btn">Save</button>
         <router-link to="/view/cols" class="btn grey">Cancel</router-link>
       </form>
@@ -53,6 +62,7 @@ export default {
       task_details: null,      
       task_deadline: null,      
       task_status: null,
+      task_isActive:null,
       orig_task_name: null,
       orig_task_details: null,      
       orig_task_deadline: null,      
@@ -69,7 +79,8 @@ export default {
           tName: this.task_name,
           tDescription: this.task_details,          
           tDeadline: this.task_deadline,          
-          tStatus: this.task_status
+          tStatus: this.task_status,
+          t_isActive:this.task_isActive=="Yes"
         })
         .then(docRef => {
           var ChangedInfo = "";
@@ -142,6 +153,7 @@ export default {
         this.task_details = doc.data().tDescription;        
         this.task_deadline = doc.data().tDeadline;        
         this.task_status = doc.data().tStatus;
+        this.task_isActive = doc.data().t_isActive?"Yes":"No";
         this.orig_task_name = this.task_name;
         this.orig_task_details = this.task_details;        
         this.orig_task_deadline = this.task_deadline;        

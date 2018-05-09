@@ -150,7 +150,8 @@ export default {
   created() {
     db
       .collection(firebase.auth().currentUser.uid)
-      .orderBy("tDeadline", "asc")
+      .where("t_isActive", "==", true)
+      // .orderBy("tDeadline", "asc")
       //.where("tStatus", "==", "In progress")
       .onSnapshot(querySnapshot => {
         this.tasks = [];
