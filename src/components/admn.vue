@@ -22,7 +22,7 @@ export default {
             // doc.data() is never undefined for query doc snapshots
             // doc.set({t_isActive: true},{ merge: true })
             db
-              .collection(firebase.auth().currentUser.uid)
+              .collection(firebase.auth().currentUser.uid)              
               .doc(docs.id)
               .set({ t_isActive: true }, { merge: true });
           });

@@ -130,7 +130,7 @@ export default {
     if (firebase.auth().currentUser) {
       this.isLoggedIn = true;
       db
-        .collection(firebase.auth().currentUser.uid)
+        .collection(firebase.auth().currentUser.uid)        
         .where("t_isActive", "==", true)
         .onSnapshot(querySnapshot => {
           this.tasks = [];
