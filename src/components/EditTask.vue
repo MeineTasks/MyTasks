@@ -35,7 +35,7 @@
         </div>
         <div class="row">
           <div class="input-field col s12">
-           <select required style="display:block" v-model="task_project">
+           <select style="display:block" v-model="task_project">
               <option v-for="project in Projects" v-bind:key="project.id"
                 v-bind:value="project">{{project}}</option>
             </select>
