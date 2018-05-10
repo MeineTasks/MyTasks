@@ -2,10 +2,11 @@
   <div id="dashboard" style="margin: 0px 50px;">    
     <div class="row z-depth-3 brown darken-1 white-text hide-on-small-only">      
         <h6 class="col m2 s12">Task name</h6>
-        <h6 class="col m3 s12">Description</h6>        
+        <h6 class="col m2 s12">Description</h6>   
+        <h6 class="col m2 s12">Project</h6>     
         <h6 class="col m2 s12">Status</h6>
         <h6 class="col m2 s12">Deadline</h6>        
-        <h6 class="col m2 s12">Is active</h6>
+        <h6 class="col m1 s12">Is active</h6>
         <h6 class="col iconContainer">
           <!-- <span class="red-text">Close</span> -->
           <span class="white-text">Edit</span>
@@ -14,10 +15,11 @@
     <!-- view in progress -->
     <div v-bind:class="{'notActive':!task.task_isActive}" v-for="task in tasks" v-bind:key="task.id" class="row z-depth-2">        
         <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
-        <div class="col m3 s12" v-html="task.task_description"></div>        
+        <div class="col m2 s12" v-html="task.task_description"></div>     
+        <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>   
         <div class="col m2 s12"><i>{{task.task_status}}</i></div>
         <div class="col m2 s12">{{task.task_deadline}}</div>     
-        <div class="col m2 s12">{{task.task_isActive}}</div>     
+        <div class="col m1 s12">{{task.task_isActive}}</div>     
         <div v-if="isLoggedIn" class="col iconContainer" >
           <!-- <div class="col ">
             <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
@@ -64,6 +66,7 @@ export default {
               task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
               task_deadline: doc.data().tDeadline,
               task_status: doc.data().tStatus,
+              task_project:doc.data().tProject,
               task_isActive:doc.data().t_isActive
             };
             this.tasks.push(data);

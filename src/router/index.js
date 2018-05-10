@@ -8,6 +8,7 @@ import Login from "@/components/Login";
 import Register from "@/components/Register";
 import AdminDash from "@/components/admn";
 import ViewAll from "@/components/ViewAll";
+import ViewProjects from "@/components/ProjectView";
 import firebase from "firebase";
 Vue.use(Router);
 
@@ -74,6 +75,14 @@ let router = new Router({
       path: "/view/all",
       name: "viewall",
       component: ViewAll,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: "/view/projects",
+      name: "viewprojects",
+      component: ViewProjects,
       meta: {
         requiresAuth: true
       }

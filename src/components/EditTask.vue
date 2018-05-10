@@ -35,6 +35,15 @@
         </div>
         <div class="row">
           <div class="input-field col s12">
+           <select required style="display:block" v-model="task_project">
+              <option v-for="project in Projects" v-bind:key="project.id"
+                v-bind:value="project">{{project}}</option>
+            </select>
+            <label class="active">Project:</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
             <select required style="display:block" v-model="task_isActive">
               <option>Yes</option>
               <option>No</option>
@@ -62,12 +71,14 @@ export default {
       task_details: null,      
       task_deadline: null,      
       task_status: null,
+      task_project:null,
       task_isActive:null,
       orig_task_name: null,
       orig_task_details: null,      
       orig_task_deadline: null,      
       orig_task_status: null,      
-      Statuses:fireList.statusesList      
+      Statuses:fireList.statusesList,
+      Projects:fireList.projectsList
     };
   },
   methods: {
@@ -80,9 +91,11 @@ export default {
           tDescription: this.task_details,          
           tDeadline: this.task_deadline,          
           tStatus: this.task_status,
+          tProject:this.task_project,
           t_isActive:this.task_isActive=="Yes"
         })
         .then(docRef => {
+          //log the info
           var ChangedInfo = "";
           if (this.orig_task_name != this.task_name) {
             ChangedInfo =
@@ -153,6 +166,7 @@ export default {
         this.task_details = doc.data().tDescription;        
         this.task_deadline = doc.data().tDeadline;        
         this.task_status = doc.data().tStatus;
+        this.task_project=doc.data().tProject;
         this.task_isActive = doc.data().t_isActive?"Yes":"No";
         this.orig_task_name = this.task_name;
         this.orig_task_details = this.task_details;        
