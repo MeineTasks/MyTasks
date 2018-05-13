@@ -42,6 +42,15 @@
             <label class="active">Project:</label>
           </div>
         </div>
+         <div v-if="task_project=='IQConcepts'" class="row">
+          <div class="input-field col s12">
+           <select style="display:block" v-model="task_env">
+              <option v-for="env in Environments" v-bind:key="env.id"
+                v-bind:value="env">{{env}}</option>
+            </select>
+            <label class="active">On environment:</label>
+          </div>
+        </div>
         <div class="row">
           <div class="input-field col s12">
             <select required style="display:block" v-model="task_isActive">
@@ -73,12 +82,14 @@ export default {
       task_status: null,
       task_project:null,
       task_isActive:null,
+      task_env:null,
       orig_task_name: null,
       orig_task_details: null,      
       orig_task_deadline: null,      
       orig_task_status: null,      
       Statuses:fireList.statusesList,
-      Projects:fireList.projectsList
+      Projects:fireList.myProjectsList,
+      Environments:fireList.envList
     };
   },
   methods: {
@@ -92,6 +103,7 @@ export default {
           tDeadline: this.task_deadline,          
           tStatus: this.task_status,
           tProject:this.task_project,
+          tEnvironment:this.task_env,
           t_isActive:this.task_isActive=="Yes"
         })
         .then(docRef => {
@@ -167,6 +179,7 @@ export default {
         this.task_deadline = doc.data().tDeadline;        
         this.task_status = doc.data().tStatus;
         this.task_project=doc.data().tProject;
+        this.task_env=doc.data().tEnvironment;
         this.task_isActive = doc.data().t_isActive?"Yes":"No";
         this.orig_task_name = this.task_name;
         this.orig_task_details = this.task_details;        
@@ -181,6 +194,9 @@ export default {
 textarea {
   margin-top: 10px;
   height: 107px;
+}
+.row{
+  margin:10px 0px;
 }
 </style>
 

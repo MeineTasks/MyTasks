@@ -4,8 +4,9 @@
         <h6 class="col m2 s12">Task name</h6>
         <h6 class="col m3 s12">Description</h6>        
         <h6 class="col m2 s12">Project</h6>
+        <h6 class="col m1 s12">Env</h6>
         <h6 class="col m2 s12">Status</h6>
-        <h6 class="col m2 s12">Deadline</h6>        
+        <h6 class="col m1 s12">Deadline</h6>        
         <h6 class="col m1 iconContainer">
           <span class="red-text">Close</span>
           <span class="white-text">Edit</span>
@@ -16,6 +17,7 @@
         <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
         <div class="col m3 s12" v-html="task.task_description"></div>        
         <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>
+        <div class="col m1 s12">{{task.task_env}}</div>
         <div class="col m2 s12"><i>{{task.task_status}}</i></div>
         <div class="col m2 s12">{{task.task_deadline}}</div>     
         <div v-if="isLoggedIn" class="col iconContainer" >
@@ -35,6 +37,7 @@
         <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
         <div class="col m3 s12" v-html="task.task_description"></div>
         <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>
+        <div class="col m1 s12">{{task.task_env}}</div>
         <div class="col m2 s12"><i>{{task.task_status}}</i></div>
         <div class="col m2 s12">{{task.task_deadline}}</div>     
         <div v-if="isLoggedIn" class="col iconContainer" >
@@ -54,6 +57,7 @@
         <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
         <div class="col m3 s12" v-html="task.task_description"></div>
         <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div> 
+        <div class="col m1 s12">{{task.task_env}}</div>
         <div class="col m2 s12"><i>{{task.task_status}}</i></div>
         <div class="col m2 s12">{{task.task_deadline}}</div>     
         <div v-if="isLoggedIn" class="col iconContainer" >
@@ -72,6 +76,7 @@
         <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
         <div class="col m3 s12" v-html="task.task_description"></div>
         <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>
+        <div class="col m1 s12">{{task.task_env}}</div>
         <div class="col m2 s12"><i>{{task.task_status}}</i></div>
         <div class="col m2 s12">{{task.task_deadline}}</div>     
         <div v-if="isLoggedIn" class="col iconContainer" >
@@ -145,6 +150,7 @@ export default {
               task_name: doc.data().tName,
               task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
               task_project:doc.data().tProject,
+              task_env:doc.data().tEnvironment,
               task_deadline: doc.data().tDeadline,
               task_status: doc.data().tStatus,
               task_completed: doc.data().tStatus == "Completed",

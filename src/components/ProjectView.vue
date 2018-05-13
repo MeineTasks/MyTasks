@@ -19,6 +19,15 @@
         
     </div>
     <!-- view in progress -->
+    <div v-if="hasAna" class="row">
+      <span class="chip">Ana</span>
+      <div v-bind:class="{'notActive':!task.task_isActive}" v-for="task in tasksAna" v-bind:key="task.id" class="row z-depth-2">        
+          <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
+          <div class="col m4 s12" v-html="task.task_description"></div>                     
+          <div class="col m2 s12"><i>{{task.task_status}}</i></div>
+          <div class="col m2 s12">{{task.task_deadline}}</div>                                   
+      </div>
+    </div>
     <div v-if="hasCip" class="row">
       <span class="chip">Cip</span>
       <div v-bind:class="{'notActive':!task.task_isActive}" v-for="task in tasksCip" v-bind:key="task.id" class="row z-depth-2">        
@@ -28,15 +37,16 @@
           <div class="col m2 s12">{{task.task_deadline}}</div>                                   
       </div>
     </div>
-    <div v-if="hasTest" class="row">
-      <span class="chip">Test</span>
-      <div v-bind:class="{'notActive':!task.task_isActive}" v-for="task in tasksTest" v-bind:key="task.id" class="row z-depth-2">        
+    <div v-if="hasPipo" class="row">
+      <span class="chip">Pipo</span>
+      <div v-bind:class="{'notActive':!task.task_isActive}" v-for="task in tasksPipo" v-bind:key="task.id" class="row z-depth-2">        
           <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
           <div class="col m4 s12" v-html="task.task_description"></div>                     
           <div class="col m2 s12"><i>{{task.task_status}}</i></div>
           <div class="col m2 s12">{{task.task_deadline}}</div>                                   
       </div>
-    </div>    
+    </div>
+    
   </div>
   
 </template>
@@ -50,17 +60,45 @@ export default {
   name: "viewProject",
   data() {
     return {
-      tasksCip: [],
+      tasksAna: [],      
+      hasAna:false,
+      tasksCip: [],      
       hasCip:false,
-      tasksTest: [],
-      hasTest:false,
+      tasksPipo: [],
+      hasPipo:false,
       SelectedProject: null,
       Projects: fireList.projectsList
     };
   },
   methods: {
     GetData() {
-      //console.log(fireList.membersList)      
+      //console.log(fireList.membersList)  
+      //Ana
+      db
+          .collection("fzAuzR6aW0Q4qBvzYMBgP4Iepxw1")
+          .where("t_isActive", "==", true)
+          .where("tProject", "==", this.SelectedProject)        
+          .orderBy("tDeadline")
+          .onSnapshot(querySnapshot => {            
+            this.tasksAna = [];
+            this.hasAna=false;
+              querySnapshot.forEach(doc => {
+                this.hasAna=true;
+                        const data = {
+                          id: doc.id,
+                          task_name: doc.data().tName,
+                          task_description: doc
+                            .data()
+                            .tDescription.replace(/\n/g, "<br/>"),
+                          task_deadline: doc.data().tDeadline,                          
+                          task_status: doc.data().tStatus,
+                          task_project: doc.data().tProject,
+                          task_isActive: doc.data().t_isActive
+                        };
+                        this.tasksAna.push(data);
+                      });
+          })
+      //Cip    
       db
           .collection("YqRVNtuUu3aAHt6g2YW05OxIsj42")
           .where("t_isActive", "==", true)
@@ -77,8 +115,7 @@ export default {
                           task_description: doc
                             .data()
                             .tDescription.replace(/\n/g, "<br/>"),
-                          task_deadline: doc.data().tDeadline,
-                          task_owner: "Cip",
+                          task_deadline: doc.data().tDeadline,                          
                           task_status: doc.data().tStatus,
                           task_project: doc.data().tProject,
                           task_isActive: doc.data().t_isActive
@@ -86,29 +123,29 @@ export default {
                         this.tasksCip.push(data);
                       });
           })
+      //Pipo    
       db
-          .collection("YPPNyRXLbXZhfgZ6i4ITY68kqY02")
+          .collection("5k9ubjsQNibn3MXXez1N5Y52IMC3")
           .where("t_isActive", "==", true)
           .where("tProject", "==", this.SelectedProject)
           .orderBy("tDeadline")
           .onSnapshot(querySnapshot => {
-            this.tasksTest=[];
-            this.hasTest=false;
+            this.tasksPipo=[];
+            this.hasPipo=false;
               querySnapshot.forEach(doc => {
-                this.hasTest=true;
+                this.hasPipo=true;
                         const data = {
                           id: doc.id,
                           task_name: doc.data().tName,
                           task_description: doc
                             .data()
                             .tDescription.replace(/\n/g, "<br/>"),
-                          task_deadline: doc.data().tDeadline,
-                          task_owner: "test",
+                          task_deadline: doc.data().tDeadline,                          
                           task_status: doc.data().tStatus,
                           task_project: doc.data().tProject,
                           task_isActive: doc.data().t_isActive
                         };
-                        this.tasksTest.push(data);
+                        this.tasksPipo.push(data);
                       });
           })    
     }

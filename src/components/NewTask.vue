@@ -23,7 +23,16 @@
               v-model="task_deadline">
             <label class="active">Deadline:</label>
           </div>
-        </div>        
+        </div>      
+          <div class="row">
+          <div class="input-field col s12">
+           <select style="display:block" v-model="task_project">
+              <option v-for="project in Projects" v-bind:key="project.id"
+                v-bind:value="project">{{project}}</option>
+            </select>
+            <label class="active">Project:</label>
+          </div>
+        </div>  
         <div class="row">
           <div class="input-field col s12">
            <select required style="display:block" v-model="task_status">
@@ -53,7 +62,9 @@ export default {
       task_details: null,      
       task_deadline: null,      
       task_status: null,
-      Statuses: fireList.statusesList
+      task_project:null,
+      Statuses: fireList.statusesList,
+      Projects:fireList.myProjectsList
     };
   },
   methods: {
@@ -65,6 +76,7 @@ export default {
           tDescription: this.task_details,          
           tDeadline: this.task_deadline,
           tStatus: this.task_status,
+          tProject:this.task_project,
           t_isActive:true
         })
         .then(docRef => this.$router.push("/"))
