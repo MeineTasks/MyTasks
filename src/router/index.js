@@ -9,6 +9,8 @@ import Register from "@/components/Register";
 import AdminDash from "@/components/admn";
 import ViewAll from "@/components/ViewAll";
 import ViewProjects from "@/components/ProjectView";
+import ViewGantt from "@/components/ViewGantt";
+
 import firebase from "firebase";
 Vue.use(Router);
 
@@ -87,14 +89,20 @@ let router = new Router({
         requiresAuth: true
       }
     }
+    ,
+    {
+      path: "/view/gantt",
+      name: "viewgantt",
+      component: ViewGantt,
+      meta: {
+        requiresAuth: true
+      }
+    }
   ]
 });
 
 // Nav Guard
-router.beforeEach((to, from, next) => {
-  //console.log(firebase.auth().currentUser==true)
-  //console.log(!firebase.auth().currentUser)
-  //console.log(firebase.auth().currentUser)  
+router.beforeEach((to, from, next) => {  
   // Check for requiresAuth guard #1
   if (to.matched.some(record => record.meta.requiresAuth)) {
     //console.log("#1")
