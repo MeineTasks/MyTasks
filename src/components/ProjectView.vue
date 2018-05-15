@@ -15,6 +15,7 @@
         <h6 class="col m2 s12">Task name</h6>
         <h6 class="col m4 s12">Description</h6>           
         <h6 class="col m2 s12">Status</h6>
+        <h6 class="col m2 s12">Env</h6>
         <h6 class="col m2 s12">Deadline</h6>        
         
     </div>
@@ -25,6 +26,7 @@
           <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
           <div class="col m4 s12" v-html="task.task_description"></div>                     
           <div class="col m2 s12"><i>{{task.task_status}}</i></div>
+          <div class="col m2 s12">{{task.task_env}}</div>
           <div class="col m2 s12">{{task.task_deadline}}</div>                                   
       </div>
     </div>
@@ -34,6 +36,7 @@
           <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
           <div class="col m4 s12" v-html="task.task_description"></div>                     
           <div class="col m2 s12"><i>{{task.task_status}}</i></div>
+          <div class="col m2 s12">{{task.task_env}}</div>
           <div class="col m2 s12">{{task.task_deadline}}</div>                                   
       </div>
     </div>
@@ -43,6 +46,7 @@
           <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
           <div class="col m4 s12" v-html="task.task_description"></div>                     
           <div class="col m2 s12"><i>{{task.task_status}}</i></div>
+          <div class="col m2 s12">{{task.task_env}}</div>
           <div class="col m2 s12">{{task.task_deadline}}</div>                                   
       </div>
     </div>
@@ -90,6 +94,7 @@ export default {
                           task_description: doc
                             .data()
                             .tDescription.replace(/\n/g, "<br/>"),
+                          task_env:doc.data().tEnvironment,
                           task_deadline: doc.data().tDeadline,                          
                           task_status: doc.data().tStatus,
                           task_project: doc.data().tProject,
@@ -115,6 +120,7 @@ export default {
                           task_description: doc
                             .data()
                             .tDescription.replace(/\n/g, "<br/>"),
+                          task_env:doc.data().tEnvironment,
                           task_deadline: doc.data().tDeadline,                          
                           task_status: doc.data().tStatus,
                           task_project: doc.data().tProject,
@@ -140,6 +146,7 @@ export default {
                           task_description: doc
                             .data()
                             .tDescription.replace(/\n/g, "<br/>"),
+                          task_env:doc.data().tEnvironment,
                           task_deadline: doc.data().tDeadline,                          
                           task_status: doc.data().tStatus,
                           task_project: doc.data().tProject,
