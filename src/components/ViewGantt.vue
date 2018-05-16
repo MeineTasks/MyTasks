@@ -1,41 +1,56 @@
 <template>
-  <div class="container row">      
-     <div v-for="days in headerDates" v-bind:key="days.id" class="col m2">
+  <div class="main">      
+    <div class="row">
+      <div class="leftPanel col m3">
+        <span>Name</span>
+        <span>Descript</span>
+      </div>
+      <div v-for="days in headerDates" v-bind:key="days.id" class="col m1 header">
          {{days}}
-     </div>  
-     <div class="col m4 offset-m2" style="background:red">
-         test
-     </div>  
-       <div class="col m6 offset-m4" style="background:red">
-         test2
-     </div> 
-     <div class="row">
-        <div class="col m2" style="background:red">
-         test3
-     </div> 
-     </div>
+      </div> 
+    </div>   
+    <TableRows v-for="task in tasks" v-bind:key="task.id" :task="task" ></TableRows>  
+
        
   </div>
 </template>
 
 <script>
+import TableRows from './ViewGanttRows.vue'
 var moment = require("moment");
+
 export default {
+  components: {TableRows},
   data() {
     return {      
       headerDates:[],
-      moment: moment
+      moment: moment,
+      tasks: [
+          {id: 1, text: 'Task #1', start_date: '15-04-2017', duration: "m3", offset: "1"},
+          {id: 2, text: 'Task #2', start_date: '18-04-2017', duration: "m1", offset: "2"},
+          {id: 3, text: 'Task #3', start_date: '18-04-2017', duration: "m2", offset: "0"}
+        ]
     };
   },
    mounted() {     
     var i;
-        for (i = 1; i < 6; i++) { 
-           this.headerDates.push(moment().weekday(i).format("MMMM Do"))
-        }
+    for (i = 1; i < 6; i++) { 
+        this.headerDates.push(moment().weekday(i).format("MMMM Do"))
+    }
   }  
 };
 </script>
 
-<style>
-
+<style scope>
+.main{
+  margin: 10px;
+}
+.header{
+  background: grey;
+  border: solid
+}
+.drawBar{
+  background: red;
+  border-radius: 50px
+}
 </style>
