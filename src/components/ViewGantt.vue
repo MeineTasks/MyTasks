@@ -7,8 +7,8 @@
       Current week:<br/>
       <div class="row">
         <div class="leftPanel col m3">
-          <span class="col m3">Name</span>
-          <span class="col m6">Descript</span>
+          <span class="col">Name</span>
+          
         </div>
         <div v-for="days in headerDates" v-bind:key="days.id" class="col m1 header">
           {{days}}
@@ -36,6 +36,9 @@
 
 <script>
 import TableRows from "./ViewGanttRows.vue";
+import firebase from "firebase";
+import db from "./firebaseInit";
+
 var moment = require("moment");
 
 export default {
@@ -45,115 +48,92 @@ export default {
       headerDates: [],
       NextHeaderDates: [],
       moment: moment,
-      tasks: [
-        {
-          id: 1,
-          text: "Task #1",
-          start_date: "2018-05-17",
-          end_date: "2018-05-19",
-          duration: null,
-          offset: 1,
-          StartInWeek:null,
-          EndInWeek:null,
-          isInWeek:null
-        },
-        {
-          id: 2,
-          text: "Task #2",
-          start_date: "2018-05-16",
-          end_date: "2018-05-16",
-          duration: null,
-          offset: 2,
-          StartInWeek:null,
-          EndInWeek:null,
-          isInWeek:null
-        },
-        {
-          id: 3,
-          text: "Task #3",
-          start_date: "2017-05-13",
-          end_date: "2017-05-25",
-          duration: null,
-          offset: 0,
-          StartInWeek:null,
-          EndInWeek:null,
-          isInWeek:null
-        },
-        {
-          id: 4,
-          text: "Task #4",
-          start_date: "2018-05-14",
-          end_date: "2018-05-15",
-          duration: null,
-          offset: 0,
-          StartInWeek:null,
-          EndInWeek:null,
-          isInWeek:null
-        },
-        {
-          id: 5,
-          text: "Task #5",
-          start_date: "2018-05-23",
-          end_date: "2018-05-23",
-          duration: null,
-          offset: 0,
-          StartInWeek:null,
-          EndInWeek:null,
-          isInWeek:null
-        }
-      ],
+      tasks: [],
       currWeek:[],
       nextWeek:[]
     };
-  },  
-  mounted() {
-    var i;
-    //Created currWeek header
-    for (i = 1; i < 6; i++) {
-      this.headerDates.push(
-        moment()
-          .weekday(i)
-          .format("MMMM Do")
-      );
-    };
-
-    for (i = 8; i < 13; i++) {
-      this.NextHeaderDates.push(
-        moment()
-          .weekday(i)
-          .format("MMMM Do")
-      );
-    };  
+  },
+  created() {
+     db
+      .collection(firebase.auth().currentUser.uid)
+      .where("t_isActive", "==", true)
+      // .orderBy("tDeadline", "asc")
+      //.where("tStatus", "==", "In progress")
+      .onSnapshot(querySnapshot => {
+        this.tasks = [];
+        querySnapshot.forEach(doc => {
+          if (
+            doc.data().tStatus == "In progress" ||
+            doc.data().tStatus == "On hold"
+          ) {
+            
+            const data = {
+              id: doc.id,
+              task_name: doc.data().tName,
+              task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
+              start_date: doc.data().tStart,
+              end_date: doc.data().tDeadline,
+              task_status: doc.data().tStatus,
+            };
+            this.tasks.push(data);
+          }
+        });
+          this.GrantTasks()
+       
+       })  
     
-    var StartOFWeek=moment().weekday(1);
-    var EndOFWeek=moment().weekday(5);
 
-    for (i = 0; i < this.tasks.length; i++) {
-      this.tasks[i].StartInWeek=((moment(this.tasks[i].start_date,"YYYY-MM-DD").isBefore(StartOFWeek)) ? StartOFWeek.format("YYYY-MM-DD") : this.tasks[i].start_date);
+  },
+  methods: {
+      GrantTasks(){
+      var i;
+      //Created currWeek header
+      for (i = 1; i < 6; i++) {
+        this.headerDates.push(
+          moment()
+            .weekday(i)
+            .format("MMMM Do")
+        );
+      };
 
-      this.tasks[i].EndInWeek=((moment(this.tasks[i].end_date,"YYYY-MM-DD").isBefore(EndOFWeek)) ? this.tasks[i].end_date : EndOFWeek.format("YYYY-MM-DD"));
-
-      this.tasks[i].duration = moment(this.tasks[i].EndInWeek,"YYYY-MM-DD").diff(moment(this.tasks[i].StartInWeek,"YYYY-MM-DD"),"days") + 1;
-      this.tasks[i].offset=  moment(this.tasks[i].StartInWeek).diff(moment(StartOFWeek.format("YYYY-MM-DD"),"YYYY-MM-DD"),"days");
+      for (i = 8; i < 13; i++) {
+        this.NextHeaderDates.push(
+          moment()
+            .weekday(i)
+            .format("MMMM Do")
+        );
+      };  
       
-      var duminica=moment().weekday(7);
-      var luni=moment().weekday(0);
+      var StartOFWeek=moment().weekday(1);
+      var EndOFWeek=moment().weekday(5);
+  
+      for (i = 0; i < this.tasks.length; i++) {
+        this.tasks[i].StartInWeek=((moment(this.tasks[i].start_date,"YYYY-MM-DD").isBefore(StartOFWeek)) ? StartOFWeek.format("YYYY-MM-DD") : this.tasks[i].start_date);
 
-      var NEXTduminica=moment().weekday(14);
-      var NEXTluni=moment().weekday(8);
+        this.tasks[i].EndInWeek=((moment(this.tasks[i].end_date,"YYYY-MM-DD").isBefore(EndOFWeek)) ? this.tasks[i].end_date : EndOFWeek.format("YYYY-MM-DD"));
 
-      var START=moment(this.tasks[i].start_date,"YYYY-MM-DD");      
-      var END=moment(this.tasks[i].end_date,"YYYY-MM-DD");
+        this.tasks[i].duration = moment(this.tasks[i].EndInWeek,"YYYY-MM-DD").diff(moment(this.tasks[i].StartInWeek,"YYYY-MM-DD"),"days") + 1;
+        this.tasks[i].offset=  moment(this.tasks[i].StartInWeek).diff(moment(StartOFWeek.format("YYYY-MM-DD"),"YYYY-MM-DD"),"days");
+        
+        var duminica=moment().weekday(7);
+        var luni=moment().weekday(0);
 
-      //console.log(luni.format("YYYY-MM-DD") + "<" + START.format("YYYY-MM-DD") + "||"+START.format("YYYY-MM-DD") + "<" + duminica.format("YYYY-MM-DD") )
+        var NEXTduminica=moment().weekday(14);
+        var NEXTluni=moment().weekday(8);
 
-      if( (luni.isBefore(START) && START.isBefore(duminica)) || (luni.isBefore(END) && END.isBefore(duminica)) ){
-        this.tasks[i].isInWeek=1        
-      } else if( (NEXTluni.isBefore(START) && START.isBefore(NEXTduminica)) || (NEXTluni.isBefore(END) && END.isBefore(NEXTduminica)) ){
-          this.tasks[i].duration = END.diff(START,"days") + 1;
-          this.tasks[i].offset= START.diff(moment().weekday(7),"days"); 
-          
-          this.tasks[i].isInWeek=2
+        var START=moment(this.tasks[i].start_date,"YYYY-MM-DD");      
+        var END=moment(this.tasks[i].end_date,"YYYY-MM-DD");
+
+        //console.log(luni.format("YYYY-MM-DD") + "<" + START.format("YYYY-MM-DD") + "||"+START.format("YYYY-MM-DD") + "<" + duminica.format("YYYY-MM-DD") )
+
+        if( (luni.isBefore(START) && START.isBefore(duminica)) || (luni.isBefore(END) && END.isBefore(duminica)) ){
+          this.tasks[i].isInWeek=1        
+        } else if( (NEXTluni.isBefore(START) && START.isBefore(NEXTduminica)) || (NEXTluni.isBefore(END) && END.isBefore(NEXTduminica)) ){
+            this.tasks[i].duration = END.diff(START,"days") + 1;
+            this.tasks[i].offset= START.diff(moment().weekday(7),"days"); 
+            
+            this.tasks[i].isInWeek=2
+        }
       }
     }
   },

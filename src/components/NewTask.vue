@@ -16,7 +16,14 @@
               required />
             <label for="textarea1" class="active">Details:</label>
           </div>
-        </div>         
+        </div> 
+        <div class="row">
+          <div class="input-field col s12">
+            <input type="date" placeholder="start date"
+              v-model="task_start">
+            <label class="active">Start date:</label>
+          </div>
+        </div>        
         <div class="row">
           <div class="input-field col s12">
             <input type="date" placeholder="Task deadline"
@@ -26,13 +33,22 @@
         </div>      
           <div class="row">
           <div class="input-field col s12">
-           <select style="display:block" v-model="task_project">
+           <select required style="display:block" v-model="task_project">
               <option v-for="project in Projects" v-bind:key="project.id"
                 v-bind:value="project">{{project}}</option>
             </select>
             <label class="active">Project:</label>
           </div>
         </div>  
+         <div v-if="task_project=='IQConcepts'" class="row">
+          <div class="input-field col s12">
+           <select style="display:block" v-model="task_env">
+              <option v-for="env in Environments" v-bind:key="env.id"
+                v-bind:value="env">{{env}}</option>
+            </select>
+            <label class="active">On environment:</label>
+          </div>
+        </div>
         <div class="row">
           <div class="input-field col s12">
            <select required style="display:block" v-model="task_status">
@@ -59,12 +75,15 @@ export default {
   data() {
     return {
       task_name: null,
-      task_details: null,      
+      task_details: null, 
+      task_start:null,        
       task_deadline: null,      
       task_status: null,
       task_project:null,
+      task_env:null,
       Statuses: fireList.statusesList,
-      Projects:fireList.myProjectsList
+      Projects:fireList.myProjectsList,
+      Environments:fireList.envList
     };
   },
   methods: {
@@ -74,9 +93,11 @@ export default {
         .add({
           tName: this.task_name,
           tDescription: this.task_details,          
+          tStart:this.task_start,
           tDeadline: this.task_deadline,
           tStatus: this.task_status,
           tProject:this.task_project,
+          tEnvironment:this.task_env?this.task_env:"",
           t_isActive:true
         })
         .then(docRef => this.$router.push("/"))
