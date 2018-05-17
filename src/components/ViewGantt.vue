@@ -2,35 +2,38 @@
   <div class="main">  
 
     <!-- current weeek -->
-
-    <div class="currWeek">
+    <div v-if="CurrentWeek.length>0" id="currWeek">
       Current week:<br/>
       <div class="row">
-        <div class="leftPanel col m3">
-          <span class="col">Name</span>
-          
+        <div class="leftPanel HeaderRow col m3">
+          <span class="col">Name</span>          
         </div>
-        <div v-for="days in headerDates" v-bind:key="days.id" class="col m1 header">
-          {{days}}
-        </div> 
+        <div class="HeaderRow col m9">
+          <div v-for="days in headerDates" v-bind:key="days.id" class="col m2 HeaderDays">
+            {{days}}
+          </div> 
+        </div>
+        
       </div>   
       <TableRows v-for="task in CurrentWeek" v-bind:key="task.id" :task="task" ></TableRows>
     </div>
 <hr/>
     <!-- next weeek -->
-    <div class="nextWeek">
+    <div v-if="NextWeek.length>0" id="nextWeek">
       Next week:<br/>
       <div class="row">
-        <div class="leftPanel col m3">
-          <span class="col m3">Name</span>
-          <span class="col m6">Descript</span>
+        <div class="leftPanel HeaderRow col m3">
+          <span class="col">Name</span>          
         </div>
-        <div v-for="days in NextHeaderDates" v-bind:key="days.id" class="col m1 header">
-          {{days}}
-        </div> 
+        <div class="HeaderRow col m9">
+          <div v-for="days in NextHeaderDates" v-bind:key="days.id" class="col m2 HeaderDays">
+            {{days}}
+          </div> 
+        </div>
+        
       </div>   
       <TableRows v-for="task in NextWeek" v-bind:key="task.id" :task="task" ></TableRows>
-    </div>
+    </div> 
   </div>
 </template>
 
@@ -156,12 +159,25 @@ export default {
 .main {
   margin: 10px;
 }
-.header {
+.HeaderDays {  
+  border-right: solid;  
+}
+.HeaderRow{
   background: grey;
-  border: solid;
+  box-shadow: 6px 4px 8px 0px;
+  border-right: solid;
 }
 .drawBar {
-  background: red;
+  background:#26a69a;
   border-radius: 50px;
 }
+#currWeek{
+  background: lightgray;
+  padding: 5px;
+}
+#nextWeek{
+  background: aliceblue;
+  padding: 5px;
+}
+
 </style>

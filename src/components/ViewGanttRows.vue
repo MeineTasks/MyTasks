@@ -1,14 +1,15 @@
 <template>
   <div class="row">      
-      <div class="leftPanel col m3" >
+      <div class="leftPanel col m3">
         <span class="col tooltip">
           {{task.task_name}}
             <span class="tooltiptext" v-html="task.task_description"></span>
-          </span>
-        
+          </span>        
       </div>
-      <div class="drawBar col" v-bind:class="['m'+task.duration,'offset-m'+task.offset]">
-        {{task.task_name}}
+      <div class=" col m9">
+        <div class="drawBar col" v-bind:class="['m'+task.duration*2,'offset-m'+task.offset*2]">
+          {{task.task_name}}
+        </div>  
       </div>  
     </div>
 </template>

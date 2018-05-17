@@ -6,6 +6,7 @@
         <li v-if="isLoggedIn"><router-link to="/" >View Dashboard</router-link></li>
         <li v-if="isLoggedIn"><router-link to="/view/cols" class="">Active</router-link></li>  
         <li v-if="isLoggedIn"><router-link to="/view/all" class="">View All</router-link></li>  
+        <li v-if="isLoggedIn"><router-link to="/view/gantt" class="">View Gantt</router-link></li>  
         <li v-if="isLoggedIn"><router-link to="/view/projects" class="">View Team Projects</router-link></li>  
         <li v-if="!isLoggedIn"><router-link to="/login" class="">Login</router-link></li>
         <li v-if="!isLoggedIn"><router-link to="/register" class="">Register</router-link></li>
