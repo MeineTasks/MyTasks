@@ -37,7 +37,7 @@ export default {
     position: absolute;
     z-index: 9999;
     overflow: auto;
-    width: 50vw;
+    width: 30vw;
   
 }
 .tooltip{

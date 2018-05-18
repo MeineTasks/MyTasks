@@ -19,14 +19,14 @@
         </div> 
         <div class="row">
           <div class="input-field col s12">
-            <input type="date" placeholder="start date"
+            <input id="StartDate" type="date" placeholder="start date"
               v-model="task_start">
             <label class="active">Start date:</label>
           </div>
         </div>        
         <div class="row">
           <div class="input-field col s12">
-            <input type="date" placeholder="Task deadline"
+            <input id="DeadLine" type="date" placeholder="Task deadline"
               v-model="task_deadline">
             <label class="active">Deadline:</label>
           </div>
@@ -88,6 +88,13 @@ export default {
   },
   methods: {
     saveTask() {
+      //validate end start times
+      if (new Date($("#DeadLine").val())<new Date($("#StartDate").val())){
+        M.toast({ html: `Start date should be sooner than Deadline` });
+        $("#StartDate,#DeadLine").css("border","solid red 1px")
+        return false;
+      }
+
       db
         .collection(firebase.auth().currentUser.uid)
         .add({
