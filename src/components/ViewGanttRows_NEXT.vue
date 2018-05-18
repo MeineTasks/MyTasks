@@ -8,7 +8,7 @@
           </span>        
       </div>
       <div class=" col m9">
-        <div class="drawBar col" v-bind:class="['m'+task.duration*2,'offset-m'+task.offset*2]">
+        <div class="drawBar col" v-bind:class="['m'+task.NEXTduration*2,'offset-m'+task.NEXToffset*2]">
           {{task.task_name}}
         </div>  
       </div>  
