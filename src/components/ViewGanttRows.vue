@@ -3,12 +3,12 @@
       <div class="leftPanel col m3">
         <span class="col tooltip">
           {{task.task_name}}
-            <span class="tooltiptext" v-html="task.task_description"></span>
-            <!-- <span class="tooltiptext">{{task.tsk_start_date}} -- {{task.tsk_end_date}}</span> -->
+            <!-- <span class="tooltiptext" v-html="task.task_description"></span> -->
+            <span class="tooltiptext">{{task.tsk_start_date}} -- {{task.tsk_end_date}}</span>
           </span>        
       </div>
-      <div class=" col m9">
-        <div class="drawBar col" v-bind:class="['m'+task.duration*2,'offset-m'+task.offset*2]">
+      <div class="col m9">
+        <div class="drawBar col" v-bind:class="['m'+task.duration,'offset-m'+task.offset]">
           {{task.task_name}}
         </div>  
       </div>  
@@ -48,15 +48,6 @@ export default {
   visibility: visible;
   
 }
-/* .tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 10%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #484545 transparent transparent transparent;
-} */
+
 </style>
 

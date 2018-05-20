@@ -17,10 +17,11 @@
               <!-- <label class="white-text active" for="password">Password</label> -->
             </div>
             <button class="btn btn-large btn-extended grey lighten-4 black-text">Login</button>
-          </form>
+          </form>          
         </div>
       </div>
     </div>
+    <button @click="dummyLogin" class="btn btn-large btn-extended green lighten-4 black-text">Use test account</button>
   </div>
   </div>
 </template>
@@ -36,7 +37,7 @@ export default {
     };
   },
   methods: {
-    login: function(e) {
+    login: function() {
       firebase
         .auth()
         .signInWithEmailAndPassword(this.email, this.password)
@@ -51,8 +52,12 @@ export default {
           err => {
             alert(err.message);
           }
-        );
-         e.preventDefault();
+        );         
+    },
+    dummyLogin: function(){
+      this.email="test@ipsos.com"
+      this.password="asdQWE123"
+      this.login()
     }
   }
 };
