@@ -1,8 +1,5 @@
 <template>
   <div class="main">  
-    
-    <div v-if="CurrentWeek.length>0" id="currWeek">
-      Current week:<br/>
       <!-- header -->
       <div class="row">
         <div class="leftPanel HeaderRow col m3">
@@ -20,7 +17,7 @@
       <!-- task rows  -->
       <div class="row taskRow" v-for="task in inGantt"  v-bind:key="task.id" >
         <div class="leftPanel col m3">
-          <span class="col tooltip">
+          <span class="col truncate tooltip">
             {{task.task_name}}
             <!-- <span class="tooltiptext" v-html="task.task_description"></span> -->
             <span class="tooltiptext">
@@ -29,6 +26,7 @@
               <span v-html="task.task_description"></span>
             </span>
           </span>        
+            <span class="chip right">{{task.task_status}}</span>
         </div>
         <div class="col m9">
           <!-- week 1 -->
@@ -53,6 +51,41 @@
             </div>
           </span>
         </div>         
+      </div>    
+    <!-- backLog -->
+    <div class="divider"></div>
+    <div v-if="backLog.length>0" class="section">
+      <span class="title">BackLog:</span>
+      <div id="dashboard">    
+        <div class="row z-depth-3 brown darken-1 white-text hide-on-small-only">      
+            <h6 class="col m2 s12">Task name</h6>
+            <h6 class="col m3 s12">Description</h6>        
+            <h6 class="col m2 s12">Project</h6>          
+            <h6 class="col m2 s12">Status</h6>
+            <h6 class="col m1 s12">Deadline</h6>        
+            <h6 class="col m2 iconContainer">
+              <span class="red-text">Close</span>
+              <span class="white-text">Edit</span>
+            </h6>
+        </div>
+    </div>
+      <div v-for="task in backLog" v-bind:key="task.id" class="row z-depth-2">        
+          <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
+          <div class="col m3 s12" v-html="task.task_description"></div>        
+          <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>        
+          <div class="col m2 s12"><i>{{task.task_status}}</i></div>
+          <div class="col m2 s12">{{task.tsk_end_date}}</div>     
+          <div class="col iconContainer" >
+            <div class="col ">
+              <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
+            </div>
+            <div class="col ">
+              <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+                <i class="fas fa-edit"></i>
+              </router-link>  
+            </div>
+          </div>   
+                
       </div>
     </div>
   </div>
@@ -93,6 +126,8 @@ export default {
               id: doc.id,
               task_name: doc.data().tName,
               task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
+              task_project: doc.data().tProject,
+              task_env: doc.data().tEnvironment,
               tsk_start_date: doc.data().tStart,
               tsk_end_date: doc.data().tDeadline,
               task_status: doc.data().tStatus
@@ -244,6 +279,18 @@ export default {
           this.tasks[i].NEXT_BarClass = "Normal";
         }
       }
+    },
+    CloseTask(task) {
+      db
+        .collection(firebase.auth().currentUser.uid)
+        .doc(task.id)
+        .set({ t_isActive: false }, { merge: true })
+        .then(docRef => {
+          console.log("task closed");
+        })
+        .catch(function(error) {
+          console.log("Error getting documents: ", error);
+        });
     }
   },
   // },
@@ -262,6 +309,11 @@ export default {
       return this.tasks.filter(function(task) {
         return task.isInGantt;
       });
+    },
+    backLog: function() {
+      return this.tasks.filter(function(task) {
+        return !task.isInGantt;
+      });
     }
   }
 };
@@ -270,11 +322,14 @@ export default {
 <style scope>
 .main {
   margin: 10px;
+  background: lightgray;
+  padding: 5px;
 }
-.HeaderDays,.HeaderWkend {
+.HeaderDays,
+.HeaderWkend {
   border-right: solid;
 }
-.NextHeaderDays{
+.NextHeaderDays {
   border-left: solid;
 }
 .HeaderRow {
@@ -320,7 +375,7 @@ export default {
   background: #26a69a;
   border-radius: 50px;
   /* border: solid 1px #1b7169; */
-      text-align: center;
+  text-align: center;
 }
 .taskRow {
   border-bottom: solid #bbb8b8 1px;
@@ -337,6 +392,33 @@ export default {
 .BothStartEnd {
   border-radius: 0px 0px 0px 0px;
   background: linear-gradient(to right, #cccccc, #26a69a, #cccccc);
+}
+.secondary-content {
+  margin-right: 5px;
+  float: right;
+}
+.sidenav > li {
+  padding: 5px;
+  background: #ececec;
+}
+.iconContainer {
+  float: right;
+  text-align: right;
+}
+.fa-trash-alt {
+  color: #f5764e;
+}
+.fa-edit {
+  color: #00bcd4;
+}
+.fas {
+  opacity: 0.6;
+}
+.fas:hover {
+  opacity: 1;
+}
+.section {
+  background: #afadad;
 }
 </style>
 
