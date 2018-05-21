@@ -319,7 +319,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 .main {
   margin: 10px;
   background: lightgray;
