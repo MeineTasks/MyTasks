@@ -17,21 +17,28 @@
       <!-- task rows  -->
       <div class="row taskRow" v-for="task in inGantt"  v-bind:key="task.id" >
         <div class="leftPanel col m3">
-          <span class="col truncate tooltip">
+          <span class="col truncate tooltip col m5">
             {{task.task_name}}
             <!-- <span class="tooltiptext" v-html="task.task_description"></span> -->
-            <span class="tooltiptext">
+            <span class="tooltiptext ">
               {{task.tsk_start_date}} >> {{task.tsk_end_date}}
               <hr/>
               <span v-html="task.task_description"></span>
             </span>
           </span>        
-            <span class="chip right">{{task.task_status}}</span>
+            <span class="chip">{{task.task_status}}</span>
+            <div class="col iconContainer" >            
+              <div class="col ">
+                <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+                  <i class="fas fa-edit"></i>
+                </router-link>  
+              </div>
+          </div>  
         </div>
         <div class="col m9">
           <!-- week 1 -->
           <span v-if="task.isInWeek_1">
-            <div class="drawBar col" v-bind:class="['m'+task.duration,'offset-m'+task.offset,task.BarClass]">
+            <div class="drawBar col" v-bind:class="['m'+task.duration,'offset-m'+task.offset,task.BarClass,task.task_status=='On hold'?'onHold':'']">
               {{task.task_name}}
             </div>
             <div class="arrow-right"></div>
@@ -377,6 +384,10 @@ export default {
   /* border: solid 1px #1b7169; */
   text-align: center;
 }
+
+.onHold{
+  background:#cac7c7;
+}
 .taskRow {
   border-bottom: solid #bbb8b8 1px;
   padding-bottom: 5px;
@@ -409,7 +420,7 @@ export default {
   color: #f5764e;
 }
 .fa-edit {
-  color: #00bcd4;
+  color: #065ebb;
 }
 .fas {
   opacity: 0.6;
