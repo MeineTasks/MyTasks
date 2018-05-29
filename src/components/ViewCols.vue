@@ -331,7 +331,7 @@ export default {
 
   /* Position the tooltip */
   position: absolute;
-  z-index: 1;
+  z-index: 10;
 }
 
 .tooltip:hover .tooltiptext {
