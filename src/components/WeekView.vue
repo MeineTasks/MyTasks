@@ -10,7 +10,7 @@
       
       <div class="collapsible-body">
           <!-- table header  -->
-        <div class="row z-depth-3 brown darken-1 white-text hide-on-small-only">      
+        <div class="row z-depth-3 teal darken-1 white-text hide-on-small-only">      
             <h6 class="col m2 s12">Task name</h6>
             <h6 class="col m6 s12">Description</h6>           
             <h6 class="col m1 s12">Status</h6>

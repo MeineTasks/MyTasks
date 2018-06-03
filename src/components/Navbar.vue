@@ -3,14 +3,14 @@
     <div class="nav-wrapper brown lighten-1">
         <span v-if="isLoggedIn" style="margin-left:20px" class="brand-logo left hide-on-small-only"> <i class="large material-icons tooltipped" style="color:#8bbf8b"  data-position="right" v-bind:data-tooltip="currentUser">account_circle</i></span>
       <ul id="nav-mobile" class="right">       
-        <li v-if="isLoggedIn"><router-link to="/" >View Dashboard</router-link></li>
-        <li v-if="isLoggedIn"><router-link to="/view/all" class="">View All</router-link></li>  
-        <li v-if="isLoggedIn"><router-link to="/view/cols" class="">Active</router-link></li>  
-        <li v-if="isLoggedIn"><router-link to="/view/gantt" class="">Gantt</router-link></li>  
-        <li v-if="isLoggedIn"><router-link to="/view/projects" class="">Team Projects</router-link></li>  
-        <li v-if="isLoggedIn"><router-link to="/view/week" class="">Week grup</router-link></li>  
-        <li v-if="!isLoggedIn"><router-link to="/login" class="">Login</router-link></li>
-        <li v-if="!isLoggedIn"><router-link to="/register" class="">Register</router-link></li>
+        <li v-if="isLoggedIn"><router-link to="/">View Dashboard</router-link></li>
+        <li v-if="isLoggedIn"><router-link to="/view/all">View All</router-link></li>  
+        <li v-if="isLoggedIn"><router-link to="/view/cols">Active</router-link></li>  
+        <li v-if="isLoggedIn"><router-link to="/view/gantt">Gantt</router-link></li>  
+        <li v-if="isLoggedIn"><router-link to="/view/projects">Team Projects</router-link></li>  
+        <li v-if="isLoggedIn"><router-link to="/view/week">Week grup</router-link></li>  
+        <li v-if="!isLoggedIn"><router-link to="/login">Login</router-link></li>
+        <li v-if="!isLoggedIn"><router-link to="/register">Register</router-link></li>
         <li v-if="isLoggedIn"><button v-on:click="logout" class="btn black">Logout</button></li>
       </ul>
     </div>
