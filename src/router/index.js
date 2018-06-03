@@ -9,6 +9,7 @@ import Register from "@/components/Register";
 import AdminDash from "@/components/admn";
 import ViewAll from "@/components/ViewAll";
 import ViewProjects from "@/components/ProjectView";
+import ViewWeek from "@/components/WeekView";
 import ViewGantt from "@/components/ViewGantt";
 
 import firebase from "firebase";
@@ -63,8 +64,7 @@ let router = new Router({
       meta: {
         requiresAuth: true
       }
-    }
-    ,
+    },
     {
       path: "/admn",
       name: "admin",
@@ -88,8 +88,15 @@ let router = new Router({
       meta: {
         requiresAuth: true
       }
-    }
-    ,
+    },
+    {
+      path: "/view/week",
+      name: "viewweek",
+      component: ViewWeek,
+      meta: {
+        requiresAuth: true
+      }
+    },
     {
       path: "/view/gantt",
       name: "viewgantt",
@@ -102,7 +109,7 @@ let router = new Router({
 });
 
 // Nav Guard
-router.beforeEach((to, from, next) => {  
+router.beforeEach((to, from, next) => {
   // Check for requiresAuth guard #1
   if (to.matched.some(record => record.meta.requiresAuth)) {
     //console.log("#1")
@@ -111,7 +118,7 @@ router.beforeEach((to, from, next) => {
       //console.log("#1.1")
       // Go to login
       next({
-        path: "/login",
+        path: "/login"
         // query: {
         //   redirect: to.fullPath
         // }
@@ -126,20 +133,19 @@ router.beforeEach((to, from, next) => {
     // Check if NO logged user
     if (firebase.auth().currentUser) {
       //console.log("#2.1")
-      // Go to login      
-      if (to.name=="login"){
+      // Go to login
+      if (to.name == "login") {
         //console.log("#2.1.1")
         next({
-          path: '/view/cols',
+          path: "/view/cols",
           query: {
             redirect: to.fullPath
           }
         });
-      }else{
+      } else {
         //console.log("#2.1.2")
-        next({path:'/'});
+        next({ path: "/" });
       }
-      
     } else {
       // Proceed to route
       //console.log("#2.2")
