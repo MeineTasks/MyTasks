@@ -99,15 +99,15 @@
 </template>
 
 <script>
-import TableRows from "./ViewGanttRows.vue";
-import TableRowsNEXT from "./ViewGanttRows_NEXT.vue";
+// import TableRows from "./ViewGanttRows.vue";
+// import TableRowsNEXT from "./ViewGanttRows_NEXT.vue";
 import firebase from "firebase";
 import db from "./firebaseInit";
 
 var moment = require("moment");
 
 export default {
-  components: { TableRows, TableRowsNEXT },
+  // components: { TableRows, TableRowsNEXT },
   data() {
     return {
       headerDates: [],

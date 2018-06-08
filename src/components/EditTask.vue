@@ -33,6 +33,12 @@
         </div>  
         <div class="row">
           <div class="input-field col s12">
+            <input placeholder="FTA" type="text" v-model="task_FTA">
+            <label class="active">FTA:</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
            <select required style="display:block" v-model="task_status">
               <option v-for="status in Statuses" v-bind:key="status.id"
                 v-bind:value="status">{{status}}</option>
@@ -91,13 +97,14 @@ export default {
       task_project:null,
       task_isActive:null,
       task_env:null,
+      task_FTA:null,
       orig_task_name: null,
       orig_task_details: null,
       orig_task_start:null,      
       orig_task_deadline: null,      
       orig_task_status: null,      
       Statuses:fireList.statusesList,
-      Projects:fireList.myProjectsList,
+      Projects:fireList.inoProj,
       Environments:fireList.envList
     };
   },
@@ -118,6 +125,7 @@ export default {
           tDescription: this.task_details,      
           tStart:this.task_start,    
           tDeadline: this.task_deadline,          
+          tFTA:this.task_FTA,
           tStatus: this.task_status,
           tProject:this.task_project,
           tEnvironment:this.task_env?this.task_env:"",
@@ -203,7 +211,8 @@ export default {
         this.task_name = doc.data().tName;
         this.task_details = doc.data().tDescription;    
         this.task_start= doc.data().tStart;
-        this.task_deadline = doc.data().tDeadline;        
+        this.task_deadline = doc.data().tDeadline;   
+        this.task_FTA=doc.data().tFTA;
         this.task_status = doc.data().tStatus;
         this.task_project=doc.data().tProject;
         this.task_env=doc.data().tEnvironment;

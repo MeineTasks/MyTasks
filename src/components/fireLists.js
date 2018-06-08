@@ -4,6 +4,7 @@ var Statuses = [];
 var Projects = [];
 var MyProjects=[];
 var Envrmnts=[];
+var InnoProj=[];
 // var Members=[];
 
 const ListRef = db.collection("DropDowns");
@@ -57,9 +58,20 @@ ListRef.doc("Project")
         Envrmnts.push(LstItem);
       });
   });
+  db
+   .collection("DropDowns/InnoPipeline/Projects")
+  .get()
+  .then(querySnapshot => {
+    querySnapshot.forEach(doc => {      
+        doc.data().Projects.forEach(prj => {
+          InnoProj.push(prj);
+        });
+    });
+  });
 export default {
   statusesList: Statuses,
   projectsList: Projects,
-  myProjectsList:MyProjects,
-  envList:Envrmnts
+  myProjectsList: MyProjects,
+  envList: Envrmnts,
+  inoProj: InnoProj
 };
