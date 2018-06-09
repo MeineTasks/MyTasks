@@ -2,9 +2,9 @@ import db from "./firebaseInit";
 
 var Statuses = [];
 var Projects = [];
-var MyProjects=[];
-var Envrmnts=[];
-var InnoProj=[];
+var MyProjects = [];
+var Envrmnts = [];
+var InnoProj = [];
 // var Members=[];
 
 const ListRef = db.collection("DropDowns");
@@ -34,7 +34,7 @@ ListRef.doc("Project")
         Projects.push(LstItem);
       });
   });
-  ListRef.doc("MyProjects")
+ListRef.doc("MyProjects")
   .get()
   .then(doc => {
     //console.log(doc.data().List.split("#"))
@@ -46,7 +46,7 @@ ListRef.doc("Project")
         MyProjects.push(LstItem);
       });
   });
-  ListRef.doc("Environments")
+ListRef.doc("Environments")
   .get()
   .then(doc => {
     //console.log(doc.data().List.split("#"))
@@ -58,18 +58,25 @@ ListRef.doc("Project")
         Envrmnts.push(LstItem);
       });
   });
-  db
-   .collection("DropDowns/InnoPipeline/Projects")
+db.collection("DropDowns/InnoPipeline/Projects")
   .get()
   .then(querySnapshot => {
-    querySnapshot.forEach(doc => {      
-        doc.data().Projects.forEach(prj => {
-          InnoProj.push(prj);
-        });
+    querySnapshot.forEach(doc => {
+      doc.data().Projects.forEach(prj => {
+        InnoProj.push(prj);
+      });
     });
+    InnoProj.sort()
   });
+
+function sortTasks(a, b) {
+  if (a.task_deadline < b.task_deadline) return -1;
+  if (a.task_deadline > b.task_deadline) return 1;
+  return 0;
+}
+ 
 export default {
-  statusesList: Statuses,
+  statusesList: Statuses.sort(),
   projectsList: Projects,
   myProjectsList: MyProjects,
   envList: Envrmnts,

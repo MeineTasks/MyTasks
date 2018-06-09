@@ -227,7 +227,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 textarea {
   margin-top: 10px;
   height: 107px;

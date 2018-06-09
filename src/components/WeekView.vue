@@ -2,7 +2,6 @@
   <div id="dashboard" style="margin: 0px 25px;">   
       <!-- select project -->
         
-     
     <!-- view in weeks -->
     <ul class="collapsible">
     <li v-for="week in weeks" v-bind:key="week.id">
@@ -18,9 +17,17 @@
             <h6 class="col m1 s12">Start</h6>
             <h6 class="col m1 s12">Deadline</h6>
             <h6 class="col m1 s12">Owner</h6>
-            <h6 class="col m1 s12">FTA</h6>
+            <h6 class="col m1 s12">FTE</h6>
         </div>
-        
+        <ul class="collapsible">
+          <li>
+            <div class="collapsible-header" style="padding:1px 10px">See user load <i class="fas fa-eye teal-text lighten-5"></i> </div>
+            <div class="collapsible-body teal lighten-5">
+              <div>Ana: 1 fte</div>
+              <div>Cip: 0 fte</div>
+            </div>
+          </li>
+        </ul>
         <!-- ASI data -->
         <div class="grupContainer ASI_Container z-depth-1" v-if="week.weekData.ASI.InWork.length>0 || week.weekData.ASI.OnHold.length>0">
             <center><b>ASI initiatives: {{SumFTAinWeek(week,"ASI")}} FTE</b> </center>
@@ -31,7 +38,7 @@
                 <span class="PrjNameConainer">Project name: <span class="PrjName">{{groupProj.proj}}</span></span>  
                 <!-- tasks -->
                 <div v-for="groupProjTask in groupProj.tasks" v-bind:key="groupProjTask.id" v-bind:class="groupProjTask.task_status=='On hold'?'onHold':'inProgres'" class="row z-depth-2">
-                    <div class="col m2 s12 truncate"><b>{{groupProjTask.task_name}}</b></div>
+                    <div class="col m2 s12 truncate">{{groupProjTask.task_name}}</div>
                     <div class="col m6 s12" v-html="groupProjTask.task_description"></div>                    
                     <div class="col m1 s12">{{groupProjTask.task_start}}</div>
                     <div class="col m1 s12">{{groupProjTask.task_deadline}}</div>
@@ -47,7 +54,7 @@
                <span class="PrjNameConainer">Project name: <span class="PrjName">{{groupProj.proj}}</span></span>  
                 <!-- tasks -->
                 <div v-for="groupProjTask in groupProj.tasks" v-bind:key="groupProjTask.id" v-bind:class="groupProjTask.task_status=='On hold'?'onHold':'inProgres'" class="row z-depth-2">
-                    <div class="col m2 s12 truncate"><b>{{groupProjTask.task_name}}</b></div>
+                    <div class="col m2 s12 truncate">{{groupProjTask.task_name}}</div>
                     <div class="col m6 s12" v-html="groupProjTask.task_description"></div>                    
                     <div class="col m1 s12">{{groupProjTask.task_start}}</div>
                     <div class="col m1 s12">{{groupProjTask.task_deadline}}</div>
@@ -67,7 +74,7 @@
                 <span class="PrjNameConainer">Project name: <span class="PrjName">{{groupProj.proj}}</span></span>  
                 <!-- tasks -->
                 <div v-for="groupProjTask in groupProj.tasks" v-bind:key="groupProjTask.id" v-bind:class="groupProjTask.task_status=='On hold'?'onHold':'inProgres'" class="row z-depth-2">
-                    <div class="col m2 s12 truncate"><b>{{groupProjTask.task_name}}</b></div>
+                    <div class="col m2 s12 truncate">{{groupProjTask.task_name}}</div>
                     <div class="col m6 s12" v-html="groupProjTask.task_description"></div>                    
                     <div class="col m1 s12">{{groupProjTask.task_start}}</div>
                     <div class="col m1 s12">{{groupProjTask.task_deadline}}</div>
@@ -83,7 +90,7 @@
                 <span class="PrjNameConainer">Project name: <span class="PrjName">{{groupProj.proj}}</span></span>  
                 <!-- tasks -->
                 <div v-for="groupProjTask in groupProj.tasks" v-bind:key="groupProjTask.id" v-bind:class="groupProjTask.task_status=='On hold'?'onHold':'inProgres'" class="row z-depth-2">
-                    <div class="col m2 s12 truncate"><b>{{groupProjTask.task_name}}</b></div>
+                    <div class="col m2 s12 truncate">{{groupProjTask.task_name}}</div>
                     <div class="col m6 s12" v-html="groupProjTask.task_description"></div>                    
                     <div class="col m1 s12">{{groupProjTask.task_start}}</div>
                     <div class="col m1 s12">{{groupProjTask.task_deadline}}</div>
@@ -103,7 +110,7 @@
                 <span class="PrjNameConainer">Project name: <span class="PrjName">{{groupProj.proj}}</span></span>  
                 <!-- tasks -->
                 <div v-for="groupProjTask in groupProj.tasks" v-bind:key="groupProjTask.id" v-bind:class="groupProjTask.task_status=='On hold'?'onHold':'inProgres'" class="row z-depth-2">
-                    <div class="col m2 s12 truncate"><b>{{groupProjTask.task_name}}</b></div>
+                    <div class="col m2 s12 truncate">{{groupProjTask.task_name}}</div>
                     <div class="col m6 s12" v-html="groupProjTask.task_description"></div>                    
                     <div class="col m1 s12">{{groupProjTask.task_start}}</div>
                     <div class="col m1 s12">{{groupProjTask.task_deadline}}</div>
@@ -119,7 +126,7 @@
                 <span class="PrjNameConainer">Project name: <span class="PrjName">{{groupProj.proj}}</span></span>  
                 <!-- tasks -->
                 <div v-for="groupProjTask in groupProj.tasks" v-bind:key="groupProjTask.id" v-bind:class="groupProjTask.task_status=='On hold'?'onHold':'inProgres'" class="row z-depth-2">
-                    <div class="col m2 s12 truncate"><b>{{groupProjTask.task_name}}</b></div>
+                    <div class="col m2 s12 truncate">{{groupProjTask.task_name}}</div>
                     <div class="col m6 s12" v-html="groupProjTask.task_description"></div>                    
                     <div class="col m1 s12">{{groupProjTask.task_start}}</div>
                     <div class="col m1 s12">{{groupProjTask.task_deadline}}</div>
@@ -139,7 +146,7 @@
                 <span class="PrjNameConainer">Project name: <span class="PrjName">{{groupProj.proj}}</span></span>  
                 <!-- tasks -->
                 <div v-for="groupProjTask in groupProj.tasks" v-bind:key="groupProjTask.id" v-bind:class="groupProjTask.task_status=='On hold'?'onHold':'inProgres'" class="row z-depth-2">
-                    <div class="col m2 s12 truncate"><b>{{groupProjTask.task_name}}</b></div>
+                    <div class="col m2 s12 truncate">{{groupProjTask.task_name}}</div>
                     <div class="col m6 s12" v-html="groupProjTask.task_description"></div>                    
                     <div class="col m1 s12">{{groupProjTask.task_start}}</div>
                     <div class="col m1 s12">{{groupProjTask.task_deadline}}</div>
@@ -155,7 +162,7 @@
                 <span class="PrjNameConainer">Project name: <span class="PrjName">{{groupProj.proj}}</span></span>  
                 <!-- tasks -->
                 <div v-for="groupProjTask in groupProj.tasks" v-bind:key="groupProjTask.id" v-bind:class="groupProjTask.task_status=='On hold'?'onHold':'inProgres'" class="row z-depth-2">
-                    <div class="col m2 s12 truncate"><b>{{groupProjTask.task_name}}</b></div>
+                    <div class="col m2 s12 truncate">{{groupProjTask.task_name}}</div>
                     <div class="col m6 s12" v-html="groupProjTask.task_description"></div>                    
                     <div class="col m1 s12">{{groupProjTask.task_start}}</div>
                     <div class="col m1 s12">{{groupProjTask.task_deadline}}</div>
@@ -208,48 +215,48 @@ export default {
       }
       //sort weeks ascending
       var objVue = this;
-
-      objVue.weeks = objVue.weeks.sort(compare);
-      var myWeeks = objVue.weeks;
+      // sum up tasks
+      objVue.tasks = objVue.tasks_test.concat(objVue.tasks_cip);
 
       // add tasks to weeks
       var weekTargetIns;
-      objVue.tasks = objVue.tasks_test.concat(objVue.tasks_cip)
+      // reset week data - needed for update
+      objVue.weeks = [];
 
       objVue.tasks.forEach(function(i) {
-        //Add to week data
+        objVue.pushUnique(objVue.weeks, i.task_wkNo, i.task_project);
 
         if (objVue.Projects.MKT.indexOf(i.task_project) != -1) {
           if (i.task_status == "In progress") {
-            weekTargetIns = myWeeks.find(o => o.no == i.task_wkNo).weekData.MKT
-              .InWork;
+            weekTargetIns = objVue.weeks.find(o => o.no == i.task_wkNo).weekData
+              .MKT.InWork;
           } else {
-            weekTargetIns = myWeeks.find(o => o.no == i.task_wkNo).weekData.MKT
-              .OnHold;
+            weekTargetIns = objVue.weeks.find(o => o.no == i.task_wkNo).weekData
+              .MKT.OnHold;
           }
         } else if (objVue.Projects.ASI.indexOf(i.task_project) != -1) {
           if (i.task_status == "In progress") {
-            weekTargetIns = myWeeks.find(o => o.no == i.task_wkNo).weekData.ASI
-              .InWork;
+            weekTargetIns = objVue.weeks.find(o => o.no == i.task_wkNo).weekData
+              .ASI.InWork;
           } else {
-            weekTargetIns = myWeeks.find(o => o.no == i.task_wkNo).weekData.ASI
-              .OnHold;
+            weekTargetIns = objVue.weeks.find(o => o.no == i.task_wkNo).weekData
+              .ASI.OnHold;
           }
         } else if (objVue.Projects.Gaps.indexOf(i.task_project) != -1) {
           if (i.task_status == "In progress") {
-            weekTargetIns = myWeeks.find(o => o.no == i.task_wkNo).weekData.Gaps
-              .InWork;
+            weekTargetIns = objVue.weeks.find(o => o.no == i.task_wkNo).weekData
+              .Gaps.InWork;
           } else {
-            weekTargetIns = myWeeks.find(o => o.no == i.task_wkNo).weekData.Gaps
-              .OnHold;
+            weekTargetIns = objVue.weeks.find(o => o.no == i.task_wkNo).weekData
+              .Gaps.OnHold;
           }
         } else {
           if (i.task_status == "In progress") {
-            weekTargetIns = myWeeks.find(o => o.no == i.task_wkNo).weekData.Oth
-              .InWork;
+            weekTargetIns = objVue.weeks.find(o => o.no == i.task_wkNo).weekData
+              .Oth.InWork;
           } else {
-            weekTargetIns = myWeeks.find(o => o.no == i.task_wkNo).weekData.Oth
-              .OnHold;
+            weekTargetIns = objVue.weeks.find(o => o.no == i.task_wkNo).weekData
+              .Oth.OnHold;
           }
         }
         if (!weekTargetIns.find(o => o.proj === i.task_project)) {
@@ -261,7 +268,7 @@ export default {
         weekTargetIns.find(o => o.proj == i.task_project).tasks.push(i);
       });
 
-      objVue.weeks = myWeeks;
+      objVue.weeks = objVue.weeks.sort(compare);
       $(document).ready(function() {
         $(".collapsible").collapsible();
       });
@@ -316,6 +323,18 @@ export default {
       wkno.weekData.MKT.OnHold.forEach(function(i) {
         sum += i.tasks.length;
       });
+      wkno.weekData.Gaps.InWork.forEach(function(i) {
+        sum += i.tasks.length;
+      });
+      wkno.weekData.Gaps.OnHold.forEach(function(i) {
+        sum += i.tasks.length;
+      });
+      wkno.weekData.Oth.InWork.forEach(function(i) {
+        sum += i.tasks.length;
+      });
+      wkno.weekData.Oth.OnHold.forEach(function(i) {
+        sum += i.tasks.length;
+      });
       return sum;
     },
     SumFTAinWeek: function(wkno, grup) {
@@ -335,90 +354,14 @@ export default {
       if (a.task_deadline > b.task_deadline) return 1;
       return 0;
     },
-    GetFire_innoProj: function() {
-      var objVue = this;
-      // get list inno pipeline
-      db
-        .collection("DropDowns/InnoPipeline/Projects")
-        .get()
-        .then(querySnapshot => {
-          querySnapshot.forEach(doc => {
-            if (doc.id == "ASI") {
-              doc.data().Projects.forEach(prj => {
-                objVue.Projects.ASI.push(prj);
-              });
-            } else if (doc.id == "MKT") {
-              doc.data().Projects.forEach(prj => {
-                objVue.Projects.MKT.push(prj);
-              });
-            } else if (doc.id == "Gaps") {
-              doc.data().Projects.forEach(prj => {
-                objVue.Projects.Gaps.push(prj);
-              });
-            } else {
-              doc.data().Projects.forEach(prj => {
-                objVue.Projects.Oth.push(prj);
-              });
-            }
-          });
-          // at final call make array
-          objVue.SetWeekArray();
-        });
-    },
-    GetFire_Cip: function() {
-      var objVue = this;
-      //test
-      db
-        .collection("YqRVNtuUu3aAHt6g2YW05OxIsj42")
-        .where("t_isActive", "==", true)        
-        .onSnapshot(querySnapshot => {
-          objVue.tasks_cip = [];
-          querySnapshot.forEach(doc => {
-            //custom filter
-            if (
-              (doc.data().tStatus == "In progress" ||
-                doc.data().tStatus == "On hold") &&
-              doc.data().tDeadline != null
-            ) {
-              const data = {
-                id: doc.id,
-                task_name: doc.data().tName,
-                task_description: doc
-                  .data()
-                  .tDescription.replace(/\n/g, "<br/>"),
-                task_start: moment(doc.data().tStart, "YYYY-MM-DD").format(
-                  "DD-MMM"
-                ),
-                task_deadline: moment(
-                  doc.data().tDeadline,
-                  "YYYY-MM-DD"
-                ).format("DD-MMM"),
-                task_FTA: doc.data().tFTA,
-                task_wkNo: moment(doc.data().tDeadline, "YYYY-MM-DD").week(),
-                task_status: doc.data().tStatus,
-                task_project: doc.data().tProject,
-                task_owner: "Cip"
-              };
-
-              objVue.tasks_cip.push(data);
-              objVue.pushUnique(
-                objVue.weeks,
-                data.task_wkNo,
-                data.task_project
-              );
-            }
-          });
-          //call next function
-          objVue.GetFire_test();
-        });
-    },
     GetFire_test: function() {
       var objVue = this;
       //test
       db
         .collection("YPPNyRXLbXZhfgZ6i4ITY68kqY02")
-        .where("t_isActive", "==", true)        
+        .where("t_isActive", "==", true)
         .onSnapshot(querySnapshot => {
+          // reset
           objVue.tasks_test = [];
           querySnapshot.forEach(doc => {
             //custom filter
@@ -447,21 +390,96 @@ export default {
                 task_owner: "test"
               };
 
-              objVue.tasks_test.push(data);
-              objVue.pushUnique(
-                objVue.weeks,
-                data.task_wkNo,
-                data.task_project
-              );
+              objVue.tasks_test.push(data);       
+            }
+          });
+          //call next function
+          objVue.GetFire_Cip();
+        });
+    },
+    GetFire_Cip: function() {
+      var objVue = this;
+      //test
+      db
+        .collection("YqRVNtuUu3aAHt6g2YW05OxIsj42")
+        .where("t_isActive", "==", true)
+        .onSnapshot(querySnapshot => {
+          //reset
+          objVue.tasks_cip = [];
+
+          querySnapshot.forEach(doc => {
+            //custom filter
+            if (
+              (doc.data().tStatus == "In progress" ||
+                doc.data().tStatus == "On hold") &&
+              doc.data().tDeadline != null
+            ) {
+              const data = {
+                id: doc.id,
+                task_name: doc.data().tName,
+                task_description: doc
+                  .data()
+                  .tDescription.replace(/\n/g, "<br/>"),
+                task_start: moment(doc.data().tStart, "YYYY-MM-DD").format(
+                  "DD-MMM"
+                ),
+                task_deadline: moment(
+                  doc.data().tDeadline,
+                  "YYYY-MM-DD"
+                ).format("DD-MMM"),
+                task_FTA: doc.data().tFTA,
+                task_wkNo: moment(doc.data().tDeadline, "YYYY-MM-DD").week(),
+                task_status: doc.data().tStatus,
+                task_project: doc.data().tProject,
+                task_owner: "Cip"
+              };
+
+              objVue.tasks_cip.push(data);           
             }
           });
           //call next function
           objVue.GetFire_innoProj();
         });
+    },
+    GetFire_innoProj: function() {
+      var objVue = this;
+      // get list inno pipeline
+      db
+        .collection("DropDowns/InnoPipeline/Projects")
+        .get()
+        .then(querySnapshot => {
+          // reset proj array
+          objVue.Projects.ASI = [];
+          objVue.Projects.MKT = [];
+          objVue.Projects.Gasp = [];
+          objVue.Projects.Oth = [];
+
+          querySnapshot.forEach(doc => {
+            if (doc.id == "ASI") {
+              doc.data().Projects.forEach(prj => {
+                objVue.Projects.ASI.push(prj);
+              });
+            } else if (doc.id == "MKT") {
+              doc.data().Projects.forEach(prj => {
+                objVue.Projects.MKT.push(prj);
+              });
+            } else if (doc.id == "Gaps") {
+              doc.data().Projects.forEach(prj => {
+                objVue.Projects.Gaps.push(prj);
+              });
+            } else {
+              doc.data().Projects.forEach(prj => {
+                objVue.Projects.Oth.push(prj);
+              });
+            }
+          });
+          // at final call make array
+          objVue.SetWeekArray();
+        });
     }
   },
   created() {
-    this.GetFire_Cip();
+    this.GetFire_test();
 
     // //Ana
     // db
@@ -501,45 +519,6 @@ export default {
     //       }
     //     });
     //   });
-
-    // //cip
-    // db
-    //   .collection("YqRVNtuUu3aAHt6g2YW05OxIsj42")
-    //   .where("t_isActive", "==", true)
-    //   // .get()
-    //   // .then(function(querySnapshot) {
-    //   // querySnapshot.forEach(function(doc) {
-    //   .onSnapshot(querySnapshot => {
-    //     objVue.tasks_cip = [];
-    //     querySnapshot.forEach(doc => {
-    //       //custom filter
-    //       if (
-    //         (doc.data().tStatus == "In progress" ||
-    //           doc.data().tStatus == "On hold") &&
-    //         doc.data().tDeadline != null
-    //       ) {
-    //         const data = {
-    //           id: doc.id,
-    //           task_name: doc.data().tName,
-    //           task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
-    //           task_start: moment(doc.data().tStart, "YYYY-MM-DD").format(
-    //             "DD-MMM"
-    //           ),
-    //           task_deadline: moment(doc.data().tDeadline, "YYYY-MM-DD").format(
-    //             "DD-MMM"
-    //           ),
-    //           task_FTA: doc.data().tFTA,
-    //           task_wkNo: moment(doc.data().tDeadline, "YYYY-MM-DD").week(),
-    //           task_status: doc.data().tStatus,
-    //           task_project: doc.data().tProject,
-    //           task_owner: "cip"
-    //         };
-
-    //         objVue.tasks_cip.push(data);
-    //         objVue.pushUnique(objVue.weeks, data.task_wkNo, data.task_project);
-    //       }
-    //     });
-    //   });
   }
 };
 </script>
@@ -560,9 +539,9 @@ export default {
 .active .weekNoH::before {
   content: " \25bc ";
 }
-.grupContainer{
+.grupContainer {
   padding: 5px;
-  margin-bottom: 10px
+  margin-bottom: 10px;
 }
 .MKT_Container {
   background: #e8f1f1;
@@ -581,6 +560,7 @@ export default {
   padding: 0px 5px;
 }
 .PrjName {
-  font-weight: bold;
+  /* font-weight: bold; */
+  color: darkgreen;
 }
 </style>
