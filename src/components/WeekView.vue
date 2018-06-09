@@ -358,7 +358,7 @@ export default {
       var objVue = this;
       //test
       db
-        .collection("YPPNyRXLbXZhfgZ6i4ITY68kqY02")
+        .collection("UserTasks/tasks/YPPNyRXLbXZhfgZ6i4ITY68kqY02")
         .where("t_isActive", "==", true)
         .onSnapshot(querySnapshot => {
           // reset
@@ -390,7 +390,7 @@ export default {
                 task_owner: "test"
               };
 
-              objVue.tasks_test.push(data);       
+              objVue.tasks_test.push(data);
             }
           });
           //call next function
@@ -401,7 +401,7 @@ export default {
       var objVue = this;
       //test
       db
-        .collection("YqRVNtuUu3aAHt6g2YW05OxIsj42")
+        .collection("UserTasks/tasks/YqRVNtuUu3aAHt6g2YW05OxIsj42")
         .where("t_isActive", "==", true)
         .onSnapshot(querySnapshot => {
           //reset
@@ -434,7 +434,7 @@ export default {
                 task_owner: "Cip"
               };
 
-              objVue.tasks_cip.push(data);           
+              objVue.tasks_cip.push(data);
             }
           });
           //call next function
