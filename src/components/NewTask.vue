@@ -11,7 +11,9 @@
           </div>
         </div>
         <div class="row">
-          <div class="input-field col s12">
+          <span v-if="!showDetails" @click="showDetails=true" class="waves-effect waves-light btn-small black-text blue-grey lighten-4">Add details</span>
+          <span v-if="showDetails" @click="showDetails=false" class="waves-effect waves-light btn-small blue-grey lighten-2">Hide details</span>
+          <div v-if="showDetails" class="input-field col s12">
             <textarea id="textarea1" placeholder="Task details" v-model="task_details"
               required />
             <label for="textarea1" class="active">Details:</label>
@@ -29,13 +31,28 @@
               v-model="task_deadline">
             <label class="active">Deadline:</label>
           </div>
-        </div>      
+        </div>
+        <!-- projects category -->
         <div class="row">
+          <label class="active" >Category:</label>
+          <div class="input-field col s12">            
+            <span @click="nSelectedProjCat=opt,getProjects()" v-for="opt in ProjectsCat" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedProjCat==opt}" class="mySingle chip">
+              {{opt}}
+            </span>
+            <a @click="showNewProjCat=true" v-if="!showNewProjCat" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>
+          <input v-if="showNewProjCat" v-model="AddNewProjCat" v-on:keyup.tab="addProjCategory()" type="text">
+          </div>
+        </div>  
+
+        <!-- project list -->
+        <div v-if="showProject" class="row">
           <label class="active" >Project:</label>
           <div class="input-field col s12">            
             <span @click="nSelectedProj=opt" v-for="opt in nProjectsList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedProj==opt}" class="mySingle chip">
               {{opt}}
             </span>
+            <a @click="showNewProj=true" v-if="!showNewProj" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>
+          <input v-if="showNewProj" v-on:keyup.tab="addProj" type="text">
           </div>
         </div> 
         <div class="row">
@@ -62,6 +79,10 @@ export default {
   name: "new-task",
   data() {
     return {
+      showDetails:false,
+      showProject:false,
+      showNewProj:false,
+      showNewProjCat:false,
       task_name: null,
       task_details: null, 
       task_start:null,        
@@ -70,9 +91,11 @@ export default {
       task_project:null,
       task_env:null,
       Statuses: fireList.statusesList,
-      Projects:fireList.myProjectsList,
-      Environments:fireList.envList,
-      nProjectsList:fireList.myProjectsList,
+      ProjectsCat:fireList.innoProjCat,
+      AddNewProjCat:null,
+      
+      nProjectsList:[],
+      nSelectedProjCat:null,
       nSelectedProj:null,
       nStatusesList:fireList.statusesList,
       nSelectedStatus:null
@@ -96,14 +119,46 @@ export default {
           tDeadline: this.task_deadline,
           tStatus: this.task_status,
           tProject:this.task_project,
-          tEnvironment:this.task_env?this.task_env:"",
           t_isActive:true
         })
         .then(docRef => this.$router.push("/"))
         .catch(error => console.log(err));
     },
-    SelSingle(opt){
-        this.nSelectedProj=opt
+    getProjects(){
+      var vueObj=this
+      vueObj.nProjectsList=[]
+      
+      db.collection("DropDowns/InnoPipeline/Projects")
+      .doc(vueObj.nSelectedProjCat)
+      .get()       
+       .then(doc => {
+        // console.log(doc.data())
+        doc.data().Projects.forEach(LstItem => {
+          // console.log(LstItem)
+            vueObj.nProjectsList.push(LstItem);
+         });
+        vueObj.showProject=true
+      });
+    },
+    addProjCategory(){
+      console.log("started")
+      var vueObj=this
+      db.collection("DropDowns/InnoPipeline/Projects")
+      .doc(vueObj.AddNewProjCat)
+      .set({
+          Projects:[]
+      })
+      .then(function() {
+        console.log("done")
+          vueObj.showNewProjCat=false
+      })
+    },
+    addProj(){
+      db.collection("DropDowns/InnoPipeline/Projects").set({
+          name: "Los Angeles",
+          state: "CA",
+          country: "USA"
+      })
     }
   },
   mounted() {

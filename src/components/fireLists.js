@@ -4,7 +4,7 @@ var Statuses = [];
 var Projects = [];
 var MyProjects = [];
 var Envrmnts = [];
-var InnoProj = [];
+var InnoProjCat = [];
 // var Members=[];
 
 const ListRef = db.collection("DropDowns");
@@ -62,23 +62,19 @@ db.collection("DropDowns/InnoPipeline/Projects")
   .get()
   .then(querySnapshot => {
     querySnapshot.forEach(doc => {
-      doc.data().Projects.forEach(prj => {
-        InnoProj.push(prj);
-      });
+      // console.log(doc.id)
+      InnoProjCat.push(doc.id)
+      // doc.data().Projects.forEach(prj => {
+      //   InnoProjCat.push(prj);
+      // });
     });
-    InnoProj.sort()
+    InnoProjCat.sort()
   });
-
-function sortTasks(a, b) {
-  if (a.task_deadline < b.task_deadline) return -1;
-  if (a.task_deadline > b.task_deadline) return 1;
-  return 0;
-}
  
 export default {
   statusesList: Statuses.sort(),
   projectsList: Projects,
   myProjectsList: MyProjects,
   envList: Envrmnts,
-  inoProj: InnoProj
+  innoProjCat: InnoProjCat
 };
