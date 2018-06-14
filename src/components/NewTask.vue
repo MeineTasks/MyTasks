@@ -18,46 +18,34 @@
           </div>
         </div> 
         <div class="row">
-          <div class="input-field col s12">
+          <div class="input-field col">
             <input id="StartDate" type="date" placeholder="start date"
               v-model="task_start">
             <label class="active">Start date:</label>
           </div>
-        </div>        
-        <div class="row">
-          <div class="input-field col s12">
+        
+          <div class="input-field col">
             <input id="DeadLine" type="date" placeholder="Task deadline"
               v-model="task_deadline">
             <label class="active">Deadline:</label>
           </div>
         </div>      
-          <div class="row">
-          <div class="input-field col s12">
-           <select required style="display:block" v-model="task_project">
-              <option v-for="project in Projects" v-bind:key="project.id"
-                v-bind:value="project">{{project}}</option>
-            </select>
-            <label class="active">Project:</label>
-          </div>
-        </div>  
-         <div v-if="task_project=='IQConcepts'" class="row">
-          <div class="input-field col s12">
-           <select style="display:block" v-model="task_env">
-              <option v-for="env in Environments" v-bind:key="env.id"
-                v-bind:value="env">{{env}}</option>
-            </select>
-            <label class="active">On environment:</label>
-          </div>
-        </div>
         <div class="row">
-          <div class="input-field col s12">
-           <select required style="display:block" v-model="task_status">
-              <option v-for="status in Statuses" v-bind:key="status.id"
-                v-bind:value="status">{{status}}</option>
-            </select>
-            <label class="active">Status:</label>
+          <label class="active" >Project:</label>
+          <div class="input-field col s12">            
+            <span @click="nSelectedProj=opt" v-for="opt in nProjectsList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedProj==opt}" class="mySingle chip">
+              {{opt}}
+            </span>
           </div>
-        </div>
+        </div> 
+        <div class="row">
+          <label class="active" >Status:</label>
+          <div class="input-field col s12">            
+            <span @click="nSelectedStatus=opt" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
+                {{opt}}
+              </span>
+          </div>
+        </div>          
         <button type="submit" class="btn brown lighten-1">Save</button>
         <router-link to="/view/cols" class="btn grey">Cancel</router-link>
       </form>
@@ -83,7 +71,11 @@ export default {
       task_env:null,
       Statuses: fireList.statusesList,
       Projects:fireList.myProjectsList,
-      Environments:fireList.envList
+      Environments:fireList.envList,
+      nProjectsList:fireList.myProjectsList,
+      nSelectedProj:null,
+      nStatusesList:fireList.statusesList,
+      nSelectedStatus:null
     };
   },
   methods: {
@@ -109,13 +101,32 @@ export default {
         })
         .then(docRef => this.$router.push("/"))
         .catch(error => console.log(err));
+    },
+    SelSingle(opt){
+        this.nSelectedProj=opt
     }
+  },
+  mounted() {
+    // $(".mySingle").click(function(){
+    //   $(".mySingle").attr("isSelected",false)
+    //   $(this).attr("isSelected",true)
+    // })
   }
 };
 </script>
-<style>
+<style scoped>
 textarea {
   margin-top: 10px;
   height: 107px;
+}
+input[type="date"]{
+  width:150px
+}
+.mySingle{
+  cursor: pointer;
+}
+.mySingleSelected{
+  background: teal;
+  color:white
 }
 </style>
