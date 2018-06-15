@@ -5,7 +5,7 @@ var Projects = [];
 var MyProjects = [];
 var Envrmnts = [];
 var InnoProjCat = [];
-// var Members=[];
+var Owners=[];
 
 const ListRef = db.collection("DropDowns");
 
@@ -20,6 +20,7 @@ ListRef.doc("Statuses")
         //console.log(user)
         Statuses.push(LstItem);
       });
+      Statuses=Statuses.sort()
   });
 
 ListRef.doc("Project")
@@ -58,23 +59,25 @@ ListRef.doc("Environments")
         Envrmnts.push(LstItem);
       });
   });
-db.collection("DropDowns/InnoPipeline/Projects")
+  db.collection("Users") 
+  .where("isOwner", "==", true)
   .get()
-  .then(querySnapshot => {
-    querySnapshot.forEach(doc => {
-      // console.log(doc.id)
-      InnoProjCat.push(doc.id)
-      // doc.data().Projects.forEach(prj => {
-      //   InnoProjCat.push(prj);
-      // });
-    });
-    InnoProjCat.sort()
+  .then(doc => {
+    doc.forEach(LstItem => {
+      // console.log(LstItem.data())
+      // Owners.push(LstItem.data().Label)
+      Owners.push({Label:LstItem.data().Label,UID:LstItem.id})
+    })
+    //Owners=Owners.sort()
   });
+
+
  
 export default {
-  statusesList: Statuses.sort(),
+  statusesList: Statuses,
   projectsList: Projects,
   myProjectsList: MyProjects,
   envList: Envrmnts,
-  innoProjCat: InnoProjCat
+  innoProjCat: InnoProjCat,
+  OwnersList:Owners
 };
