@@ -10,6 +10,7 @@
             <label class="active">Name:</label>
           </div>
         </div>
+        <!-- details -->
         <div class="row">
           <div class="input-field col s12">
             <textarea id="textarea1" placeholder="Task details" v-model="task_details"
@@ -17,53 +18,65 @@
             <label for="textarea1" class="active">Details:</label>
           </div>
         </div>
+        <!-- timings -->
         <div class="row">
-          <div class="input-field col s12">
+          <div class="input-field col">
             <input id="StartDate" type="date" placeholder="start date"
               v-model="task_start">
             <label class="active">Start date:</label>
           </div>
-        </div>
-        <div class="row">
-          <div class="input-field col s12">
+          <div class="input-field col">
             <input id="DeadLine" type="date" placeholder="Task deadline"
               v-model="task_deadline">
             <label class="active">Deadline:</label>
           </div>
-        </div>  
-        <div class="row">
-          <div class="input-field col s12">
-            <input placeholder="FTA" type="text" v-model="task_FTA">
-            <label class="active">FTA:</label>
+          <select v-model="task_FTE" style="display:inline;width:70px" >
+                <option v-for="fta in FTAarray" v-bind:key="fta.id"
+                  v-bind:value="fta">{{fta}}</option>
+              </select> 
+              <span>FTE</span>
+        </div>        
+        <!-- projects category -->
+          <div class="row">
+              <label class="active">Category:</label>
+              <div class="input-field col s12">
+                  <span @click="SelectedProjCat=opt,getProjects()" v-for="opt in ProjectsCat" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProjCat==opt}" class="mySingle chip">
+                    {{opt}}
+                  </span>
+                  <a @click="showNewProjCat=true" v-if="!showNewProjCat" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>
+                  <input v-if="showNewProjCat" v-model="AddNewProjCat" v-on:keydown.enter.prevent="addProjCategory" v-on:keydown.esc.prevent="DelProjCategory" placeholder="Add a new value and then 'pres Enter' or 'Esc' to remove it" type="text">
+              </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="input-field col s12">
-           <select required style="display:block" v-model="task_status">
-              <option v-for="status in Statuses" v-bind:key="status.id"
-                v-bind:value="status">{{status}}</option>
-            </select>
-            <label class="active">Status:</label>
+
+          <!-- project list -->
+          <div class="row">
+              <label class="active">Project:</label>
+              <div v-if="showProject" class="input-field col s12">
+                  <span @click="SelectedProj=opt" v-for="opt in ProjectsList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProj==opt}" class="mySingle chip">
+                {{opt}}
+              </span>
+                  <a @click="showNewProj=true" v-if="!showNewProj" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>                  
+                   <input v-if="showNewProj" v-model="AddNewProj" v-on:keydown.enter.prevent="addProj" v-on:keydown.esc.prevent="DelProj" placeholder="Add a new value and then 'pres Enter' or 'Esc' to remove it" type="text">
+              </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="input-field col s12">
-           <select required style="display:block" v-model="task_project">
-              <option v-for="project in Projects" v-bind:key="project.id"
-                v-bind:value="project">{{project}}</option>
-            </select>
-            <label class="active">Project:</label>
+          <!-- status -->
+          <div class="row">
+              <label class="active">Status:</label>
+              <div class="input-field col s12">
+                  <span @click="nSelectedStatus=opt" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
+                    {{opt}}
+                  </span>
+              </div>
           </div>
-        </div>
-         <div v-if="task_project=='IQConcepts'" class="row">
-          <div class="input-field col s12">
-           <select style="display:block" v-model="task_env">
-              <option v-for="env in Environments" v-bind:key="env.id"
-                v-bind:value="env">{{env}}</option>
-            </select>
-            <label class="active">On environment:</label>
-          </div>
-        </div>
+          <!-- Owners -->
+          <!-- <div class="row">
+              <label class="active">Owner:</label>
+              <div class="input-field col s12">
+                  <span @click="SelectedOwner=opt" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.Label==opt.Label}" class="mySingle chip">
+                    {{opt.Label}}
+                  </span>
+              </div>
+          </div> -->
         <div class="row">
           <div class="input-field col s12">
             <select required style="display:block" v-model="task_isActive">
@@ -89,31 +102,56 @@ export default {
   name: "edit-task",
   data() {
     return {
+      FTAarray: [
+        "TBD",
+        "0.1",
+        "0.2",
+        "0.3",
+        "0.4",
+        "0.5",
+        "0.6",
+        "0.7",
+        "0.8",
+        "0.9",
+        "1"
+      ],
+      task_FTE: null,
+      showDetails: false,
+      showProject: true,
+      showNewProj: false,
+      showNewProjCat: false,
+
       task_name: null,
-      task_details: null,
-      task_start:null,   
-      task_deadline: null,      
+      task_details: "",
+      task_start: null,
+      task_deadline: null,
       task_status: null,
-      task_project:null,
-      task_isActive:null,
-      task_env:null,
-      task_FTA:null,
-      orig_task_name: null,
-      orig_task_details: null,
-      orig_task_start:null,      
-      orig_task_deadline: null,      
-      orig_task_status: null,      
-      Statuses:fireList.statusesList,
-      Projects:fireList.inoProj,
-      Environments:fireList.envList
+      task_project: null,
+      task_env: null,
+      task_isActive: null,
+      Statuses: fireList.statusesList,
+
+      ProjectsCat: [],
+      AddNewProjCat: null,
+      SelectedProjCat: null,
+
+      ProjectsList: [],
+      SelectedProj: null,
+      AddNewProj: null,
+
+      nStatusesList: fireList.statusesList,
+      nSelectedStatus: "In progress"
+
+      // ownersList: fireList.OwnersList,
+      // SelectedOwner: { Label: null, UID: null }
     };
   },
   methods: {
     updateTask() {
       //validate end start times
-      if (new Date($("#DeadLine").val())<new Date($("#StartDate").val())){
+      if (new Date($("#DeadLine").val()) < new Date($("#StartDate").val())) {
         M.toast({ html: `Start date should be sooner than Deadline` });
-        $("#StartDate,#DeadLine").css("border","solid red 1px")
+        $("#StartDate,#DeadLine").css("border", "solid red 1px");
         return false;
       }
 
@@ -122,83 +160,154 @@ export default {
         .doc(this.$route.params.task_id)
         .set({
           tName: this.task_name,
-          tDescription: this.task_details,      
-          tStart:this.task_start,    
-          tDeadline: this.task_deadline,          
-          tFTA:this.task_FTA,
-          tStatus: this.task_status,
-          tProject:this.task_project,
-          tEnvironment:this.task_env?this.task_env:"",
-          t_isActive:this.task_isActive=="Yes"
+          tDescription: this.task_details,
+          tStart: this.task_start,
+          tDeadline: this.task_deadline,
+          tFTE: this.task_FTE,
+          tProject: this.SelectedProj,
+          tProjCateg: this.SelectedProjCat,
+          tStatus: this.nSelectedStatus,
+          // tOwner:this.SelectedOwner,
+          // tEnvironment:this.task_env?this.task_env:"",
+          t_isActive: this.task_isActive == "Yes"
         })
         .then(docRef => {
-          //log the info
-          var ChangedInfo = "";
-          if (this.orig_task_name != this.task_name) {
-            ChangedInfo =
-              ChangedInfo +
-              "Task name:" +
-              this.orig_task_name +
-              "##" +
-              this.task_name +
-              "||";
-          }
-          if (this.orig_task_details != this.task_details) {
-            ChangedInfo =
-              ChangedInfo +
-              "Details:" +
-              this.orig_task_details +
-              "##" +
-              this.task_details +
-              "||";
-          }
-          if (this.orig_task_deadline != this.task_deadline) {
-            ChangedInfo =
-              ChangedInfo +
-              "Deadline:" +
-              this.orig_task_deadline +
-              "##" +
-              this.task_deadline +
-              "||";
-          }
-          if (this.orig_task_start != this.task_start) {
-            ChangedInfo =
-              ChangedInfo +
-              "Start:" +
-              this.orig_task_start +
-              "##" +
-              this.task_start +
-              "||";
-          }     
-          if (this.orig_task_status != this.task_status) {
-            ChangedInfo =
-              ChangedInfo +
-              "Status:" +
-              this.orig_task_status +
-              "##" +
-              this.task_status +
-              "||";
-          }
-          //  console.log(ChangedInfo.slice(0,-2))
-          //log the change
-          if (ChangedInfo != "") {
-            db
-              .collection("Log")
-              .doc(firebase.auth().currentUser.uid)
-              .collection("LogCollection")
-              .add({
-                date: new Date().toString().slice(0,10) +" "+new Date(new Date()).toString().split(' ')[4],
-                tName: this.task_name,
-                updated: ChangedInfo.slice(0, -2)
-              })
-              .catch(function(error) {
-                console.error("Error adding document ChangedInfo: ", error);
-              });
-          }
+        //   //log the info
+        //   var ChangedInfo = "";
+        //   if (this.orig_task_name != this.task_name) {
+        //     ChangedInfo =
+        //       ChangedInfo +
+        //       "Task name:" +
+        //       this.orig_task_name +
+        //       "##" +
+        //       this.task_name +
+        //       "||";
+        //   }
+        //   if (this.orig_task_details != this.task_details) {
+        //     ChangedInfo =
+        //       ChangedInfo +
+        //       "Details:" +
+        //       this.orig_task_details +
+        //       "##" +
+        //       this.task_details +
+        //       "||";
+        //   }
+        //   if (this.orig_task_deadline != this.task_deadline) {
+        //     ChangedInfo =
+        //       ChangedInfo +
+        //       "Deadline:" +
+        //       this.orig_task_deadline +
+        //       "##" +
+        //       this.task_deadline +
+        //       "||";
+        //   }
+        //   if (this.orig_task_start != this.task_start) {
+        //     ChangedInfo =
+        //       ChangedInfo +
+        //       "Start:" +
+        //       this.orig_task_start +
+        //       "##" +
+        //       this.task_start +
+        //       "||";
+        //   }
+        //   if (this.orig_task_status != this.task_status) {
+        //     ChangedInfo =
+        //       ChangedInfo +
+        //       "Status:" +
+        //       this.orig_task_status +
+        //       "##" +
+        //       this.task_status +
+        //       "||";
+        //   }
+        //   //  console.log(ChangedInfo.slice(0,-2))
+        //   //log the change
+        //   if (ChangedInfo != "") {
+        //     db
+        //       .collection("Log")
+        //       .doc(firebase.auth().currentUser.uid)
+        //       .collection("LogCollection")
+        //       .add({
+        //         date: new Date().toString().slice(0,10) +" "+new Date(new Date()).toString().split(' ')[4],
+        //         tName: this.task_name,
+        //         updated: ChangedInfo.slice(0, -2)
+        //       })
+        //       .catch(function(error) {
+        //         console.error("Error adding document ChangedInfo: ", error);
+        //       });
+        //   }
+          console.log("task update done")
           this.$router.push("/view/cols");
         })
         .catch(function(error) {
           console.error("Error writing document: ", error);
+        });
+    },
+    addProjCategory() {
+      var vueObj = this;
+      db
+        .collection("DropDowns/InnoPipeline/Projects")
+        .doc(vueObj.AddNewProjCat)
+        .set({
+          Projects: []
+        })
+        .then(function() {
+          vueObj.showNewProjCat = false;
+        });
+    },
+    DelProjCategory(opt) {
+      var vueObj = this;
+      if (vueObj.AddNewProjCat != null) {
+        db
+          .collection("DropDowns/InnoPipeline/Projects")
+          .doc(vueObj.AddNewProjCat)
+          .delete()
+          .then(function() {
+            vueObj.AddNewProjCat = null;
+            vueObj.showNewProjCat = false;
+          });
+      } else {
+        vueObj.showNewProjCat = false;
+      }
+    },
+    getProjects() {
+      var vueObj = this;
+      db
+        .collection(
+          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
+        )
+        .onSnapshot(querySnapshot => {
+          vueObj.ProjectsList = [];
+
+          querySnapshot.forEach(doc => {
+            vueObj.ProjectsList.push(doc.id);
+          });
+          vueObj.showProject = true;
+        });
+    },
+    addProj() {
+      var vueObj = this;
+      db
+        .collection(
+          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
+        )
+        .doc(vueObj.AddNewProj)
+        .set({
+          Projects: null
+        })
+        .then(function() {
+          vueObj.showNewProj = false;
+        });
+    },
+    DelProj() {
+      var vueObj = this;
+      db
+        .collection(
+          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
+        )
+        .doc(vueObj.AddNewProj)
+        .delete()
+        .then(function() {
+          vueObj.showNewProj = false;
         });
     }
   },
@@ -209,20 +318,36 @@ export default {
       .get()
       .then(doc => {
         this.task_name = doc.data().tName;
-        this.task_details = doc.data().tDescription;    
-        this.task_start= doc.data().tStart;
-        this.task_deadline = doc.data().tDeadline;   
-        this.task_FTA=doc.data().tFTA;
-        this.task_status = doc.data().tStatus;
-        this.task_project=doc.data().tProject;
-        this.task_env=doc.data().tEnvironment;
-        this.task_isActive = doc.data().t_isActive?"Yes":"No";
-        this.orig_task_name = this.task_name;        
-        this.orig_task_details = this.task_details;        
-        this.orig_task_start=this.task_start;
-        this.orig_task_deadline = this.task_deadline;        
-        this.orig_task_status = this.task_status;
-      }); 
+        this.task_details = doc.data().tDescription;
+        this.task_start = doc.data().tStart;
+        this.task_deadline = doc.data().tDeadline;
+        this.task_FTE = doc.data().tFTE;
+        this.nSelectedStatus = doc.data().tStatus;
+        this.SelectedProjCat = doc.data().tProjCateg;
+        this.SelectedProj = doc.data().tProject;
+        // this.SelectedOwner=doc.data().tOwner?doc.data().tOwner:{ Label: null, UID: null };
+        this.task_env = doc.data().tEnvironment;
+        this.task_isActive = doc.data().t_isActive ? "Yes" : "No";
+
+        // this.orig_task_name = this.task_name;
+        // this.orig_task_details = this.task_details;
+        // this.orig_task_start=this.task_start;
+        // this.orig_task_deadline = this.task_deadline;
+        // this.orig_task_status = this.task_status;
+        this.getProjects();
+      });
+  },
+  mounted() {
+    var objVue = this;
+    db
+      .collection("DropDowns/InnoPipeline/Projects")
+      .onSnapshot(querySnapshot => {
+        objVue.ProjectsCat = [];
+        querySnapshot.forEach(doc => {
+          objVue.ProjectsCat.push(doc.id);
+        });
+        objVue.ProjectsCat.sort();
+      });
   }
 };
 </script>
@@ -232,8 +357,15 @@ textarea {
   margin-top: 10px;
   height: 107px;
 }
-.row{
-  margin:10px 0px;
+input[type="date"] {
+  width: 150px;
+}
+.mySingle {
+  cursor: pointer;
+}
+.mySingleSelected {
+  background: teal;
+  color: white;
 }
 </style>
 

@@ -9,28 +9,21 @@
                   <label class="active">Name:</label>
               </div>
           </div>
+         <!-- timings -->
           <div class="row">
-              <span v-if="!showDetails" @click="showDetails=true" class="waves-effect waves-light btn-small black-text blue-grey lighten-4">Add details</span>
-              <span v-if="showDetails" @click="showDetails=false" class="waves-effect waves-light btn-small blue-grey lighten-2">Hide details</span>
-              <div v-if="showDetails" class="input-field col s12">
-                  <textarea id="textarea1" placeholder="Task details" v-model="task_details" required />
-                  <label for="textarea1" class="active">Details:</label>
-              </div>
-          </div>
-          <div class="row">
-              <!-- <div class="input-field col">
-                  <input id="StartDate" type="date" placeholder="start date" v-model="task_start">
+              <div class="input-field col">
+                  <input id="StartDate" v-on:change="SetDeadline" type="date" placeholder="start date" v-model="task_start">
                   <label class="active">Start date:</label>
-              </div> -->
+              </div>
               <div class="input-field col">
                   <input id="DeadLine" type="date" placeholder="Task deadline" v-model="task_deadline">
                   <label class="active">Deadline:</label>
               </div>
-              <select v-bind="task_fta" style="display:inline;width:70px" >
+              <select v-model="task_fte" style="display:inline;width:70px" >
                 <option v-for="fta in FTAarray" v-bind:key="fta.id"
                   v-bind:value="fta">{{fta}}</option>
               </select> 
-              <span>FTA</span>
+              <span>FTE</span>
           </div>
           <!-- projects category -->
           <div class="row">
@@ -73,6 +66,14 @@
                   </span>
               </div>
           </div>
+           <div class="row">
+              <span v-if="!showDetails" @click="showDetails=true" class="waves-effect waves-light btn-small black-text blue-grey lighten-4">Add details</span>
+              <span v-if="showDetails" @click="showDetails=false" class="waves-effect waves-light btn-small blue-grey lighten-2">Hide details</span>
+              <div v-if="showDetails" class="input-field col s12">
+                  <textarea id="textarea1" placeholder="Task details" v-model="task_details" required />
+                  <label for="textarea1" class="active">Details:</label>
+              </div>
+          </div>
           <button type="submit" class="btn brown lighten-1">Save</button>
           <router-link to="/view/cols" class="btn grey">Cancel</router-link>
       </form>
@@ -85,12 +86,26 @@ import db from "./firebaseInit";
 import fireList from "./fireLists";
 import firebase from "firebase";
 
+var moment = require("moment");
+
 export default {
   name: "new-task",
   data() {
     return {
-      FTAarray:["0","0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1"],
-      task_fta:null,
+      FTAarray: [
+        "TBD",
+        "0.1",
+        "0.2",
+        "0.3",
+        "0.4",
+        "0.5",
+        "0.6",
+        "0.7",
+        "0.8",
+        "0.9",
+        "1"
+      ],
+      task_fte: null,
       showDetails: false,
       showProject: false,
       showNewProj: false,
@@ -116,11 +131,16 @@ export default {
       nStatusesList: fireList.statusesList,
       nSelectedStatus: "In progress",
 
-      ownersList:fireList.OwnersList,
-      SelectedOwner:{Label:null,UID:null}
+      ownersList: fireList.OwnersList,
+      SelectedOwner: { Label: null, UID: null }
     };
   },
   methods: {
+    SetDeadline() {
+      this.task_deadline = moment(this.task_start, "YYYY-MM-DD")
+        .weekday(5)
+        .format("YYYY-MM-DD");
+    },
     saveTask() {
       //validate end start times
       if (new Date($("#DeadLine").val()) < new Date($("#StartDate").val())) {
@@ -129,47 +149,57 @@ export default {
         return false;
       }
       //validate mandatory fields
-      if(this.SelectedProj==null || this.SelectedProjCat==null || this.nSelectedStatus==null || this.SelectedOwner==null){
-        var message=[]
-        var msg="Please select "
-        var delimit
+      if (
+        this.SelectedProj == null ||
+        this.SelectedProjCat == null ||
+        this.nSelectedStatus == null ||
+        this.SelectedOwner == null
+      ) {
+        var message = [];
+        var msg = "Please select ";
+        var delimit;
 
-        if (this.SelectedProjCat==null){message.push("Project Category")}
-        if (this.SelectedProj==null){ message.push("Project")}
-        if (this.nSelectedStatus==null){message.push("Status")}
-        if (this.SelectedOwner==null){message.push("Owner")}
+        if (this.SelectedProjCat == null) {
+          message.push("Project Category");
+        }
+        if (this.SelectedProj == null) {
+          message.push("Project");
+        }
+        if (this.nSelectedStatus == null) {
+          message.push("Status");
+        }
+        if (this.SelectedOwner == null) {
+          message.push("Owner");
+        }
 
-        console.log(message)
-          message.forEach(function(i,x){
-            // console.log(x)
-            // console.log(x<message.length-1)
-            // console.log(i)
-            delimit=(x<message.length-1)?", ":""
-                msg=msg+ i+ delimit
-          })
-        
+        console.log(message);
+        message.forEach(function(i, x) {
+          delimit = x < message.length - 1 ? ", " : "";
+          msg = msg + i + delimit;
+        });
 
         M.toast({ html: msg });
-        return false
+        return false;
       }
-      
 
       db
         .collection(this.SelectedOwner.UID)
         .add({
           tName: this.task_name,
-          tDescription: this.task_details,//(this.task_details) ? this.task_details : '',
+          tDescription: this.task_details, //(this.task_details) ? this.task_details : '',
           tStart: this.task_start,
           tDeadline: this.task_deadline,
           tProject: this.SelectedProj,
-          tProjCateg:this.SelectedProjCat,
+          tProjCateg: this.SelectedProjCat,
           tStatus: this.nSelectedStatus,
+          tFTE:this.task_fte,
+          tOwner:this.SelectedOwner,
           t_isActive: true
         })
         .then(docRef => this.$router.push("/"))
         .catch(error => console.log(err));
     },
-    
+
     addProjCategory() {
       var vueObj = this;
       db
@@ -200,27 +230,24 @@ export default {
     getProjects() {
       var vueObj = this;
       db
-        .collection("DropDowns/InnoPipeline/Projects/"+vueObj.SelectedProjCat+"/Proj")
-        // .doc(vueObj.SelectedProjCat)
-        // .get()
+        .collection(
+          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
+        )
         .onSnapshot(querySnapshot => {
           vueObj.ProjectsList = [];
-          // querySnapshot.data().Projects.forEach(LstItem => {
-            querySnapshot.forEach(doc => {
-        // .then(doc => {
-          //  console.log(doc.id)
-          // doc.data().Projects.forEach(LstItem => {
-            // console.log(LstItem)
-             vueObj.ProjectsList.push(doc.id);
+
+          querySnapshot.forEach(doc => {
+            vueObj.ProjectsList.push(doc.id);
           });
           vueObj.showProject = true;
         });
     },
     addProj() {
-        var vueObj = this;
-        // console.log(vueObj.SelectedProjCat)
+      var vueObj = this;
       db
-        .collection("DropDowns/InnoPipeline/Projects/"+vueObj.SelectedProjCat+"/Proj")
+        .collection(
+          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
+        )
         .doc(vueObj.AddNewProj)
         .set({
           Projects: null
@@ -229,11 +256,12 @@ export default {
           vueObj.showNewProj = false;
         });
     },
-      DelProj() {
-        var vueObj = this;
-        // console.log(vueObj.SelectedProjCat)
+    DelProj() {
+      var vueObj = this;
       db
-        .collection("DropDowns/InnoPipeline/Projects/"+vueObj.SelectedProjCat+"/Proj")
+        .collection(
+          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
+        )
         .doc(vueObj.AddNewProj)
         .delete()
         .then(function() {
@@ -246,9 +274,9 @@ export default {
     db
       .collection("DropDowns/InnoPipeline/Projects")
       .onSnapshot(querySnapshot => {
-        objVue.ProjectsCat = [];        
-        querySnapshot.forEach(doc => {          
-          objVue.ProjectsCat.push(doc.id);          
+        objVue.ProjectsCat = [];
+        querySnapshot.forEach(doc => {
+          objVue.ProjectsCat.push(doc.id);
         });
         objVue.ProjectsCat.sort();
       });

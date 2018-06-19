@@ -8,7 +8,7 @@
         <li v-if="isLoggedIn"><router-link to="/view/cols">My Active</router-link></li>  
         <li v-if="isLoggedIn"><router-link to="/view/gantt">My Gantt</router-link></li>  
         <li v-if="isLoggedIn"><router-link to="/view/projects">Team Projects</router-link></li>  
-        <li v-if="isLoggedIn"><router-link to="/view/week">Week grup</router-link></li>  
+        <li v-if="isLoggedIn"><router-link to="/view/users">View Users </router-link></li>  
         <li v-if="!isLoggedIn"><router-link to="/login">Login</router-link></li>
         <li v-if="!isLoggedIn"><router-link to="/register">Register</router-link></li>
         <li v-if="isLoggedIn"><button v-on:click="logout" class="btn black">Logout</button></li>

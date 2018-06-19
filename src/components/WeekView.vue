@@ -447,16 +447,19 @@ export default {
       db
         .collection("DropDowns/InnoPipeline/Projects")
         .get()
-        .then(querySnapshot => {
+        .then(querySnapshot => {          
           // reset proj array
           objVue.Projects.ASI = [];
           objVue.Projects.MKT = [];
           objVue.Projects.Gasp = [];
           objVue.Projects.Oth = [];
+          // console.log(querySnapshot)
 
           querySnapshot.forEach(doc => {
+            console.log(doc.collection("Proj"))
             if (doc.id == "ASI") {
-              doc.data().Projects.forEach(prj => {
+              // console.log(doc.Proj.data())
+              doc.data().Proj.forEach(prj => {
                 objVue.Projects.ASI.push(prj);
               });
             } else if (doc.id == "MKT") {

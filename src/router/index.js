@@ -11,6 +11,8 @@ import ViewAll from "@/components/ViewAll";
 import ViewProjects from "@/components/ProjectView";
 import ViewWeek from "@/components/WeekView";
 import ViewGantt from "@/components/ViewGantt";
+import ViewUsers from "@/components/viewUsers";
+
 
 import firebase from "firebase";
 Vue.use(Router);
@@ -101,6 +103,14 @@ let router = new Router({
       path: "/view/gantt",
       name: "viewgantt",
       component: ViewGantt,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: "/view/users",
+      name: "viewusers",
+      component: ViewUsers,
       meta: {
         requiresAuth: true
       }
