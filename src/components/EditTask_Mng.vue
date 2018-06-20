@@ -115,7 +115,7 @@ export default {
         "0.9",
         "1"
       ],
-      task_FTE: null,
+      task_FTE: "",
       showDetails: false,
       showProject: true,
       showNewProj: false,
@@ -147,16 +147,21 @@ export default {
     };
   },
   methods: {
+    SetDeadline() {
+      this.task_deadline = moment(this.task_start, "YYYY-MM-DD")
+        .weekday(5)
+        .format("YYYY-MM-DD");
+    },
     updateTask() {
       //validate end start times
       if (new Date($("#DeadLine").val()) < new Date($("#StartDate").val())) {
         M.toast({ html: `Start date should be sooner than Deadline` });
         $("#StartDate,#DeadLine").css("border", "solid red 1px");
         return false;
-      }
+      }      
 
       db
-        .collection(firebase.auth().currentUser.uid)
+        .collection(this.$route.query.uid)
         .doc(this.$route.params.task_id)
         .set({
           tName: this.task_name,
@@ -171,70 +176,7 @@ export default {
           // tEnvironment:this.task_env?this.task_env:"",
           t_isActive: this.task_isActive == "Yes"
         })
-        .then(docRef => {
-        //   //log the info
-        //   var ChangedInfo = "";
-        //   if (this.orig_task_name != this.task_name) {
-        //     ChangedInfo =
-        //       ChangedInfo +
-        //       "Task name:" +
-        //       this.orig_task_name +
-        //       "##" +
-        //       this.task_name +
-        //       "||";
-        //   }
-        //   if (this.orig_task_details != this.task_details) {
-        //     ChangedInfo =
-        //       ChangedInfo +
-        //       "Details:" +
-        //       this.orig_task_details +
-        //       "##" +
-        //       this.task_details +
-        //       "||";
-        //   }
-        //   if (this.orig_task_deadline != this.task_deadline) {
-        //     ChangedInfo =
-        //       ChangedInfo +
-        //       "Deadline:" +
-        //       this.orig_task_deadline +
-        //       "##" +
-        //       this.task_deadline +
-        //       "||";
-        //   }
-        //   if (this.orig_task_start != this.task_start) {
-        //     ChangedInfo =
-        //       ChangedInfo +
-        //       "Start:" +
-        //       this.orig_task_start +
-        //       "##" +
-        //       this.task_start +
-        //       "||";
-        //   }
-        //   if (this.orig_task_status != this.task_status) {
-        //     ChangedInfo =
-        //       ChangedInfo +
-        //       "Status:" +
-        //       this.orig_task_status +
-        //       "##" +
-        //       this.task_status +
-        //       "||";
-        //   }
-        //   //  console.log(ChangedInfo.slice(0,-2))
-        //   //log the change
-        //   if (ChangedInfo != "") {
-        //     db
-        //       .collection("Log")
-        //       .doc(firebase.auth().currentUser.uid)
-        //       .collection("LogCollection")
-        //       .add({
-        //         date: new Date().toString().slice(0,10) +" "+new Date(new Date()).toString().split(' ')[4],
-        //         tName: this.task_name,
-        //         updated: ChangedInfo.slice(0, -2)
-        //       })
-        //       .catch(function(error) {
-        //         console.error("Error adding document ChangedInfo: ", error);
-        //       });
-        //   }
+        .then(docRef => {       
           console.log("task update done")
           this.$router.push("/view/cols");
         })
@@ -312,8 +254,9 @@ export default {
     }
   },
   created() {
+    
     db
-      .collection(firebase.auth().currentUser.uid)
+      .collection(this.$route.query.uid)
       .doc(this.$route.params.task_id)
       .get()
       .then(doc => {
@@ -321,12 +264,12 @@ export default {
         this.task_details = doc.data().tDescription;
         this.task_start = doc.data().tStart;
         this.task_deadline = doc.data().tDeadline;
-        this.task_FTE = doc.data().tFTE;
+        this.task_FTE = doc.data().tFTE?doc.data().tFTE:"";
         this.nSelectedStatus = doc.data().tStatus;
         this.SelectedProjCat = doc.data().tProjCateg;
         this.SelectedProj = doc.data().tProject;
         // this.SelectedOwner=doc.data().tOwner?doc.data().tOwner:{ Label: null, UID: null };
-        this.task_env = doc.data().tEnvironment;
+        
         this.task_isActive = doc.data().t_isActive ? "Yes" : "No";
 
         // this.orig_task_name = this.task_name;

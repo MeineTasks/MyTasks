@@ -3,6 +3,7 @@ import Router from "vue-router";
 import Dashboard from "@/components/Dashboard";
 import NewTask from "@/components/NewTask";
 import EditTask from "@/components/EditTask";
+import EditTask_MNG from "@/components/EditTask_Mng";
 import ViewCols from "@/components/ViewCols";
 import Login from "@/components/Login";
 import Register from "@/components/Register";
@@ -60,6 +61,14 @@ let router = new Router({
       }
     },
     {
+      path: "/edit_mng/:task_id",
+      name: "edit-task_mng",
+      component: EditTask_MNG,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
       path: "/view/cols",
       name: "view-cols",
       component: ViewCols,
@@ -112,7 +121,8 @@ let router = new Router({
       name: "viewusers",
       component: ViewUsers,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        requiresMng:true
       }
     }
   ]
