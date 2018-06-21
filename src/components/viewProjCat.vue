@@ -9,27 +9,27 @@
                   </span>
             </div>
         </div>
-        <!-- user tasks -->
-        <div v-for="user in UsersAndArrays" v-bind:key="user.id" class="z-depth-1">
-            <div v-if="user.OBJ.tasks.length>0" class="row  valign-wrapper" style="border-bottom: #484545 solid 1px; ">
+        <!--  tasks -->
+        <div v-for="cat in ProjCatArray" v-bind:key="cat.id" class="z-depth-1">
+            <div v-if="cat.tasks.length>0" class="row  valign-wrapper" style="border-bottom: #484545 solid 1px; ">
                 <!-- first coll -->
                 <div class="col m2">
                     <span class="chip">
-                    {{user.OBJ.name}}
+                    {{cat.name}}
                 </span>
-                    <div class="row"><b>{{user.OBJ.tasks.length}}</b> tasks</div>
-                    <div class="row red-text"><b>{{sumFTA(user.OBJ.tasks)}}</b> FTE</div>
+                    <div class="row"><b>{{cat.tasks.length}}</b> tasks</div>
+                    <div class="row red-text"><b>{{sumFTA(cat.tasks)}}</b> FTE</div>
                 </div>
                 <!-- second coll -->
                 <div class="col m10">
                     <!-- card container structure -->
-                    <div v-for="task in user.OBJ.tasks" v-bind:key="task.id" class="col m2 s12" v-bind:class="{'OnHold':task.task_status=='On hold'}">
+                    <div v-for="task in cat.tasks" v-bind:key="task.id" class="col m2 s12" v-bind:class="{'OnHold':task.task_status=='On hold'}">
                         <div class="card blue-grey darken-1">
                             <!-- card tittle -->
                             <div class="card-content white-text">
                                 <!-- project category -->
                                <span class="truncate tooltip"> 
-                                 [{{task.task_ProjCat}}]: {{task.task_project}}
+                                 {{task.task_project}}
                                   <!-- <span class="tooltiptext">
                                       [{{task.task_ProjCat}}]: {{task.task_project}}
                                     </span>
@@ -49,6 +49,9 @@
                                     <div class="chip col">{{task.task_status}}</div>
                                     <span class="col">{{task.task_deadline}}</span>
                                     <span v-if="task.task_FTE!=undefined && task.task_FTE!=''" class="red-text col">{{task.task_FTE}} FTE</span>
+                                </div>
+                                <div class="row">
+                                  {{task.task_owner_label}}
                                 </div>
                                 <hr/>
                                 <!-- START icon container -->
@@ -104,15 +107,40 @@ export default {
         "Canceled"
       ],
       UsersAndArrays: [],
+      GotUsers: 0,
+      ProjCatArray: [],
       nSelectedStatus: null
     };
   },
+  created() {
+    this.ADDTasksIncat();
+  },
   mounted() {
+    var objVue = this;
+    db
+      .collection("DropDowns/InnoPipeline/Projects")
+      .get()
+      .then(querySnapshot => {
+        objVue.ProjCatArray = [];
+
+        querySnapshot.forEach(doc => {
+          const data = {
+            name: doc.id,
+            tasks: []
+          };
+
+          objVue.ProjCatArray.push(data);
+        });
+        objVue.ProjCatArray.push({ name: "Old", tasks: [] });
+        objVue.ProjCatArray.sort();
+      });
+
     this.GetFire_users();
   },
   methods: {
     GetFire_users() {
       var objVue = this;
+      // set users array
       db
         .collection("Users")
         .where("isOwner", "==", true)
@@ -134,7 +162,7 @@ export default {
             if (a.OBJ.name > b.OBJ.name) return 1;
             return 0;
           }
-          objVue.UsersAndArrays.sort(sortTasks);
+          // objVue.UsersAndArrays.sort(sortTasks);
 
           objVue.GetFire_ForTasks("All active");
         });
@@ -142,6 +170,8 @@ export default {
     GetFire_ForTasks(opt) {
       var objVue = this;
       objVue.nSelectedStatus = opt;
+      //reset number of users
+      objVue.GotUsers = 0;
 
       objVue.UsersAndArrays.forEach(itm => {
         objVue.GetFire_userTasks(itm.OBJ);
@@ -149,6 +179,7 @@ export default {
     },
     GetFire_userTasks(OBJ) {
       var objVue = this;
+      // get tasks for each user
       db
         .collection(OBJ.UID)
         .where("t_isActive", "==", true)
@@ -185,15 +216,47 @@ export default {
                 task_project: doc.data().tProject,
                 task_ProjCat: doc.data().tProjCateg,
                 task_status: doc.data().tStatus,
-                task_owner: OBJ.UID
-              };
-              //   objVue.tasks_test.push(data);
-              // objVue[TaskArray].push(data)
+                task_owner: OBJ.UID,
+                task_owner_label: OBJ.name
+              };              
               OBJ.tasks.push(data);
             }
           });
           // call next function
+          objVue.GotUsers++;
+          if (objVue.GotUsers >= objVue.UsersAndArrays.length) {
+            objVue.ADDTasksIncat();
+          }
         });
+    },
+    ADDTasksIncat() {
+      var objVue = this;
+      //reset proj cat
+      objVue.ProjCatArray.forEach(cat => {
+        cat.tasks = [];
+      });
+
+      objVue.UsersAndArrays.forEach(itm => {
+        itm.OBJ.tasks.forEach(task => {
+          // allocate in array
+          var taskFound=false
+          objVue.ProjCatArray.forEach(cat => {
+            if (cat.name == task.task_ProjCat) {
+              cat.tasks.push(task);
+              taskFound=true
+            }            
+          });
+          // alocate to old category
+          if (!taskFound){
+            objVue.ProjCatArray.forEach(cat => {
+              if (cat.name == "Old") {
+                cat.tasks.push(task);              
+              }            
+            });
+          }
+
+        });
+      });
     },
     CompleteTask(task) {
       if (!task.task_completed) {
@@ -253,6 +316,38 @@ export default {
       });
       return sum.toFixed(2);
     }
+  },
+  computed: {
+    // viewCategories:function(){
+    //       var objVue = this;
+    //       //reset proj cat
+    //       objVue.ProjCatArray.forEach(cat => {
+    //         cat.tasks = [];
+    //       });
+
+    //       objVue.UsersAndArrays.forEach(itm => {
+    //         itm.OBJ.tasks.forEach(task => {
+    //           // allocate in array
+    //           var taskFound=false
+    //           objVue.ProjCatArray.forEach(cat => {
+    //             if (cat.name == task.task_ProjCat) {
+    //               cat.tasks.push(task);
+    //               taskFound=true
+    //             }            
+    //           });
+    //           // alocate to old category
+    //           if (!taskFound){
+    //             objVue.ProjCatArray.forEach(cat => {
+    //               if (cat.name == "Old") {
+    //                 cat.tasks.push(task);              
+    //               }            
+    //             });
+    //           }
+
+    //         });
+    //       });
+    //   return this.ProjCatArray
+    // }
   }
 };
 </script>
@@ -265,8 +360,8 @@ export default {
   color: #ee6e73;
 }
 .row {
-  /* margin-bottom: 0px !important;   */
-  padding: 5px;
+  margin-bottom: 3px !important;
+  padding: 0px 10px;
 }
 .myBtn {
   cursor: pointer;
@@ -303,12 +398,12 @@ export default {
   top: -15px;
 
   /* Position the tooltip */
-  position: absolute;
-  z-index: 10;
+  position: absolute;  
 }
 
 .tooltip:hover .tooltiptext {
   visibility: visible;
+  z-index: 10;
 }
 .tooltiptext::after {
   content: "";

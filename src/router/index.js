@@ -1,21 +1,23 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Dashboard from "@/components/Dashboard";
+import ViewAll from "@/components/ViewAll";
+import ViewCols from "@/components/ViewCols";
+import ViewGantt from "@/components/ViewGantt";
+
+import ViewUsers from "@/components/viewUsers";
+import ViewProjCat from "@/components/viewProjCat";
+
 import NewTask from "@/components/NewTask";
 import EditTask from "@/components/EditTask";
 import EditTask_MNG from "@/components/EditTask_Mng";
-import ViewCols from "@/components/ViewCols";
+
 import Login from "@/components/Login";
 import Register from "@/components/Register";
 import AdminDash from "@/components/admn";
-import ViewAll from "@/components/ViewAll";
-import ViewProjects from "@/components/ProjectView";
-import ViewWeek from "@/components/WeekView";
-import ViewGantt from "@/components/ViewGantt";
-import ViewUsers from "@/components/viewUsers";
-
 
 import firebase from "firebase";
+import db from "../components/firebaseInit";
 Vue.use(Router);
 
 let router = new Router({
@@ -29,19 +31,45 @@ let router = new Router({
       }
     },
     {
-      path: "/login",
-      name: "login",
-      component: Login,
+      path: "/view/all",
+      name: "viewall",
+      component: ViewAll,
       meta: {
-        requiresGuest: true
+        requiresAuth: true
       }
     },
     {
-      path: "/register",
-      name: "register",
-      component: Register,
+      path: "/view/cols",
+      name: "view-cols",
+      component: ViewCols,
       meta: {
-        requiresGuest: true
+        requiresAuth: true
+      }
+    },
+    {
+      path: "/view/gantt",
+      name: "viewgantt",
+      component: ViewGantt,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: "/view/users",
+      name: "viewusers",
+      component: ViewUsers,
+      meta: {
+        requiresAuth: true,
+        requiresMng: true
+      }
+    },
+    {
+      path: "/view/projcat",
+      name: "viewprojcat",
+      component: ViewProjCat,
+      meta: {
+        requiresAuth: true,
+        requiresMng: true
       }
     },
     {
@@ -69,11 +97,19 @@ let router = new Router({
       }
     },
     {
-      path: "/view/cols",
-      name: "view-cols",
-      component: ViewCols,
+      path: "/login",
+      name: "login",
+      component: Login,
       meta: {
-        requiresAuth: true
+        requiresGuest: true
+      }
+    },
+    {
+      path: "/register",
+      name: "register",
+      component: Register,
+      meta: {
+        requiresGuest: true
       }
     },
     {
@@ -82,47 +118,6 @@ let router = new Router({
       component: AdminDash,
       meta: {
         requiresAuth: true
-      }
-    },
-    {
-      path: "/view/all",
-      name: "viewall",
-      component: ViewAll,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: "/view/projects",
-      name: "viewprojects",
-      component: ViewProjects,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: "/view/week",
-      name: "viewweek",
-      component: ViewWeek,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: "/view/gantt",
-      name: "viewgantt",
-      component: ViewGantt,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: "/view/users",
-      name: "viewusers",
-      component: ViewUsers,
-      meta: {
-        requiresAuth: true,
-        requiresMng:true
       }
     }
   ]
@@ -146,7 +141,23 @@ router.beforeEach((to, from, next) => {
     } else {
       // Proceed to route
       //console.log("#1.2")
-      next();
+      // only for managers
+      if (to.matched.some(record => record.meta.requiresMng)) {
+        db.collection("Users")
+          .doc(firebase.auth().currentUser.uid)
+          .get()
+          .then(doc => {
+            if (doc.data().isManager) {
+              next();
+            } else {
+              next({
+                path: "/"
+              });
+            }
+          });
+      } else {
+        next();
+      }
     }
   } else if (to.matched.some(record => record.meta.requiresGuest)) {
     //console.log("#2")

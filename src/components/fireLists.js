@@ -1,8 +1,7 @@
 import db from "./firebaseInit";
 
 var Statuses = [];
-var Projects = [];
-var MyProjects = [];
+var FTEs = [];
 var Envrmnts = [];
 var InnoProjCat = [];
 var Owners=[];
@@ -22,20 +21,7 @@ ListRef.doc("Statuses")
       });
       Statuses=Statuses.sort()
   });
-
-ListRef.doc("Project")
-  .get()
-  .then(doc => {
-    //console.log(doc.data().List.split("#"))
-    doc
-      .data()
-      .List.split("#")
-      .forEach(LstItem => {
-        // console.log(LstItem)
-        Projects.push(LstItem);
-      });
-  });
-ListRef.doc("MyProjects")
+  ListRef.doc("FTE")
   .get()
   .then(doc => {
     //console.log(doc.data().List.split("#"))
@@ -44,9 +30,10 @@ ListRef.doc("MyProjects")
       .List.split("#")
       .forEach(LstItem => {
         //console.log(user)
-        MyProjects.push(LstItem);
-      });
-  });
+        FTEs.push(LstItem);
+      });      
+  });  
+
 ListRef.doc("Environments")
   .get()
   .then(doc => {
@@ -59,6 +46,7 @@ ListRef.doc("Environments")
         Envrmnts.push(LstItem);
       });
   });
+
   db.collection("Users") 
   .where("isOwner", "==", true)
   .get()
@@ -75,8 +63,7 @@ ListRef.doc("Environments")
  
 export default {
   statusesList: Statuses,
-  projectsList: Projects,
-  myProjectsList: MyProjects,
+  FTEList: FTEs,  
   envList: Envrmnts,
   innoProjCat: InnoProjCat,
   OwnersList:Owners

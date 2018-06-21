@@ -12,7 +12,7 @@
          <!-- timings -->
           <div class="row">
               <div class="input-field col">
-                  <input id="StartDate" v-on:change="SetDeadline" type="date" placeholder="start date" v-model="task_start">
+                  <input id="StartDate" type="date" placeholder="start date" v-model="task_start">
                   <label class="active">Start date:</label>
               </div>
               <div class="input-field col">
@@ -92,19 +92,7 @@ export default {
   name: "new-task",
   data() {
     return {
-      FTAarray: [
-        "TBD",
-        "0.1",
-        "0.2",
-        "0.3",
-        "0.4",
-        "0.5",
-        "0.6",
-        "0.7",
-        "0.8",
-        "0.9",
-        "1"
-      ],
+      FTAarray: fireList.FTEList,
       task_fte: null,
       showDetails: false,
       showProject: false,
@@ -113,8 +101,8 @@ export default {
 
       task_name: null,
       task_details: "",
-      task_start: null,
-      task_deadline: null,
+      task_start: moment().weekday(1).format("YYYY-MM-DD"),
+      task_deadline: moment().weekday(5).format("YYYY-MM-DD"),
       task_status: null,
       task_project: null,
       task_env: null,
