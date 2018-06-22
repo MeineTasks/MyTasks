@@ -2,8 +2,8 @@
     <div id="dashboard" style="margin: 0px 25px;">
         <!-- filter -->
         <div class="row z-depth-2 filterContainer brown lighten-4">
-            Filter by status:
             <div class="input-field col s12">
+            Filter by status:
                 <span @click="GetFire_ForTasks(opt)" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
@@ -18,7 +18,11 @@
                     {{cat.name}}
                 </span>
                     <div class="row"><b>{{cat.tasks.length}}</b> tasks</div>
-                    <div class="row red-text"><b>{{sumFTA(cat.tasks)}}</b> FTE</div>
+                    <blockquote>
+                      <span class="blue-text">Allocated FTE: <b>{{sumFTA(cat.tasks)}}</b></span>
+                      <br/>
+                      <span v-if="DiFsumFTA(sumFTA(cat.tasks),cat.name)" class="brown-text">Unallocated FTE: <b>{{DiFsumFTA(sumFTA(cat.tasks),cat.name)}}</b></span>
+                    </blockquote>
                 </div>
                 <!-- second coll -->
                 <div class="col m10">
@@ -56,18 +60,21 @@
                                 <hr/>
                                 <!-- START icon container -->
                                 <div class="row iconContainer">
-                                    <div class="col m4">
+                                    <div class="col m4 tooltip">
+                                      <span class="tooltiptext2">Edit</span>
                                         <router-link v-bind:to="{name:'edit-task_mng',params:{task_id:task.id},query:{uid:task.task_owner} }">
                                             <i class="fas fa-edit"></i>
                                         </router-link>
                                     </div>
                                     <div v-if="task.task_status!='Completed' && task.task_status!='Canceled'" class="col m4">
-                                        <span v-bind:class="{'myBtn':!task.task_completed}">
+                                      <span v-bind:class="{'myBtn':!task.task_completed}" class="tooltip">
+                                        <span class="tooltiptext2">Complete</span>
                                         <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
-                                    </span>
+                                      </span>
                                     </div>
                                     <div class="col m4">
-                                        <span class="myBtn">
+                                        <span class="myBtn tooltip">
+                                            <span class="tooltiptext2">Stop/Resume</span>
                                             <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'" class="far"></i>
                                         </span>
                                     </div>
@@ -218,7 +225,7 @@ export default {
                 task_status: doc.data().tStatus,
                 task_owner: OBJ.UID,
                 task_owner_label: OBJ.name
-              };              
+              };
               OBJ.tasks.push(data);
             }
           });
@@ -239,22 +246,21 @@ export default {
       objVue.UsersAndArrays.forEach(itm => {
         itm.OBJ.tasks.forEach(task => {
           // allocate in array
-          var taskFound=false
+          var taskFound = false;
           objVue.ProjCatArray.forEach(cat => {
             if (cat.name == task.task_ProjCat) {
               cat.tasks.push(task);
-              taskFound=true
-            }            
+              taskFound = true;
+            }
           });
           // alocate to old category
-          if (!taskFound){
+          if (!taskFound) {
             objVue.ProjCatArray.forEach(cat => {
               if (cat.name == "Old") {
-                cat.tasks.push(task);              
-              }            
+                cat.tasks.push(task);
+              }
             });
           }
-
         });
       });
     },
@@ -315,6 +321,18 @@ export default {
         }
       });
       return sum.toFixed(2);
+    },
+    DiFsumFTA(SUM, opt) {
+      switch (opt) {
+        case "Inno – ASI: Connect":
+          return parseFloat(5.3 - SUM).toFixed(2);
+          break;
+        case "Inno – MKT":
+          return parseFloat(5.2 - SUM).toFixed(2);
+          break;
+        default:
+          return false;
+      }
     }
   },
   computed: {
@@ -324,7 +342,6 @@ export default {
     //       objVue.ProjCatArray.forEach(cat => {
     //         cat.tasks = [];
     //       });
-
     //       objVue.UsersAndArrays.forEach(itm => {
     //         itm.OBJ.tasks.forEach(task => {
     //           // allocate in array
@@ -333,17 +350,16 @@ export default {
     //             if (cat.name == task.task_ProjCat) {
     //               cat.tasks.push(task);
     //               taskFound=true
-    //             }            
+    //             }
     //           });
     //           // alocate to old category
     //           if (!taskFound){
     //             objVue.ProjCatArray.forEach(cat => {
     //               if (cat.name == "Old") {
-    //                 cat.tasks.push(task);              
-    //               }            
+    //                 cat.tasks.push(task);
+    //               }
     //             });
     //           }
-
     //         });
     //       });
     //   return this.ProjCatArray
@@ -353,15 +369,30 @@ export default {
 </script>
 
 <style scoped>
+.card{
+  margin-bottom: 3px !important;
+}
+.card-title {
+  line-height: normal !important;
+  font-size: 20px !important;
+  margin-bottom: 0px !important;
+}
 .card-content {
-  padding: 10px !important;
+  padding: 5px !important;
+}
+.card-content > .row {
+  margin-bottom: 0px !important;
+  padding: 0px !important;
 }
 .Delayed {
   color: #ee6e73;
 }
 .row {
-  margin-bottom: 3px !important;
-  padding: 0px 10px;
+  padding: 5px;
+  margin-bottom: 8px !important;
+}
+.col .row {
+  margin-left: 0px !important;
 }
 .myBtn {
   cursor: pointer;
@@ -398,10 +429,22 @@ export default {
   top: -15px;
 
   /* Position the tooltip */
-  position: absolute;  
+  position: absolute;
 }
+.tooltiptext2 {
+  visibility: hidden;
+  font-size: 12px;
+  background-color: #484545;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 3px;
+  top: 100px;
 
-.tooltip:hover .tooltiptext {
+  /* Position the tooltip */
+  position: absolute;
+}
+.tooltip:hover .tooltiptext,.tooltip:hover .tooltiptext2 {
   visibility: visible;
   z-index: 10;
 }

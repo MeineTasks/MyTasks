@@ -88,6 +88,8 @@
         </div>
         <button type="submit" class="btn">Save</button>
         <router-link to="/view/cols" class="btn grey">Cancel</router-link>
+        <a @click="DeleteTask" class="btn waves-effect waves-light red darken-4 right"><i class="material-icons right">delete_forever</i>Delete</a>
+
       </form>
     </div>
   </div>
@@ -198,6 +200,16 @@ export default {
       } else {
         vueObj.showNewProjCat = false;
       }
+    },
+    DeleteTask(){
+      var vueObj = this;
+        db
+          .collection(this.$route.query.uid)
+          .doc(this.$route.params.task_id)
+          .delete()
+          .then(function() {
+              vueObj.$router.push("/");
+          });
     },
     getProjects() {
       var vueObj = this;

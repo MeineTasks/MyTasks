@@ -91,7 +91,34 @@
         </div>        
     </div>
     
+
+    <div v-if="isLoggedIn" class="fixed-action-btn">
+      <router-link to ="/new" class="btn-floating btn-large red">
+        <i class="fa fa-plus"></i>
+      </router-link>
+    </div>
+    <div style="margin-bottom:100px"></div> 
+
+    <div v-if="isLoggedIn" class="fixed-action-btn" style="left:23px;width:150px">
+    <span data-target="slide-out" class="sidenav-trigger btn-floating btn-large">
+      <i class="fas fa-eye"></i>
+    </span>
+    </div>
+    
+
+    <ul id="slide-out" class="sidenav" style="width: 50vw;">
+      <h5>Updates:</h5>
+     <li v-for="log in logData" class="container"  v-bind:key="log.id" style="margin-top: 5px;line-height: unset">
+       Task: <span class="logTigle">{{log.log_name}}</span><br/>
+       Updated: {{log.log_date}}<br/>
+       By: {{log.log_user}}<br/>
+        <span v-for="update in log.log_updated" v-bind:key="update.id">
+         <b><i>{{update.campName}}</i></b> > <span v-html="update.campValues"></span><br/>
+        </span>
+     </li>
+    </ul>
   </div>
+  
 </template>
 
 <script>

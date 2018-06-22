@@ -29,7 +29,7 @@
                             <div class="card-content white-text">
                                 <!-- project category -->
                                <span class="truncate tooltip"> 
-                                 [{{task.task_ProjCat}}]: {{task.task_project}}
+                                  {{task.task_project}}
                                   <!-- <span class="tooltiptext">
                                       [{{task.task_ProjCat}}]: {{task.task_project}}
                                     </span>
@@ -258,8 +258,20 @@ export default {
 </script>
 
 <style scoped>
+.card{
+  margin-bottom: 3px !important;
+}
+.card-title{
+  line-height: normal !important;
+  font-size: 20px !important;
+  margin-bottom: 0px !important;
+}
 .card-content {
-  padding: 10px !important;
+  padding: 5px !important;
+}
+.card-content>.row{
+  margin-bottom: 0px !important;
+  padding: 0px !important;
 }
 .Delayed {
   color: #ee6e73;
@@ -267,6 +279,7 @@ export default {
 .row {
   /* margin-bottom: 0px !important;   */
   padding: 5px;
+  margin-bottom: 8px !important;
 }
 .myBtn {
   cursor: pointer;

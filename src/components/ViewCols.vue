@@ -1,10 +1,5 @@
 <template>
-  <div id="dashboard">         
-    <div class="fixed-action-btn">
-      <router-link to ="/new" class="btn-floating btn-large red">
-        <i class="fa fa-plus"></i>
-      </router-link>
-    </div>
+  <div id="dashboard">    
     <div class="row">
        <div style="background: #f2f2f2" class="col m4 s12">
         <center><h3>No date</h3></center>

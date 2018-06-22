@@ -47,6 +47,12 @@ ListRef.doc("Environments")
       });
   });
 
+  function sortUsers(a, b) {
+    if (a.Label < b.Label) return -1;
+    if (a.Label > b.Label) return 1;
+    return 0;
+  }
+
   db.collection("Users") 
   .where("isOwner", "==", true)
   .get()
@@ -56,7 +62,7 @@ ListRef.doc("Environments")
       // Owners.push(LstItem.data().Label)
       Owners.push({Label:LstItem.data().Label,UID:LstItem.id})
     })
-    //Owners=Owners.sort()
+    Owners=Owners.sort(sortUsers)
   });
 
 
