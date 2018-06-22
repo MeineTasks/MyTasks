@@ -61,10 +61,15 @@
           <div class="row">
               <label class="active">Owner:</label>
               <div class="input-field col s12">
-                  <span @click="SelectedOwner=opt" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.Label==opt.Label}" class="mySingle chip">
+                  <span @click="SelectedOwner=opt,GetUserFTE()" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.Label==opt.Label}" class="mySingle chip">
                     {{opt.Label}}
                   </span>
               </div>
+              <div v-if="userFTE!=null" class="red-text" >
+                    <!-- {{GetUserFTE()}} -->
+                   Active workload: <b>{{userFTE}}</b> FTE
+              </div>
+             
           </div>
            <div class="row">
               <span v-if="!showDetails" @click="showDetails=true" class="waves-effect waves-light btn-small black-text blue-grey lighten-4">Add details</span>
@@ -108,6 +113,9 @@ export default {
       task_env: null,
       Statuses: fireList.statusesList,
 
+      userTaskArr:[],
+      userFTE:null,
+
       ProjectsCat: [],
       AddNewProjCat: null,
       SelectedProjCat: null,
@@ -128,6 +136,53 @@ export default {
       this.task_deadline = moment(this.task_start, "YYYY-MM-DD")
         .weekday(5)
         .format("YYYY-MM-DD");
+    },
+    GetUserFTE(){
+      var objVue = this;
+      console.log(objVue.SelectedOwner.Label)
+      if (objVue.SelectedOwner.Label!=null){
+
+      db
+        .collection(objVue.SelectedOwner.UID)
+        .where("t_isActive", "==", true)
+        .where("tStatus", "==", "In progress")
+        .onSnapshot(querySnapshot => {
+          // reset
+          objVue.userTaskArr = [];   
+          console.log(querySnapshot)
+
+          querySnapshot.forEach(doc => {
+            //custom filter
+
+            
+              const data = {
+                id: doc.id,
+                task_name: doc.data().tName,                
+                task_FTE: doc.data().tFTE,
+                
+              };
+              //   objVue.tasks_test.push(data);
+              // objVue[TaskArray].push(data)
+              objVue.userTaskArr.push(data);            
+          });
+          // call next function
+          var sum = 0;
+          objVue.userFTE=null
+           objVue.userTaskArr.forEach(task =>{              
+                if (
+                  task.task_FTE != undefined &&
+                  task.task_FTE != "TBD" &&
+                  task.task_FTE != null &&
+                  task.task_FTE != "" 
+                ) {
+                  // console.log(task.task_FTE)
+                  sum += parseFloat(task.task_FTE);
+                }
+           })
+              objVue.userFTE=sum.toFixed(2);
+        });
+
+      }
     },
     saveTask() {
       //validate end start times

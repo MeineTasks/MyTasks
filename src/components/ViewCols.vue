@@ -106,18 +106,21 @@
               <hr/>
              <!-- START icon container -->
               <div class="row iconContainer">
-                <div class="col m4">
+                <div class="col m4 tooltip">
+                  <span class="tooltiptext2">Edit</span>
                   <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
                     <i class="fas fa-edit"></i>
                   </router-link>    
                 </div>
                 <div class="col m4">                  
-                  <span v-bind:class="{'myBtn':!task.task_completed}">
+                  <span v-bind:class="{'myBtn':!task.task_completed}" class="tooltip">
+                    <span class="tooltiptext2">Complete</span>
                     <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
                   </span>
                 </div>
                  <div class="col m4">                  
-                  <span class="myBtn">
+                  <span class="myBtn tooltip">
+                    <span class="tooltiptext2">In progress/on hold</span>
                     <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'" class="far"></i>
                   </span>
                 </div>                
@@ -328,8 +331,21 @@ export default {
   position: absolute;
   z-index: 10;
 }
+.tooltiptext2 {
+  visibility: hidden;
+  font-size: 12px;
+  background-color: #484545;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  top: 90px;
+  white-space: nowrap;
 
-.tooltip:hover .tooltiptext {
+  /* Position the tooltip */
+  position: absolute;
+}
+.tooltip:hover .tooltiptext,.tooltip:hover .tooltiptext2 {
   visibility: visible;
 }
 .tooltiptext::after {

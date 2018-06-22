@@ -99,6 +99,7 @@
 import firebase from "firebase";
 import db from "./firebaseInit";
 import fireList from "./fireLists";
+var moment = require("moment");
 
 export default {
   name: "edit-task",
@@ -162,6 +163,7 @@ export default {
           tProject: this.SelectedProj,
           tProjCateg: this.SelectedProjCat,
           tStatus: this.nSelectedStatus,
+          tClosedDate: this.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",
           // tOwner:this.SelectedOwner,
           // tEnvironment:this.task_env?this.task_env:"",
           t_isActive: this.task_isActive == "Yes"

@@ -60,22 +60,28 @@
                                 <hr/>
                                 <!-- START icon container -->
                                 <div class="row iconContainer">
-                                    <div class="col m4 tooltip">
+                                    <div class="col m3 tooltip">
                                       <span class="tooltiptext2">Edit</span>
                                         <router-link v-bind:to="{name:'edit-task_mng',params:{task_id:task.id},query:{uid:task.task_owner} }">
                                             <i class="fas fa-edit"></i>
                                         </router-link>
                                     </div>
-                                    <div v-if="task.task_status!='Completed' && task.task_status!='Canceled'" class="col m4">
+                                    <div v-if="task.task_status!='Completed' && task.task_status!='Canceled'" class="col m3">
                                       <span v-bind:class="{'myBtn':!task.task_completed}" class="tooltip">
                                         <span class="tooltiptext2">Complete</span>
                                         <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
                                       </span>
                                     </div>
-                                    <div class="col m4">
+                                    <div class="col m3">
                                         <span class="myBtn tooltip">
-                                            <span class="tooltiptext2">Stop/Resume</span>
+                                            <span class="tooltiptext2">In progress/on hold</span>
                                             <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'" class="far"></i>
+                                        </span>
+                                    </div>
+                                     <div class="col m3">
+                                        <span class="myBtn tooltip">
+                                            <span class="tooltiptext2">Cancel</span>
+                                            <i @click="CancelTask(task)" class="fas fa-ban"></i>
                                         </span>
                                     </div>
                                 </div>
@@ -270,7 +276,21 @@ export default {
           .collection(task.task_owner)
           .doc(task.id)
           .update({
-            tStatus: "Completed"
+            tStatus: "Completed",
+            tClosedDate:moment().format("YYYY-MM-DD")
+          })
+          .catch(function(error) {
+            console.error("Error writing document CompleteTask: ", error);
+          });
+      }
+    },
+    CancelTask(task) {
+      if (!task.task_completed) {
+        db
+          .collection(task.task_owner)
+          .doc(task.id)
+          .update({
+            tStatus: "Canceled"
           })
           .catch(function(error) {
             console.error("Error writing document CompleteTask: ", error);
@@ -328,7 +348,7 @@ export default {
           return parseFloat(5.3 - SUM).toFixed(2);
           break;
         case "Inno – MKT":
-          return parseFloat(5.2 - SUM).toFixed(2);
+          return parseFloat(2.2 - SUM).toFixed(2);
           break;
         default:
           return false;
@@ -414,6 +434,9 @@ export default {
   color: #26a69a;
   opacity: 0.6;
 }
+.fa-ban{
+  color:#fb9d9d;
+}
 .fa-clipboard-check {
   color: #a5a5a5;
 }
@@ -438,8 +461,9 @@ export default {
   color: #fff;
   text-align: center;
   border-radius: 6px;
-  padding: 5px 3px;
+  padding: 5px;
   top: 100px;
+  white-space: nowrap;
 
   /* Position the tooltip */
   position: absolute;
