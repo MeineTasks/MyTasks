@@ -154,7 +154,7 @@ export default {
 
       objVue.UsersAndArrays.forEach(itm => {
         objVue.GetFire_userTasks(itm.OBJ);
-      });
+      });      
     },
     GetFire_userTasks(OBJ) {
       var objVue = this;
@@ -169,8 +169,10 @@ export default {
           queryString =
             objVue.nSelectedStatus == undefined ||
             objVue.nSelectedStatus == "All active"
-              ? "doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold'"
-              : "doc.data().tStatus == '" + objVue.nSelectedStatus + "'";
+              ? "(doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold')"
+              : "(doc.data().tStatus == '" + objVue.nSelectedStatus + "')";
+
+              queryString=queryString+" && (doc.data().isPrivate == undefined || doc.data().isPrivate == false)"
 
           querySnapshot.forEach(doc => {
             //custom filter

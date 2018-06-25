@@ -69,14 +69,17 @@
               </div>
           </div>
           <!-- Owners -->
-          <!-- <div class="row">
+          <a @click="showUsers=true" v-if="!showUsers" class="btn waves-effect waves-light blue darken-3">
+            <i class="material-icons right">assignment_ind</i>Change owner
+          </a>
+          <div v-if="showUsers" class="row">
               <label class="active">Owner:</label>
               <div class="input-field col s12">
                   <span @click="SelectedOwner=opt" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.Label==opt.Label}" class="mySingle chip">
                     {{opt.Label}}
                   </span>
               </div>
-          </div> -->
+          </div>
         <div class="row">
           <div class="input-field col s12">
             <select required style="display:block" v-model="task_isActive">
@@ -111,6 +114,7 @@ export default {
       showProject: true,
       showNewProj: false,
       showNewProjCat: false,
+      showUsers:false,
 
       task_name: null,
       task_details: "",
@@ -131,10 +135,11 @@ export default {
       AddNewProj: null,
 
       nStatusesList: fireList.statusesList,
-      nSelectedStatus: "In progress"
+      nSelectedStatus: "In progress",
 
-      // ownersList: fireList.OwnersList,
-      // SelectedOwner: { Label: null, UID: null }
+      ownersList: fireList.OwnersList,
+      SelectedOwner: { Label: null, UID: null },
+      initialOwner: { Label: null, UID: null }
     };
   },
   methods: {
@@ -143,38 +148,101 @@ export default {
         .weekday(5)
         .format("YYYY-MM-DD");
     },
+    moveTask(){
+      var objVue = this;
+
+      db
+        .collection(this.$route.query.uid)
+        .doc(this.$route.params.task_id)
+
+    },
     updateTask() {
+      var vueObj=this
+      var original
       //validate end start times
       if (new Date($("#DeadLine").val()) < new Date($("#StartDate").val())) {
         M.toast({ html: `Start date should be sooner than Deadline` });
         $("#StartDate,#DeadLine").css("border", "solid red 1px");
         return false;
-      }      
+      }
+      if (vueObj.SelectedOwner!= vueObj.initialOwner) {
+        // move existing task
+          db
+          .collection(vueObj.$route.query.uid)
+          .doc(vueObj.$route.params.task_id)
+          .get()
+          .then(doc => {
+            // save on new user
+            db
+            .collection(vueObj.SelectedOwner.UID)
+            .doc(vueObj.$route.params.task_id)
+            .set(doc.data())
+            .then( updt =>{
+              // update new task
+                db
+                .collection(vueObj.SelectedOwner.UID)
+                .doc(vueObj.$route.params.task_id)
+                .update({
+                    tName: vueObj.task_name,
+                    tDescription: vueObj.task_details,
+                    tStart: vueObj.task_start,
+                    tDeadline: vueObj.task_deadline,
+                    tFTE: vueObj.task_FTE,
+                    tProject: vueObj.SelectedProj,
+                    tProjCateg: vueObj.SelectedProjCat,
+                    tStatus: vueObj.nSelectedStatus,
+                    tClosedDate: vueObj.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",
+                    tOwner:vueObj.SelectedOwner,
+                    // tEnvironment:vueObj.task_env?vueObj.task_env:"",
+                    t_isActive: vueObj.task_isActive == "Yes"
+                })
+                .then( final=>{
+                    db
+                    .collection(vueObj.$route.query.uid)
+                    .doc(vueObj.$route.params.task_id)
+                    .delete()
+                    .then( navig=>{
+                      vueObj.$router.push("/");
+                    })
 
-      db
-        .collection(this.$route.query.uid)
-        .doc(this.$route.params.task_id)
-        .set({
-          tName: this.task_name,
-          tDescription: this.task_details,
-          tStart: this.task_start,
-          tDeadline: this.task_deadline,
-          tFTE: this.task_FTE,
-          tProject: this.SelectedProj,
-          tProjCateg: this.SelectedProjCat,
-          tStatus: this.nSelectedStatus,
-          tClosedDate: this.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",
-          // tOwner:this.SelectedOwner,
-          // tEnvironment:this.task_env?this.task_env:"",
-          t_isActive: this.task_isActive == "Yes"
-        })
-        .then(docRef => {       
-          console.log("task update done")
-          this.$router.push("/view/cols");
-        })
-        .catch(function(error) {
-          console.error("Error writing document: ", error);
-        });
+                })
+                console.log("done")
+
+            }
+
+            )
+            
+          })
+       
+        
+      }else{
+        // save the update
+        db
+          .collection(this.$route.query.uid)
+          .doc(this.$route.params.task_id)
+          .update({
+            tName: this.task_name,
+            tDescription: this.task_details,
+            tStart: this.task_start,
+            tDeadline: this.task_deadline,
+            tFTE: this.task_FTE,
+            tProject: this.SelectedProj,
+            tProjCateg: this.SelectedProjCat,
+            tStatus: this.nSelectedStatus,
+            tClosedDate: this.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",
+            // tOwner:this.SelectedOwner,
+            // tEnvironment:this.task_env?this.task_env:"",
+            t_isActive: this.task_isActive == "Yes"
+          })
+          .then(docRef => {       
+            // console.log("task update done")
+            this.$router.push("/");
+          })
+          .catch(function(error) {
+            console.error("Error writing document: ", error);
+          });
+      }  
+
     },
     addProjCategory() {
       var vueObj = this;
@@ -262,6 +330,7 @@ export default {
       .doc(this.$route.params.task_id)
       .get()
       .then(doc => {
+        
         this.task_name = doc.data().tName;
         this.task_details = doc.data().tDescription;
         this.task_start = doc.data().tStart;
@@ -270,7 +339,8 @@ export default {
         this.nSelectedStatus = doc.data().tStatus;
         this.SelectedProjCat = doc.data().tProjCateg;
         this.SelectedProj = doc.data().tProject;
-        // this.SelectedOwner=doc.data().tOwner?doc.data().tOwner:{ Label: null, UID: null };
+        this.SelectedOwner=doc.data().tOwner?doc.data().tOwner:{ Label: null, UID: null };
+        this.initialOwner=this.SelectedOwner;
         
         this.task_isActive = doc.data().t_isActive ? "Yes" : "No";
 

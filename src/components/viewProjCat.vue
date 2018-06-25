@@ -204,13 +204,16 @@ export default {
           queryString =
             objVue.nSelectedStatus == undefined ||
             objVue.nSelectedStatus == "All active"
-              ? "doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold'"
-              : "doc.data().tStatus == '" + objVue.nSelectedStatus + "'";
+              ? "(doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold')"
+              : "(doc.data().tStatus == '" + objVue.nSelectedStatus + "')";
+
+              queryString=queryString+" && (doc.data().isPrivate == undefined || doc.data().isPrivate == false)"
 
           querySnapshot.forEach(doc => {
             //custom filter
 
-            if (eval(queryString)) {
+            if (eval(queryString)) {              
+
               const data = {
                 id: doc.id,
                 task_name: doc.data().tName,

@@ -30,14 +30,14 @@
               v-model="task_deadline">
             <label class="active">Deadline:</label>
           </div>
-          <select v-model="task_FTE" style="display:inline;width:70px" >
+          <select disabled v-model="task_FTE" style="display:inline;width:70px" >
                 <option v-for="fta in FTAarray" v-bind:key="fta.id"
                   v-bind:value="fta">{{fta}}</option>
               </select> 
               <span>FTE</span>
         </div>        
         <!-- projects category -->
-          <div class="row">
+          <!-- <div class="row">
               <label class="active">Category:</label>
               <div class="input-field col s12">
                   <span @click="SelectedProjCat=opt,getProjects()" v-for="opt in ProjectsCat" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProjCat==opt}" class="mySingle chip">
@@ -46,10 +46,10 @@
                   <a @click="showNewProjCat=true" v-if="!showNewProjCat" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>
                   <input v-if="showNewProjCat" v-model="AddNewProjCat" v-on:keydown.enter.prevent="addProjCategory" v-on:keydown.esc.prevent="DelProjCategory" placeholder="Add a new value and then 'pres Enter' or 'Esc' to remove it" type="text">
               </div>
-          </div>
+          </div> -->
 
           <!-- project list -->
-          <div class="row">
+          <!-- <div class="row">
               <label class="active">Project:</label>
               <div v-if="showProject" class="input-field col s12">
                   <span @click="SelectedProj=opt" v-for="opt in ProjectsList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProj==opt}" class="mySingle chip">
@@ -58,7 +58,7 @@
                   <a @click="showNewProj=true" v-if="!showNewProj" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>                  
                    <input v-if="showNewProj" v-model="AddNewProj" v-on:keydown.enter.prevent="addProj" v-on:keydown.esc.prevent="DelProj" placeholder="Add a new value and then 'pres Enter' or 'Esc' to remove it" type="text">
               </div>
-          </div>
+          </div> -->
           <!-- status -->
           <div class="row">
               <label class="active">Status:</label>
@@ -117,15 +117,15 @@ export default {
       task_project: null,
       task_env: null,
       task_isActive: null,
-      Statuses: fireList.statusesList,
+      // Statuses: fireList.statusesList,
 
-      ProjectsCat: [],
-      AddNewProjCat: null,
-      SelectedProjCat: null,
+      // ProjectsCat: [],
+      // AddNewProjCat: null,
+      // SelectedProjCat: null,
 
-      ProjectsList: [],
-      SelectedProj: null,
-      AddNewProj: null,
+      // ProjectsList: [],
+      // SelectedProj: null,
+      // AddNewProj: null,
 
       nStatusesList: fireList.statusesList,
       nSelectedStatus: "In progress"
@@ -146,83 +146,20 @@ export default {
       db
         .collection(firebase.auth().currentUser.uid)
         .doc(this.$route.params.task_id)
-        .set({
+        .update({
           tName: this.task_name,
           tDescription: this.task_details,
           tStart: this.task_start,
           tDeadline: this.task_deadline,
-          tFTE: this.task_FTE,
-          tProject: this.SelectedProj,
-          tProjCateg: this.SelectedProjCat,
+          // tFTE: this.task_FTE,
+          // tProject: this.SelectedProj,
+          // tProjCateg: this.SelectedProjCat,
           tStatus: this.nSelectedStatus,
           // tOwner:this.SelectedOwner,
           // tEnvironment:this.task_env?this.task_env:"",
           t_isActive: this.task_isActive == "Yes"
         })
-        .then(docRef => {
-        //   //log the info
-        //   var ChangedInfo = "";
-        //   if (this.orig_task_name != this.task_name) {
-        //     ChangedInfo =
-        //       ChangedInfo +
-        //       "Task name:" +
-        //       this.orig_task_name +
-        //       "##" +
-        //       this.task_name +
-        //       "||";
-        //   }
-        //   if (this.orig_task_details != this.task_details) {
-        //     ChangedInfo =
-        //       ChangedInfo +
-        //       "Details:" +
-        //       this.orig_task_details +
-        //       "##" +
-        //       this.task_details +
-        //       "||";
-        //   }
-        //   if (this.orig_task_deadline != this.task_deadline) {
-        //     ChangedInfo =
-        //       ChangedInfo +
-        //       "Deadline:" +
-        //       this.orig_task_deadline +
-        //       "##" +
-        //       this.task_deadline +
-        //       "||";
-        //   }
-        //   if (this.orig_task_start != this.task_start) {
-        //     ChangedInfo =
-        //       ChangedInfo +
-        //       "Start:" +
-        //       this.orig_task_start +
-        //       "##" +
-        //       this.task_start +
-        //       "||";
-        //   }
-        //   if (this.orig_task_status != this.task_status) {
-        //     ChangedInfo =
-        //       ChangedInfo +
-        //       "Status:" +
-        //       this.orig_task_status +
-        //       "##" +
-        //       this.task_status +
-        //       "||";
-        //   }
-        //   //  console.log(ChangedInfo.slice(0,-2))
-        //   //log the change
-        //   if (ChangedInfo != "") {
-        //     db
-        //       .collection("Log")
-        //       .doc(firebase.auth().currentUser.uid)
-        //       .collection("LogCollection")
-        //       .add({
-        //         date: new Date().toString().slice(0,10) +" "+new Date(new Date()).toString().split(' ')[4],
-        //         tName: this.task_name,
-        //         updated: ChangedInfo.slice(0, -2)
-        //       })
-        //       .catch(function(error) {
-        //         console.error("Error adding document ChangedInfo: ", error);
-        //       });
-        //   }
+        .then(docRef => {       
           console.log("task update done")
           this.$router.push("/view/cols");
         })

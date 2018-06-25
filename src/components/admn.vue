@@ -14,10 +14,73 @@ export default {
   name: "AdminDashboard",
   data() {
     return {
-      tasks: []
+      tasks: [],
+      UsersAndArrays: [],
   }},
   methods: {
-    runF1() {
+    runF1(){
+      this.GetFire_users()
+    },
+
+    GetFire_users() {
+      var objVue = this;
+      db
+        .collection("Users")  
+        .where("Label","==","test")      
+        .get()
+        .then(doc => {
+          doc.forEach(LstItem => {
+            const data = {
+              OBJ: {
+                name: LstItem.data().Label,
+                tasks: [],
+                UID: LstItem.id
+              }
+            };
+
+            objVue.UsersAndArrays.push(data);
+          });
+          function sortTasks(a, b) {
+            if (a.OBJ.name < b.OBJ.name) return -1;
+            if (a.OBJ.name > b.OBJ.name) return 1;
+            return 0;
+          }
+          objVue.UsersAndArrays.sort(sortTasks);
+
+          objVue.GetFire_ForTasks("All active");
+        });
+    },
+    GetFire_ForTasks(opt) {
+      var objVue = this;
+      // objVue.nSelectedStatus = opt;
+
+      objVue.UsersAndArrays.forEach(itm => {
+        objVue.GetFire_userTasks(itm.OBJ);
+      });
+      // "YPPNyRXLbXZhfgZ6i4ITY68kqY02" - test
+    },
+     GetFire_userTasks(OBJ) {
+      var objVue = this;
+      db
+        .collection(OBJ.UID)   
+        .get()     
+        .then(querySnapshot => {
+          // reset
+          OBJ.tasks = [];          
+
+          querySnapshot.forEach(doc => {
+            db.collection(OBJ.UID).doc(doc.id).update({isPrivate:false})
+              //  OBJ.tasks.push(doc.data());
+               //update
+
+
+         
+          });
+          // call next function
+          console.log(OBJ.UID+" done")
+        });
+    },
+    runF1s() {
       var vueobj=this.tasks
       db
         .collection("YqRVNtuUu3aAHt6g2YW05OxIsj42")

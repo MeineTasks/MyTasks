@@ -134,7 +134,41 @@ export default {
             this.tasks.push(data);
           });
         });
-     
+
+      //creating the logs
+      db
+        .collection("Log")
+        .doc(firebase.auth().currentUser.uid)
+        .collection("LogCollection")
+        .orderBy("date")
+        .onSnapshot(querySnapshot => {
+          this.logData = [];
+          var logDataObj = [];
+
+          querySnapshot.forEach(doc => {
+            logDataObj = [];
+            const data = {
+              id: doc.id,
+              log_date: doc.data().date,
+              log_name: doc.data().tName,
+              log_updated: logDataObj,
+              log_user: doc.data().user
+            };
+            var logUpdates = doc.data().updated;
+            logUpdates.split("||").forEach(camp => {
+              camp.split(":");
+              logDataObj.push({
+                campName: camp.split(":")[0],
+                campValues:
+                  "<b>from</b> " +
+                  camp.split(":")[1].split("##")[0] +
+                  " <b>to</b> " +
+                  camp.split(":")[1].split("##")[1]
+              });
+            });
+            this.logData.push(data);
+          });
+        });
     }
   },
   computed: {

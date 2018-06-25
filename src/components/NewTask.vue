@@ -38,9 +38,9 @@
           </div>
 
           <!-- project list -->
-          <div class="row">
+          <div v-if="showProject" class="row">
               <label class="active">Project:</label>
-              <div v-if="showProject" class="input-field col s12">
+              <div  class="input-field col s12">
                   <span @click="SelectedProj=opt" v-for="opt in ProjectsList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProj==opt}" class="mySingle chip">
                 {{opt}}
               </span>
@@ -58,7 +58,7 @@
               </div>
           </div>
           <!-- Owners -->
-          <div class="row">
+          <div v-if="showOwner" class="row">
               <label class="active">Owner:</label>
               <div class="input-field col s12">
                   <span @click="SelectedOwner=opt,GetUserFTE()" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.Label==opt.Label}" class="mySingle chip">
@@ -103,6 +103,7 @@ export default {
       showProject: false,
       showNewProj: false,
       showNewProjCat: false,
+      showOwner:true,
 
       task_name: null,
       task_details: "",
@@ -139,7 +140,7 @@ export default {
     },
     GetUserFTE(){
       var objVue = this;
-      console.log(objVue.SelectedOwner.Label)
+      // console.log(objVue.SelectedOwner.Label)
       if (objVue.SelectedOwner.Label!=null){
 
       db
@@ -148,13 +149,9 @@ export default {
         .where("tStatus", "==", "In progress")
         .onSnapshot(querySnapshot => {
           // reset
-          objVue.userTaskArr = [];   
-          console.log(querySnapshot)
-
+          objVue.userTaskArr = [];
           querySnapshot.forEach(doc => {
-            //custom filter
-
-            
+             //custom filter            
               const data = {
                 id: doc.id,
                 task_name: doc.data().tName,                
@@ -183,7 +180,7 @@ export default {
         });
 
       }
-    },
+    },   
     saveTask() {
       //validate end start times
       if (new Date($("#DeadLine").val()) < new Date($("#StartDate").val())) {
@@ -193,7 +190,7 @@ export default {
       }
       //validate mandatory fields
       if (
-        this.SelectedProj == null ||
+        (this.SelectedProj == null && this.SelectedProjCat!="Personal")||
         this.SelectedProjCat == null ||
         this.nSelectedStatus == null ||
         this.SelectedOwner == null
@@ -205,7 +202,7 @@ export default {
         if (this.SelectedProjCat == null) {
           message.push("Project Category");
         }
-        if (this.SelectedProj == null) {
+        if (this.SelectedProj == null && this.SelectedProjCat!="Personal") {
           message.push("Project");
         }
         if (this.nSelectedStatus == null) {
@@ -237,7 +234,8 @@ export default {
           tStatus: this.nSelectedStatus,
           tFTE:this.task_fte,
           tOwner:this.SelectedOwner,
-          t_isActive: true
+          t_isActive: true,
+          isPrivate:this.SelectedProjCat=="Personal"?true:false
         })
         .then(docRef => this.$router.push("/"))
         .catch(error => console.log(err));
@@ -272,6 +270,45 @@ export default {
     },
     getProjects() {
       var vueObj = this;
+
+      // backlog
+      if (vueObj.SelectedProjCat=="xBacklog"){
+        vueObj.ownersList.forEach( owner=>{
+          // console.log(owner)
+          if (owner.UID=="backlog"){
+            vueObj.SelectedOwner=owner  
+            vueObj.SelectedProj="Backlog"
+            vueObj.nSelectedStatus="On hold"
+            return true
+          }
+        })
+      }else{
+        //reset backlog
+          vueObj.SelectedOwner={ Label: null, UID: null }  
+          vueObj.SelectedProj=null
+          vueObj.nSelectedStatus="In progress"
+      }
+
+
+      //personal tasks
+      if (vueObj.SelectedProjCat=="Personal"){
+        vueObj.showProject = false;
+        vueObj.showOwner = false;
+        
+        var myUID=firebase.auth().currentUser.uid
+
+        vueObj.ownersList.forEach( owner=>{
+          // console.log(owner)
+          if (owner.UID==myUID){
+            vueObj.SelectedOwner=owner  
+            return true
+          }
+        })
+        
+
+      }else{
+        vueObj.showOwner = true
+
       db
         .collection(
           "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
@@ -284,6 +321,8 @@ export default {
           });
           vueObj.showProject = true;
         });
+      }
+      
     },
     addProj() {
       var vueObj = this;
