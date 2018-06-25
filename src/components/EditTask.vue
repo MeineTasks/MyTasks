@@ -79,7 +79,7 @@
           </div> -->
         <div class="row">
           <div class="input-field col s12">
-            <select required style="display:block" v-model="task_isActive">
+            <select required style="display:block;width:70px" v-model="task_isActive">
               <option>Yes</option>
               <option>No</option>
             </select>

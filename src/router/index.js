@@ -9,6 +9,8 @@ import ViewUsers from "@/components/viewUsers";
 import ViewProjCat from "@/components/viewProjCat";
 
 import NewTask from "@/components/NewTask";
+import NewPrivateTask from "@/components/NewPrivateTask";
+
 import EditTask from "@/components/EditTask";
 import EditTask_MNG from "@/components/EditTask_Mng";
 
@@ -76,6 +78,15 @@ let router = new Router({
       path: "/new",
       name: "new-task",
       component: NewTask,
+      meta: {
+        requiresAuth: true,
+        requiresMng: true
+      }
+    }, 
+    {
+      path: "/AddNew",
+      name: "new-privateTask",
+      component: NewPrivateTask,
       meta: {
         requiresAuth: true
       }

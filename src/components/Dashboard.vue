@@ -90,6 +90,12 @@
           </div>
         </div>        
     </div>
+    <!-- add new -->
+        <div class="fixed-action-btn">
+          <router-link to ="/AddNew" class="btn-floating btn-large blue">
+            <i class="fa fa-plus-square"></i>
+          </router-link>
+        </div>
     
   </div>
 </template>

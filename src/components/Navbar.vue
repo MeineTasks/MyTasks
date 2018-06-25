@@ -47,6 +47,10 @@ export default {
   },
    mounted() {     
     $('.tooltipped').tooltip();
+    //  if (!(/chrom(e|ium)/.test(navigator.userAgent.toLowerCase())) || /opr/.test(navigator.userAgent.toLowerCase())) {
+    //     $('body').html("<center>The application was designed for Google Chrome</center>");
+    //     alert("== Please use Chrome to open this page ==");
+    // }
   },
   methods: {
     logout: function() {

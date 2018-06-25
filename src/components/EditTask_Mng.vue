@@ -75,7 +75,7 @@
           <div v-if="showUsers" class="row">
               <label class="active">Owner:</label>
               <div class="input-field col s12">
-                  <span @click="SelectedOwner=opt" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.Label==opt.Label}" class="mySingle chip">
+                  <span @click="SelectedOwner=opt" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.UID==opt.UID}" class="mySingle chip">
                     {{opt.Label}}
                   </span>
               </div>
@@ -273,13 +273,15 @@ export default {
     },
     DeleteTask(){
       var vueObj = this;
-        db
-          .collection(this.$route.query.uid)
-          .doc(this.$route.params.task_id)
-          .delete()
-          .then(function() {
-              vueObj.$router.push("/");
-          });
+      if (window.confirm("The task will pe permanently deleted, are you sure?")){
+          db
+            .collection(this.$route.query.uid)
+            .doc(this.$route.params.task_id)
+            .delete()
+            .then(function() {
+                vueObj.$router.push("/");
+            });
+      }
     },
     getProjects() {
       var vueObj = this;

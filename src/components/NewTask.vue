@@ -294,6 +294,7 @@ export default {
       if (vueObj.SelectedProjCat=="Personal"){
         vueObj.showProject = false;
         vueObj.showOwner = false;
+        vueObj.task_fte="TBD"
         
         var myUID=firebase.auth().currentUser.uid
 
