@@ -8,7 +8,7 @@ import ViewGantt from "@/components/ViewGantt";
 import ViewUsers from "@/components/viewUsers";
 import ViewProjCat from "@/components/viewProjCat";
 
-import NewTask from "@/components/NewTask";
+import NewTask from "@/components/NewTask_Mng";
 import NewPrivateTask from "@/components/NewPrivateTask";
 
 import EditTask from "@/components/EditTask";

@@ -110,7 +110,7 @@ export default {
         "In progress",
         "On hold",
         "Completed",
-        "Canceled"
+        "Canceled","Not allocated"
       ],
       UsersAndArrays: [],
       nSelectedStatus: null
@@ -168,8 +168,8 @@ export default {
           var queryString;
           queryString =
             objVue.nSelectedStatus == undefined ||
-            objVue.nSelectedStatus == "All active"
-              ? "(doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold')"
+              objVue.nSelectedStatus == "All active"
+              ? "(doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold'|| doc.data().tStatus == 'Not allocated')"
               : "(doc.data().tStatus == '" + objVue.nSelectedStatus + "')";
 
               queryString=queryString+" && (doc.data().isPrivate == undefined || doc.data().isPrivate == false)"

@@ -109,7 +109,7 @@ import firebase from "firebase";
 var moment = require("moment");
 
 export default {
-  name: "userview",
+  name: "viewProjcat",
   data() {
     return {
       //   users: fireList.OwnersList,
@@ -118,7 +118,8 @@ export default {
         "In progress",
         "On hold",
         "Completed",
-        "Canceled"
+        "Canceled",
+        "Not allocated"
       ],
       UsersAndArrays: [],
       GotUsers: 0,
@@ -205,7 +206,7 @@ export default {
           queryString =
             objVue.nSelectedStatus == undefined ||
             objVue.nSelectedStatus == "All active"
-              ? "(doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold')"
+              ? "(doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold'|| doc.data().tStatus == 'Not allocated')"
               : "(doc.data().tStatus == '" + objVue.nSelectedStatus + "')";
 
               queryString=queryString+" && (doc.data().isPrivate == undefined || doc.data().isPrivate == false)"

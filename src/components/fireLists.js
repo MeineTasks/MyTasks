@@ -60,7 +60,9 @@ ListRef.doc("Environments")
     doc.forEach(LstItem => {
       // console.log(LstItem.data())
       // Owners.push(LstItem.data().Label)
-      Owners.push({Label:LstItem.data().Label,UID:LstItem.id})
+      if (LstItem.id!="backlog"){
+        Owners.push({Label:LstItem.data().Label,UID:LstItem.id})
+      }
     })
     Owners=Owners.sort(sortUsers)
   });

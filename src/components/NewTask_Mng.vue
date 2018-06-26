@@ -10,7 +10,7 @@
               </div>
           </div>
          <!-- timings -->
-          <div class="row">
+          <div class="row" v-if="showDates">
               <div class="input-field col">
                   <input id="StartDate" type="date" placeholder="start date" v-model="task_start">
                   <label class="active">Start date:</label>
@@ -29,7 +29,7 @@
           <div class="row">
               <label class="active">Category:</label>
               <div class="input-field col s12">
-                  <span @click="SelectedProjCat=opt,getProjects()" v-for="opt in ProjectsCat" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProjCat==opt}" class="mySingle chip">
+                  <span @click="SelectedProjCat=opt,clickCat()" v-for="opt in ProjectsCat" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProjCat==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
                   <a @click="showNewProjCat=true" v-if="!showNewProjCat" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>
@@ -49,10 +49,10 @@
               </div>
           </div>
           <!-- status -->
-          <div class="row">
+          <div v-if="showStatus" class="row">
               <label class="active">Status:</label>
               <div class="input-field col s12">
-                  <span @click="nSelectedStatus=opt" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
+                  <span @click="SelectedStatus=opt,clickStatus()" v-for="opt in Statuses" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedStatus==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
               </div>
@@ -61,7 +61,7 @@
           <div v-if="showOwner" class="row">
               <label class="active">Owner:</label>
               <div class="input-field col s12">
-                  <span @click="SelectedOwner=opt,GetUserFTE()" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.Label==opt.Label}" class="mySingle chip">
+                  <span @click="SelectedOwner=opt,clickUser()" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.Label==opt.Label}" class="mySingle chip">
                     {{opt.Label}}
                   </span>
               </div>
@@ -90,6 +90,7 @@
 import db from "./firebaseInit";
 import fireList from "./fireLists";
 import firebase from "firebase";
+import ProjectViewVue from "./ProjectView.vue";
 
 var moment = require("moment");
 
@@ -103,19 +104,23 @@ export default {
       showProject: false,
       showNewProj: false,
       showNewProjCat: false,
-      showOwner:true,
+      showOwner: true,
+      showDates: true,
+      showStatus: true,
 
       task_name: null,
       task_details: "",
-      task_start: moment().weekday(1).format("YYYY-MM-DD"),
-      task_deadline: moment().weekday(5).format("YYYY-MM-DD"),
+      task_start: moment()
+        .weekday(1)
+        .format("YYYY-MM-DD"),
+      task_deadline: moment()
+        .weekday(5)
+        .format("YYYY-MM-DD"),
       task_status: null,
       task_project: null,
-      task_env: null,
-      Statuses: fireList.statusesList,
 
-      userTaskArr:[],
-      userFTE:null,
+      userTaskArr: [],
+      userFTE: null,
 
       ProjectsCat: [],
       AddNewProjCat: null,
@@ -125,8 +130,8 @@ export default {
       SelectedProj: null,
       AddNewProj: null,
 
-      nStatusesList: fireList.statusesList,
-      nSelectedStatus: "In progress",
+      Statuses: fireList.statusesList,
+      SelectedStatus: "In progress",
 
       ownersList: fireList.OwnersList,
       SelectedOwner: { Label: null, UID: null }
@@ -138,81 +143,90 @@ export default {
         .weekday(5)
         .format("YYYY-MM-DD");
     },
-    GetUserFTE(){
+
+    GetUserFTE() {
       var objVue = this;
       // console.log(objVue.SelectedOwner.Label)
-      if (objVue.SelectedOwner.Label!=null){
-
-      db
-        .collection(objVue.SelectedOwner.UID)
-        .where("t_isActive", "==", true)
-        .where("tStatus", "==", "In progress")
-        .onSnapshot(querySnapshot => {
-          // reset
-          objVue.userTaskArr = [];
-          querySnapshot.forEach(doc => {
-             //custom filter            
+      if (objVue.SelectedOwner.Label != null) {
+        db
+          .collection(objVue.SelectedOwner.UID)
+          .where("t_isActive", "==", true)
+          .where("tStatus", "==", "In progress")
+          .onSnapshot(querySnapshot => {
+            // reset
+            objVue.userTaskArr = [];
+            querySnapshot.forEach(doc => {
+              //custom filter
               const data = {
                 id: doc.id,
-                task_name: doc.data().tName,                
-                task_FTE: doc.data().tFTE,
-                
+                task_name: doc.data().tName,
+                task_FTE: doc.data().tFTE
               };
               //   objVue.tasks_test.push(data);
               // objVue[TaskArray].push(data)
-              objVue.userTaskArr.push(data);            
+              objVue.userTaskArr.push(data);
+            });
+            // call next function
+            var sum = 0;
+            objVue.userFTE = null;
+            objVue.userTaskArr.forEach(task => {
+              if (
+                task.task_FTE != undefined &&
+                task.task_FTE != "TBD" &&
+                task.task_FTE != null &&
+                task.task_FTE != ""
+              ) {
+                // console.log(task.task_FTE)
+                sum += parseFloat(task.task_FTE);
+              }
+            });
+            objVue.userFTE = sum.toFixed(2);
           });
-          // call next function
-          var sum = 0;
-          objVue.userFTE=null
-           objVue.userTaskArr.forEach(task =>{              
-                if (
-                  task.task_FTE != undefined &&
-                  task.task_FTE != "TBD" &&
-                  task.task_FTE != null &&
-                  task.task_FTE != "" 
-                ) {
-                  // console.log(task.task_FTE)
-                  sum += parseFloat(task.task_FTE);
-                }
-           })
-              objVue.userFTE=sum.toFixed(2);
-        });
-
       }
-    },   
+    },
     saveTask() {
-      //validate end start times
-      if (new Date($("#DeadLine").val()) < new Date($("#StartDate").val())) {
-        M.toast({ html: `Start date should be sooner than Deadline` });
-        $("#StartDate,#DeadLine").css("border", "solid red 1px");
-        return false;
-      }
-      //validate mandatory fields
-      if (
-        (this.SelectedProj == null && this.SelectedProjCat!="Personal")||
-        this.SelectedProjCat == null ||
-        this.nSelectedStatus == null ||
-        this.SelectedOwner == null
-      ) {
-        var message = [];
-        var msg = "Please select ";
-        var delimit;
+      // validation ****************
+      var message = [];
+      var msg = "Please select ";
+      var delimit;
 
-        if (this.SelectedProjCat == null) {
-          message.push("Project Category");
+      //validate end start times
+      if (this.showDates) {
+        if (new Date(this.task_deadline) < new Date(this.task_start)) {
+          M.toast({ html: `Start date should be sooner than Deadline` });
+          $("#StartDate,#DeadLine").css("border", "solid red 1px");
+          return false;
         }
-        if (this.SelectedProj == null && this.SelectedProjCat!="Personal") {
-          message.push("Project");
-        }
-        if (this.nSelectedStatus == null) {
-          message.push("Status");
-        }
-        if (this.SelectedOwner == null) {
+      } else {
+        this.task_start = null;
+        this.task_deadline = null;
+        this.task_fte="TBD"
+      }
+
+      // Project category
+      if (this.SelectedProjCat == null) {
+        message.push("Project Category");
+      }
+      //project
+      if (
+        this.SelectedProj == null &&
+        !(
+          this.SelectedProjCat == "Personal" ||
+          this.SelectedProjCat == "xBacklog"
+        )
+      ) {
+        message.push("Project");
+      }
+      if (this.showOwner) {
+        // Owner
+        if (this.SelectedOwner.UID == null) {
           message.push("Owner");
         }
+      }
 
-        console.log(message);
+      //validate mandatory fields
+      // console.log(message);
+      if (message.length > 0) {
         message.forEach(function(i, x) {
           delimit = x < message.length - 1 ? ", " : "";
           msg = msg + i + delimit;
@@ -222,6 +236,7 @@ export default {
         return false;
       }
 
+      // return true;
       db
         .collection(this.SelectedOwner.UID)
         .add({
@@ -231,11 +246,11 @@ export default {
           tDeadline: this.task_deadline,
           tProject: this.SelectedProj,
           tProjCateg: this.SelectedProjCat,
-          tStatus: this.nSelectedStatus,
-          tFTE:this.task_fte,
-          tOwner:this.SelectedOwner,
+          tStatus: this.SelectedStatus,
+          tFTE: this.task_fte,
+          tOwner: this.SelectedOwner,
           t_isActive: true,
-          isPrivate:this.SelectedProjCat=="Personal"?true:false
+          isPrivate: this.SelectedProjCat == "Personal" ? true : false
         })
         .then(docRef => this.$router.push("/"))
         .catch(error => console.log(err));
@@ -268,62 +283,105 @@ export default {
         vueObj.showNewProjCat = false;
       }
     },
-    getProjects() {
+    clickCat() {
       var vueObj = this;
 
-      // backlog
-      if (vueObj.SelectedProjCat=="xBacklog"){
-        vueObj.ownersList.forEach( owner=>{
-          // console.log(owner)
-          if (owner.UID=="backlog"){
-            vueObj.SelectedOwner=owner  
-            vueObj.SelectedProj="Backlog"
-            vueObj.nSelectedStatus="On hold"
-            return true
-          }
-        })
-      }else{
-        //reset backlog
-          vueObj.SelectedOwner={ Label: null, UID: null }  
-          vueObj.SelectedProj=null
-          vueObj.nSelectedStatus="In progress"
+      // defaults
+      var getProjects = true;
+
+      vueObj.showOwner = true;
+      if (vueObj.SelectedOwner.UID == "backlog") {
+        vueObj.userFTE = null;
+        vueObj.SelectedOwner = { Label: null, UID: null };
       }
 
+      vueObj.SelectedProj = null;
+      vueObj.SelectedStatus = "In progress";
+      vueObj.showStatus = true;
+      vueObj.showDates = true;
+      // vueObj.task_start = moment()
+      //   .weekday(1)
+      //   .format("YYYY-MM-DD");
+      // vueObj.task_deadline = moment()
+      //   .weekday(5)
+      //   .format("YYYY-MM-DD");
 
-      //personal tasks
-      if (vueObj.SelectedProjCat=="Personal"){
-        vueObj.showProject = false;
+      // backlog
+      if (vueObj.SelectedProjCat == "xBacklog") {
+        getProjects = false;
+        vueObj.SelectedStatus = "Not allocated";
         vueObj.showOwner = false;
-        vueObj.task_fte="TBD"
-        
-        var myUID=firebase.auth().currentUser.uid
+        // vueObj.task_start=null
+        // vueObj.task_deadline=null
+        vueObj.showStatus = false;
+        vueObj.SelectedProj="Backlog"
+        vueObj.SelectedStatus = "Not allocated";
+        vueObj.task_fte = null;
+        vueObj.showDates = false;
+        vueObj.SelectedOwner = { Label: "xBacklog", UID: "backlog" };
 
-        vueObj.ownersList.forEach( owner=>{
-          // console.log(owner)
-          if (owner.UID==myUID){
-            vueObj.SelectedOwner=owner  
-            return true
+        vueObj.ownersList.forEach(owner => {
+          if (owner.UID == "backlog") {
+            vueObj.SelectedOwner = owner;
+            return true;
           }
-        })
-        
-
-      }else{
-        vueObj.showOwner = true
-
-      db
-        .collection(
-          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
-        )
-        .onSnapshot(querySnapshot => {
-          vueObj.ProjectsList = [];
-
-          querySnapshot.forEach(doc => {
-            vueObj.ProjectsList.push(doc.id);
-          });
-          vueObj.showProject = true;
         });
       }
-      
+
+      //personal tasks
+      if (vueObj.SelectedProjCat == "Personal") {
+        getProjects = false;
+        // vueObj.showProject = false;
+        vueObj.showOwner = false;
+        vueObj.task_fte = "TBD";
+        vueObj.showStatus = false;
+
+        var myUID = firebase.auth().currentUser.uid;
+
+        vueObj.ownersList.forEach(owner => {
+          // console.log(owner)
+          if (owner.UID == myUID) {
+            vueObj.SelectedOwner = owner;
+            return true;
+          }
+        });
+      }
+      if (getProjects) {
+        db
+          .collection(
+            "DropDowns/InnoPipeline/Projects/" +
+              vueObj.SelectedProjCat +
+              "/Proj"
+          )
+          .onSnapshot(querySnapshot => {
+            vueObj.ProjectsList = [];
+
+            querySnapshot.forEach(doc => {
+              vueObj.ProjectsList.push(doc.id);
+            });
+            vueObj.showProject = true;
+          });
+      } else {
+        vueObj.showProject = false;
+      }
+    },
+    clickStatus() {
+      var vueObj = this;
+      // default
+      vueObj.showOwner = true;
+
+      if (vueObj.SelectedStatus == "Not allocated") {
+        vueObj.showOwner = false;
+        vueObj.showDates = false;
+        vueObj.SelectedOwner = { Label: "xBacklog", UID: "backlog" };
+      } else if (vueObj.SelectedOwner.UID == "backlog") {
+        vueObj.SelectedOwner = { Label: null, UID: null };
+        vueObj.userFTE = null;
+      }
+    },
+    clickUser() {
+      this.showDates = true;
+      this.GetUserFTE();
     },
     addProj() {
       var vueObj = this;
