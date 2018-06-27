@@ -250,9 +250,11 @@ export default {
           tFTE: this.task_fte,
           tOwner: this.SelectedOwner,
           t_isActive: true,
-          isPrivate: this.SelectedProjCat == "Personal" ? true : false
+          isPrivate: this.SelectedProjCat == "Personal" ? true : false,
+          CreatedBy:firebase.auth().currentUser.uid,
+          CreatedDate:moment().format("YYYY-MM-DD")
         })
-        .then(docRef => this.$router.push("/"))
+        .then(docRef => this.$router.push("/view/projcat"))
         .catch(error => console.log(err));
     },
 

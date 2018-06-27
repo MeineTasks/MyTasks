@@ -157,6 +157,8 @@ export default {
           tStatus: this.nSelectedStatus,
           // tOwner:this.SelectedOwner,
           // tEnvironment:this.task_env?this.task_env:"",
+          ModifiedBy:firebase.auth().currentUser.uid,
+          ModifiedDate:moment().format("YYYY-MM-DD HH:MM"),
           t_isActive: this.task_isActive == "Yes"
         })
         .then(docRef => {       

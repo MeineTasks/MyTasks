@@ -4,8 +4,8 @@
        <div style="background: #f2f2f2" class="col m4 s12">
         <center><h3>No date</h3></center>
         <!-- vue component structure 1 -->
-        <div v-for="task in ViewCat1" v-bind:key="task.id" class="col s6" v-bind:class="{'OnHold':task.task_status=='On hold'}">
-          <div class="card blue-grey darken-1">
+        <div v-for="task in ViewCat1" v-bind:key="task.id" class="col s6">
+          <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-1'">
             <div class="card-content white-text">
               <span class="card-title truncate cyan-text tooltip"> 
                 <span class="tooltiptext">
@@ -46,8 +46,8 @@
       <div style="background: #d9cfc7" class="col m4 s12">
         <center><h3>Today</h3></center>
         <!-- vue component structure 2-->
-        <div v-bind:class="{'OnHold':task.task_status=='On hold'}" v-for="task in ViewCat2" v-bind:key="task.id" class="col s6">
-          <div class="card blue-grey darken-1">
+        <div v-for="task in ViewCat2" v-bind:key="task.id" class="col s6">
+          <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-1'">
             <div class="card-content white-text">
               <span class="card-title truncate cyan-text tooltip"> 
                 <span class="tooltiptext">
@@ -88,8 +88,8 @@
       <div style="background:#a69992" class="col m4 s12">
         <center><h3>Future</h3></center>
         <!-- vue component structure 3 -->
-        <div v-bind:class="{'OnHold':task.task_status=='On hold'}" v-for="task in ViewCat3" v-bind:key="task.id" class="col s6">
-          <div class="card blue-grey darken-1">
+        <div  v-for="task in ViewCat3" v-bind:key="task.id" class="col s6">
+          <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-1'">
             <div class="card-content white-text">
               <span class="card-title truncate cyan-text tooltip"> 
                 <span class="tooltiptext">
@@ -131,12 +131,6 @@
         </div>
       </div>            
       </div>
-      <!-- add new -->
-        <div class="fixed-action-btn">
-          <router-link to ="/AddNew" class="btn-floating btn-large blue">
-            <i class="fa fa-plus-square"></i>
-          </router-link>
-        </div>
   </div>
 </template>
 
@@ -364,9 +358,7 @@ export default {
   border-style: solid;
   border-color: #484545 transparent transparent transparent;
 }
-.OnHold {
-  opacity: 0.6;
-}
+
 .fa-stop-circle {
   color: #ff9800;
 }
@@ -375,5 +367,8 @@ export default {
 }
 .iconContainer {
   text-align: center;
+}
+.red-text{
+  font-size: small !important;
 }
 </style>

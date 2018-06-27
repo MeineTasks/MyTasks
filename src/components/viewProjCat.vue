@@ -27,8 +27,8 @@
                 <!-- second coll -->
                 <div class="col m10">
                     <!-- card container structure -->
-                    <div v-for="task in cat.tasks" v-bind:key="task.id" class="col m2 s12" v-bind:class="{'OnHold':task.task_status=='On hold'}">
-                        <div class="card blue-grey darken-1">
+                    <div v-for="task in cat.tasks" v-bind:key="task.id" class="col m2 s12">
+                        <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-1'">
                             <!-- card tittle -->
                             <div class="card-content white-text">
                                 <!-- project category -->
@@ -509,6 +509,9 @@ export default {
 .filterContainer {
   padding: 5px;
   margin-top: 5px;
+}
+.red-text{
+  font-size: small !important;
 }
 </style>
 

@@ -40,7 +40,7 @@
           <div class="row">
               <label class="active">Category:</label>
               <div class="input-field col s12">
-                  <span @click="SelectedProjCat=opt,getProjects()" v-for="opt in ProjectsCat" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProjCat==opt}" class="mySingle chip">
+                  <span @click="SelectedProjCat=opt,getProjects(true)" v-for="opt in ProjectsCat" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProjCat==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
                   <a @click="showNewProjCat=true" v-if="!showNewProjCat" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>
@@ -69,11 +69,14 @@
               </div>
           </div>
           <!-- Owners -->
-          <a @click="showUsers=true" v-if="!showUsers" class="btn waves-effect waves-light blue darken-3">
-            <i class="material-icons right">assignment_ind</i>Change owner
-          </a>
+          <label class="active">Owner:</label>
+          <div v-if="!showUsers" >
+            <b>{{initialOwner.Label}}</b><br/>
+            <a @click="showUsers=true" class="btn waves-effect waves-light blue darken-3">
+              <i class="material-icons right">assignment_ind</i>Change owner
+            </a>
+          </div>
           <div v-if="showUsers" class="row">
-              <label class="active">Owner:</label>
               <div class="input-field col s12">
                   <span @click="SelectedOwner=opt" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.UID==opt.UID}" class="mySingle chip">
                     {{opt.Label}}
@@ -82,7 +85,7 @@
           </div>
         <div class="row">
           <div class="input-field col s12">
-            <select required style="display:block" v-model="task_isActive">
+            <select required style="display:block;width:150px" v-model="task_isActive">
               <option>Yes</option>
               <option>No</option>
             </select>
@@ -165,6 +168,39 @@ export default {
         $("#StartDate,#DeadLine").css("border", "solid red 1px");
         return false;
       }
+      //validari
+      var message = [];
+      var msg = "Please select ";
+      var delimit;
+
+        //project
+      if (
+        this.SelectedProj == null &&
+        !(
+          this.SelectedProjCat == "Personal" ||
+          this.SelectedProjCat == "xBacklog"
+        )
+      ) {
+        message.push("Project");
+      }
+      if (this.showUsers) {
+        // Owner
+        if (this.SelectedOwner.UID == null) {
+          message.push("Owner");
+        }
+      }
+         //validate mandatory fields
+      // console.log(message);
+      if (message.length > 0) {
+        message.forEach(function(i, x) {
+          delimit = x < message.length - 1 ? ", " : "";
+          msg = msg + i + delimit;
+        });
+
+        M.toast({ html: msg });
+        return false;
+      }
+
       if (vueObj.SelectedOwner!= vueObj.initialOwner) {
         // move existing task
           db
@@ -194,6 +230,8 @@ export default {
                     tClosedDate: vueObj.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",
                     tOwner:vueObj.SelectedOwner,
                     // tEnvironment:vueObj.task_env?vueObj.task_env:"",
+                    ModifiedBy:firebase.auth().currentUser.uid,
+                    ModifiedDate:moment().format("YYYY-MM-DD HH:MM"),
                     t_isActive: vueObj.task_isActive == "Yes"
                 })
                 .then( final=>{
@@ -232,11 +270,13 @@ export default {
             tClosedDate: this.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",
             // tOwner:this.SelectedOwner,
             // tEnvironment:this.task_env?this.task_env:"",
+            ModifiedBy:firebase.auth().currentUser.uid,
+            ModifiedDate:moment().format("YYYY-MM-DD"),
             t_isActive: this.task_isActive == "Yes"
           })
           .then(docRef => {       
             // console.log("task update done")
-            this.$router.push("/");
+            this.$router.push("/view/projcat");
           })
           .catch(function(error) {
             console.error("Error writing document: ", error);
@@ -273,18 +313,22 @@ export default {
     },
     DeleteTask(){
       var vueObj = this;
-      if (window.confirm("The task will pe permanently deleted, are you sure?")){
+      if (window.confirm("The task will be permanently deleted, are you sure?")){
           db
             .collection(this.$route.query.uid)
             .doc(this.$route.params.task_id)
             .delete()
             .then(function() {
-                vueObj.$router.push("/");
+                vueObj.$router.push("/view/projcat");
             });
       }
     },
-    getProjects() {
+    getProjects(remProj) {
       var vueObj = this;
+      if (vueObj.SelectedProjCat!='xBacklog' && remProj){
+        vueObj.SelectedProj=null
+      }
+
       db
         .collection(
           "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
@@ -332,7 +376,7 @@ export default {
       .doc(this.$route.params.task_id)
       .get()
       .then(doc => {
-        
+        console.log(doc.data().tProject)
         this.task_name = doc.data().tName;
         this.task_details = doc.data().tDescription;
         this.task_start = doc.data().tStart;
@@ -351,6 +395,11 @@ export default {
         // this.orig_task_start=this.task_start;
         // this.orig_task_deadline = this.task_deadline;
         // this.orig_task_status = this.task_status;
+        if (this.SelectedProjCat=='xBacklog'){
+          this.task_start= moment().weekday(1).format("YYYY-MM-DD");
+          this.task_deadline= moment().weekday(5).format("YYYY-MM-DD");
+          // this.showUsers=true
+        }
         this.getProjects();
       });
   },
