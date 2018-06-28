@@ -3,19 +3,22 @@
         <H1>Admin area</H1>
 
         <button type="button" @click="runF1" class="btn">Run f1</button>
-        <button type="button" @click="runF2" class="btn blue">Run f2</button>
+        <button v-if="GotUsers >= tasks.length && tasks.length>0" type="button" @click="runF2" class="btn blue">Run f2</button>
     </div>        
     </template>
       
     <script>
 import db from "./firebaseInit";
 import firebase from "firebase";
+var moment = require("moment");
+
 export default {
   name: "AdminDashboard",
   data() {
     return {
       tasks: [],
       UsersAndArrays: [],
+      GotUsers:0
   }},
   methods: {
     runF1(){
@@ -26,15 +29,18 @@ export default {
       var objVue = this;
       db
         .collection("Users")  
-        .where("Label","==","test")      
+        // .where("isManager","==",true)      
         .get()
         .then(doc => {
           doc.forEach(LstItem => {
+            
             const data = {
               OBJ: {
                 name: LstItem.data().Label,
-                tasks: [],
-                UID: LstItem.id
+                // tasks: [],
+                isOwner:LstItem.data().isOwner,
+                isManager:LstItem.data().isManager,
+                UID:LstItem.id
               }
             };
 
@@ -45,11 +51,54 @@ export default {
             if (a.OBJ.name > b.OBJ.name) return 1;
             return 0;
           }
-          objVue.UsersAndArrays.sort(sortTasks);
+          // objVue.UsersAndArrays.sort(sortTasks);
 
-          objVue.GetFire_ForTasks("All active");
+          // this.exportDB(this.UsersAndArrays)
+        objVue.GotUsers = 0;
+
+          this.UsersAndArrays.forEach(user=>{
+            objVue.getTasksForUsers(user.OBJ.UID)            
+          })
+
         });
     },
+    getTasksForUsers(userID){
+      var objVue = this;
+
+      db
+        .collection(userID)
+        .get()
+        .then(querySnapshot => {
+          
+          const data={
+            UID:userID,
+            tasks:[]
+          }
+          querySnapshot.forEach(task =>{
+            data.tasks.push(task.data())
+          })
+
+          objVue.tasks.push(data)
+
+          objVue.GotUsers++;
+          // if (objVue.GotUsers >= objVue.tasks.length) {
+          //  // objVue.exportDB(objVue.tasks);
+          //  alert("done")
+          // }
+
+        })
+
+
+    },
+    exportDB(myObject){
+      function downloadTextFile(text, name) {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL( new Blob([text], { type:`text/${name.split(".").pop()}` }) );
+        a.download = name;
+        a.click();
+      }
+      downloadTextFile(JSON.stringify(myObject), 'dbBKP_'+moment().format("YYYY_MM_DD_HH-SS")+'.json');
+    },    
     GetFire_ForTasks(opt) {
       var objVue = this;
       // objVue.nSelectedStatus = opt;
@@ -99,15 +148,11 @@ export default {
         });
     },
     runF2() {
-        var vueobj=this.tasks
+        // var objVue=this.tasks
+
+        this.exportDB(this.tasks);
         
-        vueobj.forEach(function(tsk){
-              db
-                .collection("UserTasks/tasks/YqRVNtuUu3aAHt6g2YW05OxIsj42")
-                .add(tsk)
-                .then(function(){console.log("runF2 done")})
-        })
-        
+       
     }
   }
 };

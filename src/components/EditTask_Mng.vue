@@ -92,6 +92,16 @@
             <label class="active">Is active:</label>            
           </div>
         </div>
+          <!-- Created by -->
+          <div class="row">
+              <label class="active">Created by:</label>
+              <div class="input-field col s12">
+                 <span @click="SelectedManager=mng" v-for="mng in ManagersArray" v-bind:key="mng.id" v-bind:class="{'mySingleSelected':SelectedManager==mng}" class="mySingle chip">
+                    {{mng.OBJ.name}}
+                  </span>
+              </div>
+          </div>
+
         <button type="submit" class="btn">Save</button>
         <router-link to="/view/cols" class="btn grey">Cancel</router-link>
         <a @click="DeleteTask" class="btn waves-effect waves-light red darken-4 right"><i class="material-icons right">delete_forever</i>Delete</a>
@@ -127,7 +137,11 @@ export default {
       task_project: null,
       task_env: null,
       task_isActive: null,
+      task_createdBy:null,
       Statuses: fireList.statusesList,
+
+      ManagersArray:[],
+      SelectedManager:null,
 
       ProjectsCat: [],
       AddNewProjCat: null,
@@ -270,6 +284,7 @@ export default {
             tClosedDate: this.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",
             // tOwner:this.SelectedOwner,
             // tEnvironment:this.task_env?this.task_env:"",
+            CreatedBy:this.SelectedManager.OBJ.UID,
             ModifiedBy:firebase.auth().currentUser.uid,
             ModifiedDate:moment().format("YYYY-MM-DD"),
             t_isActive: this.task_isActive == "Yes"
@@ -370,6 +385,7 @@ export default {
     }
   },
   created() {
+    var objVue=this
     
     db
       .collection(this.$route.query.uid)
@@ -387,6 +403,7 @@ export default {
         this.SelectedProj = doc.data().tProject;
         this.SelectedOwner=doc.data().tOwner?doc.data().tOwner:{ Label: null, UID: null };
         this.initialOwner=this.SelectedOwner;
+        this.task_createdBy=doc.data().CreatedBy;
         
         this.task_isActive = doc.data().t_isActive ? "Yes" : "No";
 
@@ -402,6 +419,41 @@ export default {
         }
         this.getProjects();
       });
+
+      //set managers
+        db
+        .collection("Users")
+        .where("isManager", "==", true)
+        .get()
+        .then(doc => {
+          doc.forEach(LstItem => {
+            const data = {
+              OBJ: {
+                name: LstItem.data().Label,
+                UID: LstItem.id
+              }
+            };
+
+            objVue.ManagersArray.push(data);
+          });
+          function sortMNG(a, b) {
+            if(b.OBJ.name=="All") return 1;
+            if (a.OBJ.name < b.OBJ.name) return -1;
+            if (a.OBJ.name > b.OBJ.name) return 1;
+            return 0;
+          }
+
+          //  objVue.ManagersArray.push({OBJ:{UID:"All",name:"All"}})
+           objVue.ManagersArray.sort(sortMNG);
+
+           objVue.ManagersArray.forEach(owner => {
+              console.log(owner.OBJ.UID)
+              if (owner.OBJ.UID ==  objVue.task_createdBy) {
+                objVue.SelectedManager = owner;
+                return true;
+              }
+            });
+        }) 
   },
   mounted() {
     var objVue = this;

@@ -2,11 +2,17 @@
     <div id="dashboard" style="margin: 0px 25px;">
         <!-- filter -->
         <div class="row z-depth-2 filterContainer brown lighten-4">
-            Filter by status:
-            <div class="input-field col s12">
-                <span @click="GetFire_ForTasks(opt)" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
+            <div class="col m6 s12">
+            Filter by status &#8594;
+                <span @click="SelectedStatus=opt,GetFire_ForTasks()" v-for="opt in StatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedStatus==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
+            </div>
+            <div class="col m6 s12 right" style="text-align:right">
+                <span @click="SelectedManager=mng,GetFire_ForTasks()" v-for="mng in ManagersArray" v-bind:key="mng.id" v-bind:class="{'mySingleSelected':SelectedManager.OBJ.UID==mng.OBJ.UID}" class="mySingle chip">
+                    {{mng.OBJ.name}}
+                  </span>
+             &#8592; filter by creator 
             </div>
         </div>
         <!-- user tasks -->
@@ -48,7 +54,8 @@
                                 <div class="row" style="margin-left:0px">
                                     <div class="chip col">{{task.task_status}}</div>
                                     <span class="col">{{task.task_deadline}}</span>
-                                    <span v-if="task.task_FTE!=undefined && task.task_FTE!=''" class="red-text col">{{task.task_FTE}} FTE</span>
+                                    <br/>
+                                    <div v-if="task.task_FTE!=undefined && task.task_FTE!=''" class="red-text col">{{task.task_FTE}} FTE</div>
                                 </div>
                                 <hr/>
                                 <!-- START icon container -->
@@ -105,7 +112,7 @@ export default {
   data() {
     return {
       //   users: fireList.OwnersList,
-      nStatusesList: [
+      StatusesList: [
         "All active",
         "In progress",
         "On hold",
@@ -113,7 +120,9 @@ export default {
         "Canceled","Not allocated"
       ],
       UsersAndArrays: [],
-      nSelectedStatus: null
+      ManagersArray:[],
+      SelectedManager:{OBJ:{UID:"All",name:"All"}},
+      SelectedStatus: "All active"
     };
   },
   mounted() {
@@ -145,12 +154,41 @@ export default {
           }
           objVue.UsersAndArrays.sort(sortTasks);
 
-          objVue.GetFire_ForTasks("All active");
+          objVue.GetFire_ForTasks();
         });
+      //set managers
+        db
+        .collection("Users")
+        .where("isManager", "==", true)
+        .get()
+        .then(doc => {
+          doc.forEach(LstItem => {
+            const data = {
+              OBJ: {
+                name: LstItem.data().Label,
+                UID: LstItem.id
+              }
+            };
+
+            objVue.ManagersArray.push(data);
+          });
+          function sortMNG(a, b) {
+            if(b.OBJ.name=="All") return 1;
+            if (a.OBJ.name < b.OBJ.name) return -1;
+            if (a.OBJ.name > b.OBJ.name) return 1;
+            return 0;
+          }
+
+           objVue.ManagersArray.push({OBJ:{UID:"All",name:"All"}})
+          //  objVue.ManagersArray.push({OBJ:{UID:"None",name:"None"}})
+           objVue.ManagersArray.sort(sortMNG);
+
+          // objVue.GetFire_ForTasks("All active");
+        });  
     },
-    GetFire_ForTasks(opt) {
+    GetFire_ForTasks() {
       var objVue = this;
-      objVue.nSelectedStatus = opt;
+      // objVue.SelectedStatus = opt;
 
       objVue.UsersAndArrays.forEach(itm => {
         objVue.GetFire_userTasks(itm.OBJ);
@@ -167,12 +205,19 @@ export default {
 
           var queryString;
           queryString =
-            objVue.nSelectedStatus == undefined ||
-              objVue.nSelectedStatus == "All active"
+            objVue.SelectedStatus == undefined ||
+              objVue.SelectedStatus == "All active"
               ? "(doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold'|| doc.data().tStatus == 'Not allocated')"
-              : "(doc.data().tStatus == '" + objVue.nSelectedStatus + "')";
+              : "(doc.data().tStatus == '" + objVue.SelectedStatus + "')";
 
               queryString=queryString+" && (doc.data().isPrivate == undefined || doc.data().isPrivate == false)"
+
+              //   if (objVue.SelectedManager.OBJ.name=='None'){
+              //   queryString=queryString+" && doc.data().CreatedBy==undefined"
+              // }else 
+              if(objVue.SelectedManager.OBJ.name!='All'){
+                queryString=queryString+" && doc.data().CreatedBy=='"+objVue.SelectedManager.OBJ.UID+"'"
+              }
 
           querySnapshot.forEach(doc => {
             //custom filter

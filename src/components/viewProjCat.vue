@@ -2,11 +2,17 @@
     <div id="dashboard" style="margin: 0px 25px;">
         <!-- filter -->
         <div class="row z-depth-2 filterContainer brown lighten-4">
-            <div class="input-field col s12">
-            Filter by status:
-                <span @click="GetFire_ForTasks(opt)" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
+            <div class="col m6 s12">
+            Filter by status &#8594;
+                <span @click="SelectedStatus=opt,GetFire_ForTasks()" v-for="opt in StatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedStatus==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
+            </div>
+            <div class="col m6 s12 right" style="text-align:right">
+                <span @click="SelectedManager=mng,GetFire_ForTasks()" v-for="mng in ManagersArray" v-bind:key="mng.id" v-bind:class="{'mySingleSelected':SelectedManager.OBJ.UID==mng.OBJ.UID}" class="mySingle chip">
+                    {{mng.OBJ.name}}
+                  </span>
+             &#8592; filter by creator 
             </div>
         </div>
         <!--  tasks -->
@@ -34,12 +40,6 @@
                                 <!-- project category -->
                                <span class="truncate tooltip"> 
                                  {{task.task_project}}
-                                  <!-- <span class="tooltiptext">
-                                      [{{task.task_ProjCat}}]: {{task.task_project}}
-                                    </span>
-                                    <span>
-                                      [{{task.task_ProjCat}}]: {{task.task_project}}
-                                    </span> -->                                  
                                  </span>
                                 <span class="card-title truncate cyan-text tooltip"> 
                                   <span class="tooltiptext">
@@ -52,7 +52,8 @@
                                 <div class="row" style="margin-left:0px">
                                     <div class="chip col">{{task.task_status}}</div>
                                     <span class="col">{{task.task_deadline}}</span>
-                                    <span v-if="task.task_FTE!=undefined && task.task_FTE!=''" class="red-text col">{{task.task_FTE}} FTE</span>
+                                    <br/>
+                                    <div v-if="task.task_FTE!=undefined && task.task_FTE!=''" class="red-text col">{{task.task_FTE}} FTE</div>
                                 </div>
                                 <div class="row">
                                   {{task.task_owner_label}}
@@ -113,7 +114,7 @@ export default {
   data() {
     return {
       //   users: fireList.OwnersList,
-      nStatusesList: [
+      StatusesList: [
         "All active",
         "In progress",
         "On hold",
@@ -122,9 +123,11 @@ export default {
         "Not allocated"
       ],
       UsersAndArrays: [],
+      ManagersArray:[],
+      SelectedManager:{OBJ:{UID:"All",name:"All"}},
       GotUsers: 0,
       ProjCatArray: [],
-      nSelectedStatus: null
+      SelectedStatus: "All active"
     };
   },
   created() {
@@ -179,12 +182,43 @@ export default {
           }
           // objVue.UsersAndArrays.sort(sortTasks);
 
-          objVue.GetFire_ForTasks("All active");
+          objVue.GetFire_ForTasks();
         });
+
+      //set managers
+        db
+        .collection("Users")
+        .where("isManager", "==", true)
+        .get()
+        .then(doc => {
+          doc.forEach(LstItem => {
+            const data = {
+              OBJ: {
+                name: LstItem.data().Label,
+                UID: LstItem.id
+              }
+            };
+
+            objVue.ManagersArray.push(data);
+          });
+          function sortMNG(a, b) {
+            if(b.OBJ.name=="All") return 1;
+            if (a.OBJ.name < b.OBJ.name) return -1;
+            if (a.OBJ.name > b.OBJ.name) return 1;
+            return 0;
+          }
+
+           objVue.ManagersArray.push({OBJ:{UID:"All",name:"All"}})
+           objVue.ManagersArray.push({OBJ:{UID:"None",name:"None"}})
+           objVue.ManagersArray.sort(sortMNG);
+
+          // objVue.GetFire_ForTasks("All active");
+        });
+
     },
-    GetFire_ForTasks(opt) {
+    GetFire_ForTasks() {
       var objVue = this;
-      objVue.nSelectedStatus = opt;
+      // objVue.SelectedStatus = opt;
       //reset number of users
       objVue.GotUsers = 0;
 
@@ -204,12 +238,21 @@ export default {
 
           var queryString;
           queryString =
-            objVue.nSelectedStatus == undefined ||
-            objVue.nSelectedStatus == "All active"
+            objVue.SelectedStatus == undefined ||
+            objVue.SelectedStatus == "All active"
               ? "(doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold'|| doc.data().tStatus == 'Not allocated')"
-              : "(doc.data().tStatus == '" + objVue.nSelectedStatus + "')";
+              : "(doc.data().tStatus == '" + objVue.SelectedStatus + "')";
 
               queryString=queryString+" && (doc.data().isPrivate == undefined || doc.data().isPrivate == false)"
+
+              if (objVue.SelectedManager.OBJ.name=='None'){
+                queryString=queryString+" && doc.data().CreatedBy==undefined"
+              }else if(objVue.SelectedManager.OBJ.name=='All'){
+
+              }else
+              {
+                queryString=queryString+" && doc.data().CreatedBy=='"+objVue.SelectedManager.OBJ.UID+"'"
+              }
 
           querySnapshot.forEach(doc => {
             //custom filter
@@ -359,36 +402,6 @@ export default {
           return false;
       }
     }
-  },
-  computed: {
-    // viewCategories:function(){
-    //       var objVue = this;
-    //       //reset proj cat
-    //       objVue.ProjCatArray.forEach(cat => {
-    //         cat.tasks = [];
-    //       });
-    //       objVue.UsersAndArrays.forEach(itm => {
-    //         itm.OBJ.tasks.forEach(task => {
-    //           // allocate in array
-    //           var taskFound=false
-    //           objVue.ProjCatArray.forEach(cat => {
-    //             if (cat.name == task.task_ProjCat) {
-    //               cat.tasks.push(task);
-    //               taskFound=true
-    //             }
-    //           });
-    //           // alocate to old category
-    //           if (!taskFound){
-    //             objVue.ProjCatArray.forEach(cat => {
-    //               if (cat.name == "Old") {
-    //                 cat.tasks.push(task);
-    //               }
-    //             });
-    //           }
-    //         });
-    //       });
-    //   return this.ProjCatArray
-    // }
   }
 };
 </script>
