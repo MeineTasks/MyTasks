@@ -1,6 +1,6 @@
 <template>
 <div id="new-task" class="container">
-  <h3>Add new task</h3>
+  <h3>Add new tasks</h3>
   <div class="row">
       <form @submit.prevent="saveTask" class="col s12">
           <div class="row">
@@ -12,7 +12,7 @@
          <!-- timings -->
           <div class="row" v-if="showDates">
               <div class="input-field col">
-                  <input id="StartDate" type="date" placeholder="start date" v-model="task_start">
+                  <input @change="updateDeadline()" id="StartDate" type="date" placeholder="start date" v-model="task_start">
                   <label class="active">Start date:</label>
               </div>
               <div class="input-field col">
@@ -138,7 +138,8 @@ export default {
     };
   },
   methods: {
-    SetDeadline() {
+    updateDeadline() {
+      console.log('update')
       this.task_deadline = moment(this.task_start, "YYYY-MM-DD")
         .weekday(5)
         .format("YYYY-MM-DD");
