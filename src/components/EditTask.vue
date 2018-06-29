@@ -97,6 +97,7 @@
 import firebase from "firebase";
 import db from "./firebaseInit";
 import fireList from "./fireLists";
+var moment = require("moment");
 
 export default {
   name: "edit-task",

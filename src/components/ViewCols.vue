@@ -215,11 +215,7 @@ export default {
         return task.task_Category == "3";
       });
     }
-  },
-  mounted() {
-    // alert("S")
-    // $('.tooltipped').tooltip();
-  },
+  },  
   methods: {
     CompleteTask(task) {
       if (!task.task_completed) {
@@ -227,23 +223,8 @@ export default {
           .collection(firebase.auth().currentUser.uid)
           .doc(task.id)
           .update({
-            tStatus: "Completed"
-          })
-          .then(docRef => {
-            db
-              .collection("Log")
-              .add({
-                date:
-                  new Date().toString().slice(0, 9) +
-                  " " +
-                  new Date(new Date()).toString().split(" ")[4],
-                tName: task.task_name,
-                updated: "Status:" + task.task_status + "##Completed",
-                user: firebase.auth().currentUser.email
-              })
-              .catch(function(error) {
-                console.error("Error adding document ChangedInfo: ", error);
-              });
+            tStatus: "Completed",
+            tClosedDate: moment().format("YYYY-MM-DD")
           })
           .catch(function(error) {
             console.error("Error writing document CompleteTask: ", error);

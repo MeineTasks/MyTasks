@@ -117,11 +117,12 @@ export default {
         "In progress",
         "On hold",
         "Completed",
-        "Canceled","Not allocated"
+        "Canceled",
+        "Not allocated"
       ],
       UsersAndArrays: [],
-      ManagersArray:[],
-      SelectedManager:{OBJ:{UID:"All",name:"All"}},
+      ManagersArray: [],
+      SelectedManager: { OBJ: { UID: "All", name: "All" } },
       SelectedStatus: "All active"
     };
   },
@@ -157,7 +158,7 @@ export default {
           objVue.GetFire_ForTasks();
         });
       //set managers
-        db
+      db
         .collection("Users")
         .where("isManager", "==", true)
         .get()
@@ -173,18 +174,18 @@ export default {
             objVue.ManagersArray.push(data);
           });
           function sortMNG(a, b) {
-            if(b.OBJ.name=="All") return 1;
+            if (b.OBJ.name == "All") return 1;
             if (a.OBJ.name < b.OBJ.name) return -1;
             if (a.OBJ.name > b.OBJ.name) return 1;
             return 0;
           }
 
-           objVue.ManagersArray.push({OBJ:{UID:"All",name:"All"}})
+          objVue.ManagersArray.push({ OBJ: { UID: "All", name: "All" } });
           //  objVue.ManagersArray.push({OBJ:{UID:"None",name:"None"}})
-           objVue.ManagersArray.sort(sortMNG);
+          objVue.ManagersArray.sort(sortMNG);
 
           // objVue.GetFire_ForTasks("All active");
-        });  
+        });
     },
     GetFire_ForTasks() {
       var objVue = this;
@@ -192,7 +193,7 @@ export default {
 
       objVue.UsersAndArrays.forEach(itm => {
         objVue.GetFire_userTasks(itm.OBJ);
-      });      
+      });
     },
     GetFire_userTasks(OBJ) {
       var objVue = this;
@@ -206,18 +207,24 @@ export default {
           var queryString;
           queryString =
             objVue.SelectedStatus == undefined ||
-              objVue.SelectedStatus == "All active"
+            objVue.SelectedStatus == "All active"
               ? "(doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold'|| doc.data().tStatus == 'Not allocated')"
               : "(doc.data().tStatus == '" + objVue.SelectedStatus + "')";
 
-              queryString=queryString+" && (doc.data().isPrivate == undefined || doc.data().isPrivate == false)"
+          queryString =
+            queryString +
+            " && (doc.data().isPrivate == undefined || doc.data().isPrivate == false)";
 
-              //   if (objVue.SelectedManager.OBJ.name=='None'){
-              //   queryString=queryString+" && doc.data().CreatedBy==undefined"
-              // }else 
-              if(objVue.SelectedManager.OBJ.name!='All'){
-                queryString=queryString+" && doc.data().CreatedBy=='"+objVue.SelectedManager.OBJ.UID+"'"
-              }
+          //   if (objVue.SelectedManager.OBJ.name=='None'){
+          //   queryString=queryString+" && doc.data().CreatedBy==undefined"
+          // }else
+          if (objVue.SelectedManager.OBJ.name != "All") {
+            queryString =
+              queryString +
+              " && doc.data().CreatedBy=='" +
+              objVue.SelectedManager.OBJ.UID +
+              "'";
+          }
 
           querySnapshot.forEach(doc => {
             //custom filter
@@ -258,14 +265,14 @@ export default {
           .doc(task.id)
           .update({
             tStatus: "Completed",
-            tClosedDate:moment().format("YYYY-MM-DD")
+            tClosedDate: moment().format("YYYY-MM-DD")
           })
           .catch(function(error) {
             console.error("Error writing document CompleteTask: ", error);
           });
       }
     },
-      CancelTask(task) {
+    CancelTask(task) {
       if (!task.task_completed) {
         db
           .collection(task.task_owner)
@@ -328,10 +335,10 @@ export default {
 </script>
 
 <style scoped>
-.card{
+.card {
   margin-bottom: 3px !important;
 }
-.card-title{
+.card-title {
   line-height: normal !important;
   font-size: 20px !important;
   margin-bottom: 0px !important;
@@ -339,7 +346,7 @@ export default {
 .card-content {
   padding: 5px !important;
 }
-.card-content > .row{
+.card-content > .row {
   margin-bottom: 0px !important;
   padding: 0px !important;
 }
@@ -374,8 +381,8 @@ export default {
   color: #26a69a;
   opacity: 0.6;
 }
-.fa-ban{
-  color:#fb9d9d;
+.fa-ban {
+  color: #fb9d9d;
 }
 .fa-clipboard-check {
   color: #a5a5a5;
@@ -389,14 +396,13 @@ export default {
   text-align: center;
   border-radius: 6px;
   padding: 5px 3px;
-  top: -15px;
+  top: -43px;
+  white-space: normal;
 
   /* Position the tooltip */
   position: absolute;
-  
 }
 .tooltiptext2 {
-  
   visibility: hidden;
   font-size: 12px;
   background-color: #484545;
@@ -411,7 +417,8 @@ export default {
   position: absolute;
 }
 
-.tooltip:hover .tooltiptext,.tooltip:hover .tooltiptext2 {
+.tooltip:hover .tooltiptext,
+.tooltip:hover .tooltiptext2 {
   visibility: visible;
   z-index: 100;
 }
@@ -446,7 +453,7 @@ export default {
   padding: 5px;
   margin-top: 5px;
 }
-.red-text{
+.red-text {
   font-size: small !important;
 }
 </style>
