@@ -8,6 +8,7 @@ import ViewGantt from "@/components/ViewGantt";
 import ViewUsers from "@/components/viewUsers";
 import ViewProjCat from "@/components/viewProjCat";
 
+
 import NewTask from "@/components/NewTask_Mng";
 import NewPrivateTask from "@/components/NewPrivateTask";
 
@@ -62,7 +63,7 @@ let router = new Router({
       component: ViewUsers,
       meta: {
         requiresAuth: true,
-        requiresMng: true
+        requiresMng: false
       }
     },
     {
@@ -70,10 +71,9 @@ let router = new Router({
       name: "viewprojcat",
       component: ViewProjCat,
       meta: {
-        requiresAuth: true,
-        requiresMng: true
+        requiresAuth: true
       }
-    },
+    },    
     {
       path: "/new",
       name: "new-task",

@@ -14,6 +14,20 @@
                   </span>
              &#8592; filter by creator 
             </div>
+            <!-- date filter -->
+            <div class="col m6 s12">
+                Filter by Date &#8594;
+                <span v-if="!showDateFilter">
+                          No date filter applied: 
+                          <a @click="showDateFilter=true" class="waves-effect waves-light btn-small">Add filter<i class="material-icons left">event</i></a>
+                        </span>
+                <span v-if="showDateFilter">
+                          <input @change="datefilter_setEnd()" class="dateField" type="date" placeholder="start date" v-model="Datefilter_start">
+                          <input class="dateField" type="date" placeholder="end date" v-model="Datefilter_end" >
+                          <a @click="GetFire_ForTasks()" class="waves-effect waves-light btn-small">Apply filter</a>
+                          <a @click="showDateFilter=false,GetFire_ForTasks()" class="waves-effect waves-light btn-small  grey darken-1">Remove filter<i class="material-icons left">event_busy</i></a>
+                        </span>
+            </div>
         </div>
         <!--  tasks -->
         <div v-for="cat in ProjCatArray" v-bind:key="cat.id" class="z-depth-1">
@@ -41,7 +55,7 @@
                                <span class="truncate tooltip"> 
                                  {{task.task_project}}
                                  </span>
-                                <span class="card-title truncate cyan-text tooltip"> 
+                                <span class="task-title cyan-text tooltip"> 
                                   <span class="tooltiptext">
                                     {{task.task_name}}
                                   </span>
@@ -60,7 +74,7 @@
                                 </div>
                                 <hr/>
                                 <!-- START icon container -->
-                                <div class="row iconContainer">
+                                <div v-if="isManager" class="row iconContainer">
                                     <div class="col m3 tooltip">
                                       <span class="tooltiptext2">Edit</span>
                                         <router-link v-bind:to="{name:'edit-task_mng',params:{task_id:task.id},query:{uid:task.task_owner} }">
@@ -95,7 +109,7 @@
             </div>
         </div>
         <!-- add new -->
-        <div class="fixed-action-btn">
+        <div v-if="isManager" class="fixed-action-btn">
           <router-link to ="/new" class="btn-floating btn-large red">
             <i class="fa fa-plus"></i>
           </router-link>
@@ -114,6 +128,9 @@ export default {
   data() {
     return {
       //   users: fireList.OwnersList,
+      showDateFilter: false,
+      Datefilter_start: null,
+      Datefilter_end: null,
       StatusesList: [
         "All active",
         "In progress",
@@ -124,6 +141,7 @@ export default {
       ],
       UsersAndArrays: [],
       ManagersArray: [],
+      isManager: false,
       SelectedManager: { OBJ: { UID: "All", name: "All" } },
       GotUsers: 0,
       ProjCatArray: [],
@@ -132,6 +150,13 @@ export default {
   },
   created() {
     this.ADDTasksIncat();
+    db
+      .collection("Users")
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(doc => {
+        this.isManager = doc.data().isManager;
+      });
   },
   mounted() {
     var objVue = this;
@@ -156,6 +181,11 @@ export default {
     this.GetFire_users();
   },
   methods: {
+    datefilter_setEnd() {
+      this.Datefilter_end = moment(this.Datefilter_start, "YYYY-MM-DD")
+        .weekday(5)
+        .format("YYYY-MM-DD");
+    },
     GetFire_users() {
       var objVue = this;
       // set users array
@@ -251,6 +281,17 @@ export default {
               " && doc.data().CreatedBy=='" +
               objVue.SelectedManager.OBJ.UID +
               "'";
+          }
+          if(objVue.showDateFilter){
+             if (objVue.Datefilter_start !=null && objVue.Datefilter_start !="" ){
+                queryString =
+              queryString + " &&  moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tStart,'YYYY-MM-DD'))"
+             }
+               if (objVue.Datefilter_end !=null && objVue.Datefilter_end !="" ){
+                queryString =
+              queryString + "&& moment(doc.data().tDeadline,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_end,'YYYY-MM-DD'))"
+             }
+
           }
 
           querySnapshot.forEach(doc => {
@@ -457,6 +498,10 @@ export default {
   color: #a5a5a5;
 }
 
+.tooltip {
+  cursor: pointer;
+}
+
 .tooltiptext {
   visibility: hidden;
   font-size: 20px;
@@ -465,7 +510,8 @@ export default {
   text-align: center;
   border-radius: 6px;
   padding: 5px 3px;
-  top: -15px;
+  /* top: -46px; */
+  bottom: 150px;
 
   /* Position the tooltip */
   position: absolute;
@@ -478,7 +524,7 @@ export default {
   text-align: center;
   border-radius: 6px;
   padding: 5px;
-  top: 100px;
+  top: 118px;
   white-space: nowrap;
 
   /* Position the tooltip */
@@ -524,6 +570,23 @@ export default {
 }
 .red-text {
   font-size: small !important;
+}
+.task-title {
+  overflow-wrap: break-word;
+  font-size: small;
+  height: 40px;
+  white-space: unset;
+  display: block;
+  overflow: hidden;
+}
+.dateField {
+  width: 150px !important;
+  height: auto !important;
+  border: 1px solid #c4c4c4!important;
+  border-radius: 5px!important;
+  background-color: #fff!important;
+  padding: 3px 5px!important;
+  box-shadow: inset 0 3px 6px rgba(0,0,0,0.1)!important;
 }
 </style>
 

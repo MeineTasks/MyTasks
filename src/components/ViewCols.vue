@@ -267,6 +267,8 @@ export default {
 <style scoped>
 .card-content {
   padding: 10px !important;
+  display: block;
+  overflow: hidden;
 }
 .Delayed {
   color: #ee6e73;
