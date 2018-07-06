@@ -7,11 +7,10 @@
         <div v-for="task in ViewCat1" v-bind:key="task.id" class="col s6">
           <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-1'">
             <div class="card-content white-text">
-              <span class="card-title truncate cyan-text tooltip"> 
-                <span class="tooltiptext">
+              <span class="card-title truncate cyan-text"> 
+                <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name" >
                   {{task.task_name}}
-                </span>
-                {{task.task_name}}
+                </span>                
               </span>
               <span class="tskDetails" v-html="task.task_description"></span>
               <hr/>
@@ -20,21 +19,21 @@
                 <span class="col">{{task.task_deadline}}</span>
                </div>
               <hr/>
-              <!-- START icon container -->
+             <!-- START icon container -->
               <div class="row iconContainer">
-                <div class="col m4">
-                  <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+                <div class="col m4">                  
+                  <router-link class="tooltipped" data-position="top" data-tooltip="Edit" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
                     <i class="fas fa-edit"></i>
                   </router-link>    
                 </div>
                 <div class="col m4">                  
-                  <span v-bind:class="{'myBtn':!task.task_completed}">
+                  <span class="myBtn tooltipped" data-position="top" data-tooltip="Complete">                    
                     <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
                   </span>
                 </div>
                  <div class="col m4">                  
-                  <span class="myBtn">
-                    <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'" class="far"></i>
+                  <span class="myBtn tooltipped" data-position="top" data-tooltip="Start/Stop" >                    
+                    <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"  class="far"></i>
                   </span>
                 </div>                
               </div>
@@ -49,11 +48,10 @@
         <div v-for="task in ViewCat2" v-bind:key="task.id" class="col s6">
           <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-1'">
             <div class="card-content white-text">
-              <span class="card-title truncate cyan-text tooltip"> 
-                <span class="tooltiptext">
+              <span class="card-title truncate cyan-text"> 
+                <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name" >
                   {{task.task_name}}
-                </span>
-                {{task.task_name}}
+                </span>                
               </span>
               <span class="tskDetails" v-html="task.task_description"></span>
               <hr/>
@@ -64,19 +62,19 @@
               <hr/>
              <!-- START icon container -->
               <div class="row iconContainer">
-                <div class="col m4">
-                  <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+                <div class="col m4">                  
+                  <router-link class="tooltipped" data-position="top" data-tooltip="Edit" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
                     <i class="fas fa-edit"></i>
                   </router-link>    
                 </div>
                 <div class="col m4">                  
-                  <span v-bind:class="{'myBtn':!task.task_completed}">
+                  <span class="myBtn tooltipped" data-position="top" data-tooltip="Complete">                    
                     <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
                   </span>
                 </div>
                  <div class="col m4">                  
-                  <span class="myBtn">
-                    <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'" class="far"></i>
+                  <span class="myBtn tooltipped" data-position="top" data-tooltip="Start/Stop" >                    
+                    <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"  class="far"></i>
                   </span>
                 </div>                
               </div>
@@ -90,12 +88,11 @@
         <!-- vue component structure 3 -->
         <div  v-for="task in ViewCat3" v-bind:key="task.id" class="col s6">
           <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-1'">
-            <div class="card-content white-text">
-              <span class="card-title truncate cyan-text tooltip"> 
-                <span class="tooltiptext">
+            <div class="card-content white-text">                
+              <span class="card-title truncate cyan-text"> 
+                <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name" >
                   {{task.task_name}}
-                </span>
-                {{task.task_name}}
+                </span>                
               </span>
               <span class="tskDetails" v-html="task.task_description"></span>
               <hr/>
@@ -106,22 +103,19 @@
               <hr/>
              <!-- START icon container -->
               <div class="row iconContainer">
-                <div class="col m4 tooltip">
-                  <span class="tooltiptext2">Edit</span>
-                  <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+                <div class="col m4">                  
+                  <router-link class="tooltipped" data-position="top" data-tooltip="Edit" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
                     <i class="fas fa-edit"></i>
                   </router-link>    
                 </div>
                 <div class="col m4">                  
-                  <span v-bind:class="{'myBtn':!task.task_completed}" class="tooltip">
-                    <span class="tooltiptext2">Complete</span>
+                  <span class="myBtn tooltipped" data-position="top" data-tooltip="Complete">                    
                     <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
                   </span>
                 </div>
                  <div class="col m4">                  
-                  <span class="myBtn tooltip">
-                    <span class="tooltiptext2">In progress/on hold</span>
-                    <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'" class="far"></i>
+                  <span class="myBtn tooltipped" data-position="top" data-tooltip="Start/Stop" >                    
+                    <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"  class="far"></i>
                   </span>
                 </div>                
               </div>
@@ -138,12 +132,17 @@
 import firebase from "firebase";
 import db from "./firebaseInit";
 
+var moment = require("moment");
+
 export default {
   name: "view-cols",
   data() {
     return {
       tasks: []
     };
+  },
+  updated(){
+    $('.tooltipped').tooltip();
   },
   created() {
     db
@@ -197,7 +196,9 @@ export default {
             this.tasks.push(data);
           }
         });
+      
       });
+      
   },
   computed: {
     ViewCat1: function() {
@@ -211,7 +212,7 @@ export default {
       });
     },
     ViewCat3: function() {
-      return this.tasks.filter(function(task) {
+      return this.tasks.filter(function(task) {      
         return task.task_Category == "3";
       });
     }
@@ -271,7 +272,7 @@ export default {
   overflow: hidden;
 }
 .Delayed {
-  color: #ee6e73;
+  color: #ffab29;
 }
 .row {
   margin-bottom: 0px !important;
@@ -299,49 +300,10 @@ export default {
 .fa-clipboard-check {
   color: #a5a5a5;
 }
+.tooltipped{
+  cursor: pointer;
+}
 
-.tooltiptext {
-  visibility: hidden;
-  font-size: 20px;
-  background-color: #484545;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 3px;
-  /* top: -46px; */
-  bottom: 150px;
-  white-space: normal !important;
-
-  /* Position the tooltip */
-  position: absolute;
-}
-.tooltiptext2 {
-  visibility: hidden;
-  font-size: 12px;
-  background-color: #484545;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px;
-  top: 90px;
-  white-space: nowrap;
-
-  /* Position the tooltip */
-  position: absolute;
-}
-.tooltip:hover .tooltiptext,.tooltip:hover .tooltiptext2 {
-  visibility: visible;
-}
-.tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 10%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #484545 transparent transparent transparent;
-}
 
 .fa-stop-circle {
   color: #ff9800;

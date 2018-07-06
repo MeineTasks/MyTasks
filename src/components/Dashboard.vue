@@ -13,7 +13,7 @@
     </div>
     <!-- view in progress -->
     <div v-bind:class="[{'Completed':task.ViewInProgress},{'Canceled':task.task_canceled},{'inProgress':task.task_inProgress}]" v-for="task in ViewInProgress" v-bind:key="task.id" class="row z-depth-2">        
-        <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
+        <div class="col m2 s12 truncate"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
         <div class="col m4 s12 tskDetails" v-html="task.task_description"></div>        
         <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>        
         <div class="col m2 s12"><i>{{task.task_status}}</i></div>
@@ -32,8 +32,8 @@
     </div>
     <!-- view on hold  -->
     <div v-bind:class="[{'Completed':task.ViewInProgress},{'Canceled':task.task_canceled},{'inProgress':task.task_inProgress}]" v-for="task in ViewOnHold" v-bind:key="task.id" class="row z-depth-2">        
-        <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
-        <div class="col m4 s12" v-html="task.task_description"></div>
+        <div class="col m2 s12 truncate"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
+        <div class="col m4 s12 tskDetails" v-html="task.task_description"></div>
         <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>        
         <div class="col m2 s12"><i>{{task.task_status}}</i></div>
         <div class="col m2 s12">{{task.task_deadline}}</div>     
@@ -51,8 +51,8 @@
     <hr/>
     <!-- view Completed  -->
     <div v-bind:class="[{'Completed':task.ViewInProgress},{'Canceled':task.task_canceled},{'inProgress':task.task_inProgress}]" v-for="task in ViewCompleted" v-bind:key="task.id" class="row z-depth-2">        
-        <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
-        <div class="col m4 s12" v-html="task.task_description"></div>
+        <div class="col m2 s12 truncate"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
+        <div class="col m4 s12 tskDetails" v-html="task.task_description"></div>
         <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>         
         <div class="col m2 s12"><i>{{task.task_status}}</i></div>
         <div class="col m2 s12">{{task.task_deadline}}</div>     
@@ -69,8 +69,8 @@
     </div>
      <!-- view Canceled  -->
     <div v-bind:class="[{'Completed':task.ViewInProgress},{'Canceled':task.task_canceled},{'inProgress':task.task_inProgress}]" v-for="task in ViewCanceled" v-bind:key="task.id" class="row z-depth-2">        
-        <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
-        <div class="col m4 s12" v-html="task.task_description"></div>
+        <div class="col m2 s12 truncate"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
+        <div class="col m4 s12 tskDetails" v-html="task.task_description"></div>
         <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>        
         <div class="col m2 s12"><i>{{task.task_status}}</i></div>
         <div class="col m2 s12">{{task.task_deadline}}</div>     
@@ -159,8 +159,9 @@ export default {
       });
     }
   },
-  mounted() {
-    $(".sidenav").sidenav();
+  updated() {
+    // $(".sidenav").sidenav();
+    $('.tooltipped').tooltip();
   },
   methods: {
     CloseTask(task) {

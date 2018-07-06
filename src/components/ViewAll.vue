@@ -13,8 +13,8 @@
         </h6>
     </div>
     <!-- view in progress -->
-    <div v-bind:class="{'notActive':task.task_isActive}" v-for="task in tasks" v-bind:key="task.id" class="row z-depth-2">        
-        <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
+    <div v-bind:class="{'notActive':task.task_isActive}" v-for="task in tasks" v-bind:key="task.id" class="row z-depth-2">                
+        <div class="col m2 s12 truncate"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
         <div class="col m2 s12 tskDetails" v-html="task.task_description"></div>     
         <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>   
         <div class="col m2 s12"><i>{{task.task_status}}</i></div>
@@ -55,6 +55,10 @@ export default {
       tasks: [],
       logData: []
     };
+  },
+  updated() {
+    // $(".sidenav").sidenav();
+    $('.tooltipped').tooltip();
   },
   created() {
     if (firebase.auth().currentUser) {

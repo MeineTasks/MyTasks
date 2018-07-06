@@ -3,7 +3,7 @@
   <nav>
     <div class="nav-wrapper brown lighten-1 row">
         <span v-if="isLoggedIn" style="margin-left:20px" class="brand-logo left hide-on-small-only"> 
-          <i class="large material-icons tooltipped" style="color:#8bbf8b"  data-position="right" v-bind:data-tooltip="currentUser">account_circle</i>
+          <i class="large material-icons tooltipped" style="color:#8bbf8b"  data-position="bottom" v-bind:data-tooltip="currentUser">account_circle</i>
           <a v-if="isLoggedIn"><button v-on:click="logout" class="btn black">Logout</button></a>
         </span>
         <!-- small screen only -->
@@ -67,10 +67,10 @@ export default {
    mounted() {     
     $('.tooltipped').tooltip();
     $(".dropdown-trigger").dropdown();
-    //  if (!(/chrom(e|ium)/.test(navigator.userAgent.toLowerCase())) || /opr/.test(navigator.userAgent.toLowerCase())) {
-    //     $('body').html("<center>The application was designed for Google Chrome</center>");
-    //     alert("== Please use Chrome to open this page ==");
-    // }
+     if (!(/chrom(e|ium)/.test(navigator.userAgent.toLowerCase())) || /opr/.test(navigator.userAgent.toLowerCase())) {
+        $('body').html("<center>The application was designed for Google Chrome</center>");
+        alert("== Please use Chrome to open this page ==");
+    }
   },
   methods: {
     logout: function() {
@@ -87,5 +87,8 @@ export default {
 <style>
 .router-link-exact-active {
   background: #6e7686
+}
+.tooltipped{
+  cursor: pointer;
 }
 </style>
