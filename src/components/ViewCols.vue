@@ -13,7 +13,7 @@
                 </span>
                 {{task.task_name}}
               </span>
-              <span v-html="task.task_description"></span>
+              <span class="tskDetails" v-html="task.task_description"></span>
               <hr/>
               <div class="row" style="margin-left:0px">
                 <div class="chip col">{{task.task_status}}</div>
@@ -55,7 +55,7 @@
                 </span>
                 {{task.task_name}}
               </span>
-              <span v-html="task.task_description"></span>
+              <span class="tskDetails" v-html="task.task_description"></span>
               <hr/>
               <div class="row" style="margin-left:0px">
                 <div class="chip col">{{task.task_status}}</div>
@@ -97,7 +97,7 @@
                 </span>
                 {{task.task_name}}
               </span>
-              <span v-html="task.task_description"></span>
+              <span class="tskDetails" v-html="task.task_description"></span>
               <hr/>
               <div class="row" style="margin-left:0px">
                 <div class="chip col">{{task.task_status}}</div>
@@ -308,11 +308,12 @@ export default {
   text-align: center;
   border-radius: 6px;
   padding: 5px 3px;
-  top: -15px;
+  /* top: -46px; */
+  bottom: 150px;
+  white-space: normal !important;
 
   /* Position the tooltip */
   position: absolute;
-  z-index: 10;
 }
 .tooltiptext2 {
   visibility: hidden;
@@ -353,5 +354,10 @@ export default {
 }
 .red-text{
   font-size: small !important;
+}
+.tskDetails{
+  display: block;
+  overflow: hidden;
+  word-break: break-word;
 }
 </style>

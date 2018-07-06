@@ -1,5 +1,7 @@
 <template>
   <div class="main">  
+    <span class="title">Upcoming:</span>
+    
       <!-- header -->
       <div class="row">
         <div class="leftPanel HeaderRow col m3">
@@ -58,11 +60,12 @@
             </div>
           </span>
         </div>         
-      </div>    
+      </div>   
+
     <!-- backLog -->
     <div class="divider"></div>
     <div v-if="backLog.length>0" class="section">
-      <span class="title">BackLog:</span>
+      <span class="title">BackLog/Remaining:</span>
       <div id="dashboard">    
         <div class="row z-depth-3 brown darken-1 white-text hide-on-small-only">      
             <h6 class="col m2 s12">Task name</h6>
@@ -71,14 +74,14 @@
             <h6 class="col m2 s12">Status</h6>
             <h6 class="col m1 s12">Deadline</h6>        
             <h6 class="col m2 iconContainer">
-              <span class="red-text">Close</span>
+              <span class="red-text">Archive</span>
               <span class="white-text">Edit</span>
             </h6>
         </div>
     </div>
       <div v-for="task in backLog" v-bind:key="task.id" class="row z-depth-2">        
           <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
-          <div class="col m3 s12" v-html="task.task_description"></div>        
+          <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>        
           <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>        
           <div class="col m2 s12"><i>{{task.task_status}}</i></div>
           <div class="col m2 s12">{{task.tsk_end_date}}</div>     
@@ -335,7 +338,7 @@ export default {
 <style scoped>
 .main {
   margin: 10px;
-  background: lightgray;
+  background: aliceblue;
   padding: 5px;
 }
 .HeaderDays,
@@ -346,7 +349,7 @@ export default {
   border-left: solid;
 }
 .HeaderRow {
-  background: grey;
+  background: lightgray;
   box-shadow: 6px 4px 8px 0px;
   border-right: solid;
   padding: 0 !important;
@@ -435,7 +438,22 @@ export default {
   opacity: 1;
 }
 .section {
-  background: #afadad;
+  background: #e8e8e8;
+}
+.tskDetails{
+  display: block;
+  overflow: hidden;
+  word-break: break-word;
+}
+.title{
+    color: darkslateblue;
+    background: white;
+    border-radius: 50px;
+    padding: 2px 10px;
+    margin-bottom: 15px;
+    display: block;
+    text-align: center;
+    font-style: italic;
 }
 </style>
 

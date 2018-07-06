@@ -16,7 +16,7 @@ import EditTask from "@/components/EditTask";
 import EditTask_MNG from "@/components/EditTask_Mng";
 
 import Login from "@/components/Login";
-import Register from "@/components/Register";
+// import Register from "@/components/Register";
 import AdminDash from "@/components/admn";
 
 import firebase from "firebase";
@@ -115,14 +115,14 @@ let router = new Router({
         requiresGuest: true
       }
     },
-    {
-      path: "/register",
-      name: "register",
-      component: Register,
-      meta: {
-        requiresGuest: true
-      }
-    },
+    // {
+    //   path: "/register",
+    //   name: "register",
+    //   component: Register,
+    //   meta: {
+    //     requiresGuest: true
+    //   }
+    // },
     {
       path: "/admn",
       name: "admin",

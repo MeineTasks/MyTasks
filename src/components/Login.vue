@@ -21,7 +21,7 @@
         </div>
       </div>
     </div>
-    <button @click="dummyLogin" class="btn btn-large btn-extended green lighten-4 black-text">Use test account</button>
+    <!-- <button @click="dummyLogin" class="btn btn-large btn-extended green lighten-4 black-text">Use test account</button> -->
   </div>
   </div>
 </template>

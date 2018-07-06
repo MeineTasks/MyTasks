@@ -149,7 +149,7 @@ export default {
     };
   },
   created() {
-    this.ADDTasksIncat();
+    // this.ADDTasksIncat();
     db
       .collection("Users")
       .doc(firebase.auth().currentUser.uid)
@@ -324,12 +324,12 @@ export default {
           });
           // call next function
           objVue.GotUsers++;
-          if (objVue.GotUsers >= objVue.UsersAndArrays.length) {
+          if (objVue.GotUsers >= objVue.UsersAndArrays.length && objVue.GotUsers> 0) {
             objVue.ADDTasksIncat();
           }
         });
     },
-    ADDTasksIncat() {
+    ADDTasksIncat() {      
       var objVue = this;
       //reset proj cat
       objVue.ProjCatArray.forEach(cat => {
@@ -356,6 +356,17 @@ export default {
           }
         });
       });
+      //sort tasks
+      function sortMYTasks(a, b) {
+            if (a.task_project < b.task_project) return -1;
+            if (a.task_project > b.task_project) return 1;
+            return 0;
+      }      
+      objVue.ProjCatArray.forEach(itm =>{
+        itm.tasks.sort(sortMYTasks)
+      })
+      
+
     },
     CompleteTask(task) {
       if (!task.task_completed) {

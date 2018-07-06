@@ -6,14 +6,14 @@
         <h6 class="col m2 s12">Project</h6>     
         <h6 class="col m2 s12">Status</h6>
         <h6 class="col m2 s12">Deadline</h6>        
-        <h6 class="col m1 s12">Is active</h6>
+        <h6 class="col m1 s12">Is archived</h6>
         <h6 class="col iconContainer">
           <!-- <span class="red-text">Close</span> -->
           <span class="white-text">Edit</span>
         </h6>
     </div>
     <!-- view in progress -->
-    <div v-bind:class="{'notActive':!task.task_isActive}" v-for="task in tasks" v-bind:key="task.id" class="row z-depth-2">        
+    <div v-bind:class="{'notActive':task.task_isActive}" v-for="task in tasks" v-bind:key="task.id" class="row z-depth-2">        
         <div class="col m2 s12 truncate"><b>{{task.task_name}}</b></div>
         <div class="col m2 s12 tskDetails" v-html="task.task_description"></div>     
         <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>   
@@ -72,7 +72,7 @@ export default {
               task_deadline: doc.data().tDeadline,
               task_status: doc.data().tStatus,
               task_project:doc.data().tProject,
-              task_isActive:doc.data().t_isActive
+              task_isActive:!doc.data().t_isActive
             };
             this.tasks.push(data);
           });

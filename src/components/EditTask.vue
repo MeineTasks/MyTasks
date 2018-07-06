@@ -12,10 +12,23 @@
         </div>
         <!-- details -->
         <div class="row">
-          <div class="input-field col s12">
-            <textarea id="textarea1" placeholder="Task details" v-model="task_details"
-              />
+          <div class="input-field col s12" >
             <label for="textarea1" class="active">Details:</label>
+            <textarea id="textarea1" placeholder="Task details" v-model="task_details"/>
+            
+           <div class="helperfield row">
+              <label for="linkDetail" class="col">URL:</label>
+              <input id="linkDetail" class="col m4" type="text" v-model="detail_link">
+              
+              <label for="linkDetail"  class="col">Caption:</label>
+              <input id="linkhyper" class="col m2" type="text" v-model="detail_title">
+              
+              <a @click="AddHyperlink()" class="waves-effect waves-light btn-small col cyan darken-2"   style="margin-right: 10px;">
+                <i class="material-icons">public</i>              
+                Add attachment hyperlink
+              </a>              
+            </div>
+            
           </div>
         </div>
         <!-- timings -->
@@ -79,11 +92,14 @@
           </div> -->
         <div class="row">
           <div class="input-field col s12">
-            <select required style="display:block;width:70px" v-model="task_isActive">
+            <select required style="display:block;width:70px;margin-top: 10px;" v-model="task_isActive">
               <option>Yes</option>
               <option>No</option>
             </select>
-            <label class="active">Is active:</label>            
+            <label class="active">Is archived:</label>  
+            <span class="info">
+              By setting this to <b>Yes</b> the task will only be visible in 'My All' view
+            </span>
           </div>
         </div>
         <button type="submit" class="btn">Save</button>
@@ -109,6 +125,8 @@ export default {
       showProject: true,
       showNewProj: false,
       showNewProjCat: false,
+      detail_link:"",
+      detail_title:"",
 
       task_name: null,
       task_details: "",
@@ -160,7 +178,7 @@ export default {
           // tEnvironment:this.task_env?this.task_env:"",
           ModifiedBy:firebase.auth().currentUser.uid,
           ModifiedDate:moment().format("YYYY-MM-DD HH:MM"),
-          t_isActive: this.task_isActive == "Yes"
+          t_isActive: this.task_isActive == "No"
         })
         .then(docRef => {       
           console.log("task update done")
@@ -237,6 +255,17 @@ export default {
         .then(function() {
           vueObj.showNewProj = false;
         });
+    },
+    AddHyperlink(){
+     if (this.detail_link!=""){
+        var title=this.detail_title?this.detail_title:"Click here"
+
+        this.task_details=this.task_details+"\n\n"+"Attachement: <a href='"+this.detail_link+"' target='_blank'>"+title+"</a>"
+        this.detail_link=""
+        this.detail_title=""
+      }else{
+        M.toast({ html: "URL field should not be empty" });
+      }
     }
   },
   created() {
@@ -255,7 +284,7 @@ export default {
         this.SelectedProj = doc.data().tProject;
         // this.SelectedOwner=doc.data().tOwner?doc.data().tOwner:{ Label: null, UID: null };
         this.task_env = doc.data().tEnvironment;
-        this.task_isActive = doc.data().t_isActive ? "Yes" : "No";
+        this.task_isActive = doc.data().t_isActive ? "No" : "Yes";
 
         // this.orig_task_name = this.task_name;
         // this.orig_task_details = this.task_details;
@@ -294,6 +323,15 @@ input[type="date"] {
 .mySingleSelected {
   background: teal;
   color: white;
+}
+.info{
+  color: darkgray;
+  font-style: italic;
+  border-left: solid 5px darkgray;
+  padding-left: 5px;
+}
+label{
+  margin-bottom: 5px
 }
 </style>
 

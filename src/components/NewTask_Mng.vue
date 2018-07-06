@@ -77,6 +77,18 @@
               <div v-if="showDetails" class="input-field col s12">
                   <textarea id="textarea1" placeholder="Task details" v-model="task_details" required />
                   <label for="textarea1" class="active">Details:</label>
+                   <div class="helperfield row">
+                  <label for="linkDetail" class="col">URL:</label>
+                  <input id="linkDetail" class="col m4" type="text" v-model="detail_link">
+                  
+                  <label for="linkDetail"  class="col">Caption:</label>
+                  <input id="linkhyper" class="col m2" type="text" v-model="detail_title">
+                  
+                  <a @click="AddHyperlink()" class="waves-effect waves-light btn-small col cyan darken-2"   style="margin-right: 10px;">
+                    <i class="material-icons">public</i>              
+                    Add attachment hyperlink
+                  </a>              
+                </div>
               </div>
           </div>
           <button type="submit" class="btn brown lighten-1">Save</button>
@@ -107,6 +119,9 @@ export default {
       showOwner: true,
       showDates: true,
       showStatus: true,
+
+      detail_link:"",
+      detail_title:"",
 
       task_name: null,
       task_details: "",
@@ -411,6 +426,16 @@ export default {
         .then(function() {
           vueObj.showNewProj = false;
         });
+    },AddHyperlink(){
+      if (this.detail_link!=""){
+        var title=this.detail_title?this.detail_title:"Click here"
+
+        this.task_details=this.task_details+"\n\n"+"Attachement: <a href='"+this.detail_link+"' target='_blank'>"+title+"</a>"
+        this.detail_link=""
+        this.detail_title=""
+      }else{
+        M.toast({ html: "URL field should not be empty" });
+      }
     }
   },
   mounted() {
