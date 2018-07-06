@@ -276,7 +276,7 @@ export default {
                     })
 
                 })
-                console.log("done")
+                // console.log("done")
 
             }
 
@@ -421,7 +421,7 @@ export default {
       .doc(this.$route.params.task_id)
       .get()
       .then(doc => {
-        console.log(doc.data().tProject)
+        
         this.task_name = doc.data().tName;
         this.task_details = doc.data().tDescription;
         this.task_start = doc.data().tStart;

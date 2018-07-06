@@ -456,7 +456,7 @@ export default {
           // console.log(querySnapshot)
 
           querySnapshot.forEach(doc => {
-            console.log(doc.collection("Proj"))
+            // console.log(doc.collection("Proj"))
             if (doc.id == "ASI") {
               // console.log(doc.Proj.data())
               doc.data().Proj.forEach(prj => {
