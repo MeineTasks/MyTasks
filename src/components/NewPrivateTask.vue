@@ -42,7 +42,7 @@
           <!-- Attachement -->
           <div class="row">
             <div class="input-field col s12">
-              <label for="textarea1" class="active">Attachment:</label>
+              <label for="Attachment_span" class="active">Attachment:</label>
 
               <div v-for="attach in task_attachement" v-bind:key="attach.id">
                 <span id="Attachment_span" v-html="attach" >                
@@ -51,12 +51,14 @@
               </div>
 
               <div style="margin-top:10px" class="helperfield row">
-                <label for="linkDetail" class="col">URL:</label>
-                <input id="linkDetail" class="col m4" type="text" v-model="detail_link">
-                
-                <label for="linkDetail"  class="col">Caption:</label>
-                <input id="linkhyper" class="col m2" type="text" v-model="detail_title">
-                
+                <div class="input-field col m4">
+                  <label for="linkDetails" class="col">File URL path:</label>
+                  <input id="linkDetails" type="text" v-model="detail_link">
+                </div>
+                <div class="col m2 input-field">
+                  <label for="linkhyper"  class="col">Link caption:</label>
+                  <input id="linkhyper" type="text" v-model="detail_title">
+                </div>
                 <a @click="AddHyperlink()" class="waves-effect waves-light btn-small col cyan darken-2" style="margin-right: 10px;">
                   <i class="material-icons">public</i>              
                   Add attachment hyperlink
@@ -140,6 +142,10 @@ export default {
     AddHyperlink(){
       if (this.detail_link!=""){
         var title=this.detail_title?this.detail_title:"Click here"
+        //add https
+        if (this.detail_link.indexOf("http")==-1){
+          this.detail_link="https://"+this.detail_link
+        }
 
         this.task_attachement.push("<a href='"+this.detail_link+"' target='_blank'>"+title+"</a>")
 
