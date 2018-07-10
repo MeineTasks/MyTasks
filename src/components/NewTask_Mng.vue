@@ -73,24 +73,39 @@
           </div>
            <div class="row">
               <span v-if="!showDetails" @click="showDetails=true" class="waves-effect waves-light btn-small black-text blue-grey lighten-4">Add details</span>
+              
               <span v-if="showDetails" @click="showDetails=false" class="waves-effect waves-light btn-small blue-grey lighten-2">Hide details</span>
               <div v-if="showDetails" class="input-field col s12">
-                  <textarea id="textarea1" placeholder="Task details" v-model="task_details" required />
                   <label for="textarea1" class="active">Details:</label>
-                   <div class="helperfield row">
-                  <label for="linkDetail" class="col">URL:</label>
-                  <input id="linkDetail" class="col m4" type="text" v-model="detail_link">
-                  
-                  <label for="linkDetail"  class="col">Caption:</label>
-                  <input id="linkhyper" class="col m2" type="text" v-model="detail_title">
-                  
-                  <a @click="AddHyperlink()" class="waves-effect waves-light btn-small col cyan darken-2"   style="margin-right: 10px;">
-                    <i class="material-icons">public</i>              
-                    Add attachment hyperlink
-                  </a>              
-                </div>
+                  <textarea id="textarea1" placeholder="Task details" v-model="task_details" required />
               </div>
           </div>
+         <!-- Attachement -->
+        <div class="row">
+          <div class="input-field col s12">
+            <label for="textarea1" class="active">Attachment:</label>
+
+            <div v-for="attach in task_attachement" v-bind:key="attach.id">
+              <span id="Attachment_span" v-html="attach" >                
+              </span>              
+              <i class="fas fa-minus-square red-text" style="cursor:pointer" @click="RemoveHyperlink(attach)"></i>
+            </div>
+
+            <div style="margin-top:10px" class="helperfield row">
+              <label for="linkDetail" class="col">URL:</label>
+              <input id="linkDetail" class="col m4" type="text" v-model="detail_link">
+              
+              <label for="linkDetail"  class="col">Caption:</label>
+              <input id="linkhyper" class="col m2" type="text" v-model="detail_title">
+              
+              <a @click="AddHyperlink()" class="waves-effect waves-light btn-small col cyan darken-2" style="margin-right: 10px;">
+                <i class="material-icons">public</i>              
+                Add attachment hyperlink
+              </a>              
+            </div>
+          </div>
+        </div>
+
           <button type="submit" class="btn brown lighten-1">Save</button>
           <router-link to="/view/cols" class="btn grey">Cancel</router-link>
       </form>
@@ -122,6 +137,7 @@ export default {
 
       detail_link:"",
       detail_title:"",
+      task_attachement:[],
 
       task_name: null,
       task_details: "",
@@ -251,7 +267,10 @@ export default {
         M.toast({ html: msg });
         return false;
       }
-
+      if(this.detail_link!=""){
+        M.toast({ html: "Attachment URL should be empty" });
+        return false;
+      }
       // return true;
       db
         .collection(this.SelectedOwner.UID)
@@ -265,6 +284,7 @@ export default {
           tStatus: this.SelectedStatus,
           tFTE: this.task_fte,
           tOwner: this.SelectedOwner,
+          tAttach:this.task_attachement,
           t_isActive: true,
           isPrivate: this.SelectedProjCat == "Personal" ? true : false,
           CreatedBy:firebase.auth().currentUser.uid,
@@ -273,7 +293,24 @@ export default {
         .then(docRef => this.$router.push("/view/projcat"))
         .catch(error => console.log(err));
     },
+      AddHyperlink(){
+      if (this.detail_link!=""){
+        var title=this.detail_title?this.detail_title:"Click here"
 
+        this.task_attachement.push("<a href='"+this.detail_link+"' target='_blank'>"+title+"</a>")
+
+        // this.task_attachement=this.task_attachement+"\n\n"+"Attachement: <a href='"+this.detail_link+"' target='_blank'>"+title+"</a>"
+        this.detail_link=""
+        this.detail_title=""
+
+      }else{
+        M.toast({ html: "URL field should not be empty" });
+      }
+    },
+    RemoveHyperlink(attch){
+      var index=this.task_attachement.indexOf(attch)
+        this.task_attachement.splice(index,1)
+    },
     addProjCategory() {
       var vueObj = this;
       db
@@ -426,16 +463,6 @@ export default {
         .then(function() {
           vueObj.showNewProj = false;
         });
-    },AddHyperlink(){
-      if (this.detail_link!=""){
-        var title=this.detail_title?this.detail_title:"Click here"
-
-        this.task_details=this.task_details+"\n\n"+"Attachement: <a href='"+this.detail_link+"' target='_blank'>"+title+"</a>"
-        this.detail_link=""
-        this.detail_title=""
-      }else{
-        M.toast({ html: "URL field should not be empty" });
-      }
     }
   },
   mounted() {

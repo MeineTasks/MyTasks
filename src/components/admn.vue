@@ -126,7 +126,7 @@ export default {
          
           });
           // call next function
-          console.log(OBJ.UID+" done")
+          // console.log(OBJ.UID+" done")
         });
     },
     runF1s() {

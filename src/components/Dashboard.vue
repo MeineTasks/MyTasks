@@ -2,11 +2,12 @@
   <div id="dashboard" style="margin: 0px 50px;">    
     <div class="row z-depth-3 brown darken-1 white-text hide-on-small-only">      
         <h6 class="col m2 s12">Task name</h6>
-        <h6 class="col m4 s12">Description</h6>        
-        <h6 class="col m2 s12">Project</h6>        
-        <h6 class="col m2 s12">Status</h6>
-        <h6 class="col m1 s12">Deadline</h6>        
-        <h6 class="col m1 iconContainer">
+        <h6 class="col m3 s12">Description</h6>
+        <h6 class="col m1 s12">Project</h6>
+        <h6 class="col m2 s12">Attachments</h6>
+        <h6 class="col m1 s12">Status</h6>
+        <h6 class="col m1 s12">Deadline</h6>
+        <h6 class="col m iconContainer">
           <span class="red-text">Archive</span>
           <span class="white-text">Edit</span>
         </h6>
@@ -14,15 +15,21 @@
     <!-- view in progress -->
     <div v-bind:class="[{'Completed':task.ViewInProgress},{'Canceled':task.task_canceled},{'inProgress':task.task_inProgress}]" v-for="task in ViewInProgress" v-bind:key="task.id" class="row z-depth-2">        
         <div class="col m2 s12 truncate"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
-        <div class="col m4 s12 tskDetails" v-html="task.task_description"></div>        
-        <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>        
-        <div class="col m2 s12"><i>{{task.task_status}}</i></div>
-        <div class="col m2 s12">{{task.task_deadline}}</div>     
+        <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>        
+        <div class="col m1 s12 truncate"><i>{{task.task_project}}</i></div>        
+        <div class="col m2 s12">
+              <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
+              <span id="Attachment_span" v-html="attach" >                
+              </span>
+            </div>
+        </div>
+        <div class="col m1 s12"><i>{{task.task_status}}</i></div>
+        <div class="col m1 s12">{{task.task_deadline}}</div>     
         <div v-if="isLoggedIn" class="col iconContainer" >
-          <div class="col ">
+          <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Archive</span>">
             <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
           </div>
-          <div class="col ">
+          <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Edit</span>">
             <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
               <i class="fas fa-edit"></i>
             </router-link>  
@@ -33,15 +40,21 @@
     <!-- view on hold  -->
     <div v-bind:class="[{'Completed':task.ViewInProgress},{'Canceled':task.task_canceled},{'inProgress':task.task_inProgress}]" v-for="task in ViewOnHold" v-bind:key="task.id" class="row z-depth-2">        
         <div class="col m2 s12 truncate"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
-        <div class="col m4 s12 tskDetails" v-html="task.task_description"></div>
-        <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>        
-        <div class="col m2 s12"><i>{{task.task_status}}</i></div>
-        <div class="col m2 s12">{{task.task_deadline}}</div>     
+        <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
+        <div class="col m1 s12 truncate"><i>{{task.task_project}}</i></div>   
+         <div class="col m2 s12">
+              <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
+              <span id="Attachment_span" v-html="attach" >                
+              </span>
+            </div>
+        </div>     
+        <div class="col m1 s12"><i>{{task.task_status}}</i></div>
+        <div class="col m1 s12">{{task.task_deadline}}</div>     
         <div v-if="isLoggedIn" class="col iconContainer" >
-          <div class="col ">
+          <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Archive</span>">
             <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
           </div>
-          <div class="col ">
+          <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Edit</span>">
             <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
               <i class="fas fa-edit"></i>
             </router-link>  
@@ -52,15 +65,21 @@
     <!-- view Completed  -->
     <div v-bind:class="[{'Completed':task.ViewInProgress},{'Canceled':task.task_canceled},{'inProgress':task.task_inProgress}]" v-for="task in ViewCompleted" v-bind:key="task.id" class="row z-depth-2">        
         <div class="col m2 s12 truncate"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
-        <div class="col m4 s12 tskDetails" v-html="task.task_description"></div>
-        <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>         
-        <div class="col m2 s12"><i>{{task.task_status}}</i></div>
-        <div class="col m2 s12">{{task.task_deadline}}</div>     
+        <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
+        <div class="col m1 s12 truncate"><i>{{task.task_project}}</i></div>
+         <div class="col m2 s12">
+              <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
+              <span id="Attachment_span" v-html="attach" >                
+              </span>
+            </div>
+        </div>   
+        <div class="col m1 s12"><i>{{task.task_status}}</i></div>
+        <div class="col m1 s12">{{task.task_deadline}}</div>     
         <div v-if="isLoggedIn" class="col iconContainer" >
-          <div class="col ">
+          <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Archive</span>">
             <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
           </div>
-          <div class="col ">
+          <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Edit</span>">
             <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
               <i class="fas fa-edit"></i>
             </router-link>  
@@ -70,10 +89,16 @@
      <!-- view Canceled  -->
     <div v-bind:class="[{'Completed':task.ViewInProgress},{'Canceled':task.task_canceled},{'inProgress':task.task_inProgress}]" v-for="task in ViewCanceled" v-bind:key="task.id" class="row z-depth-2">        
         <div class="col m2 s12 truncate"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
-        <div class="col m4 s12 tskDetails" v-html="task.task_description"></div>
-        <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>        
-        <div class="col m2 s12"><i>{{task.task_status}}</i></div>
-        <div class="col m2 s12">{{task.task_deadline}}</div>     
+        <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
+        <div class="col m1 s12 truncate"><i>{{task.task_project}}</i></div>
+         <div class="col m2 s12">
+              <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
+              <span id="Attachment_span" v-html="attach" >                
+              </span>
+            </div>
+        </div>
+        <div class="col m1 s12"><i>{{task.task_status}}</i></div>
+        <div class="col m1 s12">{{task.task_deadline}}</div>     
         <div v-if="isLoggedIn" class="col iconContainer" >
           <div class="col ">
             <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
@@ -123,7 +148,8 @@ export default {
               id: doc.id,
               task_name: doc.data().tName,
               task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
-              task_project:doc.data().tProject,              
+              task_project:doc.data().tProject,    
+              task_attachement:doc.data().tAttach,
               task_deadline: doc.data().tDeadline,
               task_status: doc.data().tStatus,
               task_completed: doc.data().tStatus == "Completed",

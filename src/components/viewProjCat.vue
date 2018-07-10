@@ -21,12 +21,13 @@
                           No date filter applied: 
                           <a @click="showDateFilter=true" class="waves-effect waves-light btn-small">Add filter<i class="material-icons left">event</i></a>
                         </span>
-                <span v-if="showDateFilter">
-                          <input @change="datefilter_setEnd()" class="dateField" type="date" placeholder="start date" v-model="Datefilter_start">
+                    <span v-if="showDateFilter">
+                         From:  <input @change="datefilter_setEnd()" class="dateField" type="date" placeholder="start date" v-model="Datefilter_start">
+                          - To: 
                           <input class="dateField" type="date" placeholder="end date" v-model="Datefilter_end" >
-                          <a @click="GetFire_ForTasks()" class="waves-effect waves-light btn-small">Apply filter</a>
-                          <a @click="showDateFilter=false,GetFire_ForTasks()" class="waves-effect waves-light btn-small  grey darken-1">Remove filter<i class="material-icons left">event_busy</i></a>
-                        </span>
+                          <a @click="GetFire_ForTasks()" class="waves-effect waves-light btn-small">Add date filter</a>
+                          <a @click="showDateFilter=false,GetFire_ForTasks()" class="waves-effect waves-light btn-small  grey darken-2">Remove date filter<i class="material-icons left">event_busy</i></a>
+                </span>
             </div>
         </div>
         <!--  tasks -->
@@ -48,7 +49,7 @@
                 <div class="col m10">
                     <!-- card container structure -->
                     <div v-for="task in cat.tasks" v-bind:key="task.id" class="col m2 s12">
-                        <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-1'">
+                        <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-2'">
                             <!-- card tittle -->
                             <div class="card-content white-text">
                                 <!-- project category -->
@@ -129,8 +130,8 @@ export default {
     return {
       //   users: fireList.OwnersList,
       showDateFilter: false,
-      Datefilter_start: null,
-      Datefilter_end: null,
+      Datefilter_start: moment().weekday(1).format("YYYY-MM-DD"),
+      Datefilter_end: moment().weekday(5).format("YYYY-MM-DD"),
       StatusesList: [
         "All active",
         "In progress",
@@ -283,14 +284,18 @@ export default {
               "'";
           }
           if(objVue.showDateFilter){
-             if (objVue.Datefilter_start !=null && objVue.Datefilter_start !="" ){
-                queryString =
-              queryString + " &&  moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tStart,'YYYY-MM-DD'))"
-             }
-               if (objVue.Datefilter_end !=null && objVue.Datefilter_end !="" ){
-                queryString =
-              queryString + "&& moment(doc.data().tDeadline,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_end,'YYYY-MM-DD'))"
-             }
+            //  if (objVue.Datefilter_start !=null && objVue.Datefilter_start !="" ){
+            //     queryString =
+            //   queryString + " &&  moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tStart,'YYYY-MM-DD'))"
+            //  }
+            //    if (objVue.Datefilter_end !=null && objVue.Datefilter_end !="" ){
+            //     queryString =
+            //   queryString + "&& moment(doc.data().tDeadline,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_end,'YYYY-MM-DD'))"
+            //  }
+            queryString = queryString + "&& "
+              queryString = queryString + "(( moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tStart,'YYYY-MM-DD')) && moment(doc.data().tStart,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_start,'YYYY-MM-DD')) )"
+              queryString =queryString + "|| "
+              queryString =queryString + "( moment(doc.data().tDeadline,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_end,'YYYY-MM-DD')) && moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tDeadline,'YYYY-MM-DD')) ))"
 
           }
 
@@ -431,8 +436,8 @@ export default {
           task.task_FTE != undefined &&
           task.task_FTE != "TBD" &&
           task.task_FTE != null &&
-          task.task_FTE != "" &&
-          task.task_status == "In progress"
+          task.task_FTE != "" 
+          //&& task.task_status == "In progress"
         ) {
           // console.log(task.task_FTE)
           sum += parseFloat(task.task_FTE);

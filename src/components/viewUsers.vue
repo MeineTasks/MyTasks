@@ -22,16 +22,17 @@
                           <a @click="showDateFilter=true" class="waves-effect waves-light btn-small">Add filter<i class="material-icons left">event</i></a>
                         </span>
                 <span v-if="showDateFilter">
-                          <input @change="datefilter_setEnd()" class="dateField" type="date" placeholder="start date" v-model="Datefilter_start">
+                         From:  <input @change="datefilter_setEnd()" class="dateField" type="date" placeholder="start date" v-model="Datefilter_start">
+                          - To: 
                           <input class="dateField" type="date" placeholder="end date" v-model="Datefilter_end" >
-                          <a @click="GetFire_ForTasks()" class="waves-effect waves-light btn-small">Apply filter</a>
-                          <a @click="showDateFilter=false,GetFire_ForTasks()" class="waves-effect waves-light btn-small  grey darken-1">Remove filter<i class="material-icons left">event_busy</i></a>
-                        </span>
+                          <a @click="GetFire_ForTasks()" class="waves-effect waves-light btn-small">Add date filter</a>
+                          <a @click="showDateFilter=false,GetFire_ForTasks()" class="waves-effect waves-light btn-small  grey darken-1">Remove date filter<i class="material-icons left">event_busy</i></a>
+                </span>
             </div>
         </div>
         <!-- user tasks -->
         <div v-for="user in UsersAndArrays" v-bind:key="user.id" class="z-depth-1">
-            <div v-if="user.OBJ.tasks.length>0" class="row  valign-wrapper" style="border-bottom: #484545 solid 1px; ">
+            <div v-if="user.OBJ.tasks.length>0" class="row valign-wrapper" style="border-bottom: #484545 solid 1px; ">
                 <!-- first coll -->
                 <div class="col m2">
                     <span class="chip">
@@ -44,26 +45,18 @@
                 <div class="col m10">
                     <!-- card container structure -->
                     <div v-for="task in user.OBJ.tasks" v-bind:key="task.id" class="col m2 s12">
-                        <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-1'">
+                        <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-2'">
                             <!-- card tittle -->
                             <div class="card-content white-text">
                                 <!-- project category -->
-                               <span class="truncate tooltip"> 
-                                  {{task.task_project}}
-                                  <!-- <span class="tooltiptext">
-                                      [{{task.task_ProjCat}}]: {{task.task_project}}
-                                    </span>
-                                    <span>
-                                      [{{task.task_ProjCat}}]: {{task.task_project}}
-                                    </span> -->                                  
+                               <span class="truncate"> 
+                                  {{task.task_project}}                                  
                                  </span>
-                                <span class="task-title cyan-text tooltip"> 
-                                  <span class="tooltiptext">
+                                <span class="task-title cyan-text"> 
+                                  <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name">
                                     {{task.task_name}}
                                   </span>
-                                  <span>
-                                    {{task.task_name}}
-                                  </span>                                  
+                                    
                                 </span>
                                 <div class="row" style="margin-left:0px">
                                     <div class="chip col">{{task.task_status}}</div>
@@ -74,28 +67,24 @@
                                 <hr/>
                                 <!-- START icon container -->
                                 <div v-if="isManager" class="row iconContainer">
-                                    <div class="col m3 tooltip">
-                                      <span class="tooltiptext2">Edit</span>
-                                        <router-link v-bind:to="{name:'edit-task_mng',params:{task_id:task.id},query:{uid:task.task_owner} }">
+                                    <div class="col m3">                                      
+                                        <router-link class="tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Edit</span>" v-bind:to="{name:'edit-task_mng',params:{task_id:task.id},query:{uid:task.task_owner} }">
                                             <i class="fas fa-edit"></i>
                                         </router-link>
                                     </div>
                                     <div v-if="task.task_status!='Completed' && task.task_status!='Canceled'" class="col m3">
-                                      <span v-bind:class="{'myBtn':!task.task_completed}" class="tooltip">
-                                        <span class="tooltiptext2">Complete</span>
-                                        <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
+                                      <span v-bind:class="{'myBtn':!task.task_completed}" >                                        
+                                        <i class="tooltipped fas" data-position="top" data-tooltip="<span style='font-size:small'>Complete</span>" @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" ></i>
                                       </span>
                                     </div>
                                     <div class="col m3">
-                                        <span class="myBtn tooltip">
-                                            <span class="tooltiptext2">In progress/on hold</span>
-                                            <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'" class="far"></i>
+                                        <span class="myBtn">                
+                                            <i class="tooltipped far" data-position="top" data-tooltip="<span style='font-size:small'>In progress/on hold</span>" @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'" ></i>
                                         </span>
                                     </div>
                                      <div class="col m3">
                                         <span class="myBtn tooltip">
-                                            <span class="tooltiptext2">Cancel</span>
-                                            <i @click="CancelTask(task)" class="fas fa-ban"></i>
+                                            <i class="tooltipped fas fa-ban" data-position="top" data-tooltip="<span style='font-size:small'>Cancel</span>" @click="CancelTask(task)" ></i>
                                         </span>
                                     </div>
                                 </div>
@@ -127,8 +116,8 @@ export default {
     return {
       //   users: fireList.OwnersList,
       showDateFilter: false,
-      Datefilter_start: null,
-      Datefilter_end: null,
+      Datefilter_start: moment().weekday(1).format("YYYY-MM-DD"),
+      Datefilter_end: moment().weekday(5).format("YYYY-MM-DD"),
       StatusesList: [
         "All active",
         "In progress",
@@ -143,6 +132,10 @@ export default {
       SelectedManager: { OBJ: { UID: "All", name: "All" } },
       SelectedStatus: "All active"
     };
+  },
+  updated() {
+    // $(".sidenav").sidenav();
+    $('.tooltipped').tooltip();
   },
   mounted() {
     this.GetFire_users();
@@ -254,18 +247,17 @@ export default {
               objVue.SelectedManager.OBJ.UID +
               "'";
           }
+          // for date filter
            if(objVue.showDateFilter){
-             if (objVue.Datefilter_start !=null && objVue.Datefilter_start !="" ){
-                queryString =
-              queryString + " &&  moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tStart,'YYYY-MM-DD'))"
-             }
-               if (objVue.Datefilter_end !=null && objVue.Datefilter_end !="" ){
-                queryString =
-              queryString + "&& moment(doc.data().tDeadline,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_end,'YYYY-MM-DD'))"
-             }
+              
+              queryString = queryString + "&& "
+              queryString = queryString + "(( moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tStart,'YYYY-MM-DD')) && moment(doc.data().tStart,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_start,'YYYY-MM-DD')) )"
+              queryString =queryString + "|| "
+              queryString =queryString + "( moment(doc.data().tDeadline,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_end,'YYYY-MM-DD')) && moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tDeadline,'YYYY-MM-DD')) ))"
+            
 
           }
-
+          // console.log(queryString)
           querySnapshot.forEach(doc => {
             //custom filter
 
@@ -361,8 +353,8 @@ export default {
           task.task_FTE != undefined &&
           task.task_FTE != "TBD" &&
           task.task_FTE != null &&
-          task.task_FTE != "" &&
-          task.task_status == "In progress"
+          task.task_FTE != "" //&&
+          //task.task_status == "In progress"
         ) {
           // console.log(task.task_FTE)
           sum += parseFloat(task.task_FTE);
@@ -427,9 +419,10 @@ export default {
 .fa-clipboard-check {
   color: #a5a5a5;
 }
-.tooltip{
+.tooltipped{
   cursor: pointer;
-}
+ }
+ /*
 .tooltiptext {
   visibility: hidden;
   font-size: 20px;
@@ -441,7 +434,7 @@ export default {
   bottom: 150px;
   white-space: normal;
 
-  /* Position the tooltip */
+  
   position: absolute;
 }
 .tooltiptext2 {
@@ -455,7 +448,7 @@ export default {
   top: 80px;
   white-space: nowrap;
 
-  /* Position the tooltip */
+  
   position: absolute;
 }
 
@@ -473,7 +466,7 @@ export default {
   border-width: 5px;
   border-style: solid;
   border-color: #484545 transparent transparent transparent;
-}
+} */
 
 .fa-stop-circle {
   color: #ff9800;

@@ -43,7 +43,7 @@
               v-model="task_deadline">
             <label class="active">Deadline:</label>
           </div>
-          <select disabled v-model="task_FTE" style="display:inline;width:70px" >
+          <select v-model="task_FTE" style="display:inline;width:70px" >
                 <option v-for="fta in FTAarray" v-bind:key="fta.id"
                   v-bind:value="fta">{{fta}}</option>
               </select> 
@@ -293,6 +293,8 @@ export default {
         // this.orig_task_status = this.task_status;
         this.getProjects();
       });
+
+    $(".material-tooltip").css("opacity",0)
   },
   mounted() {
     var objVue = this;

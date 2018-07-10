@@ -18,19 +18,15 @@
       </div>
       <!-- task rows  -->
       <div class="row taskRow" v-for="task in inGantt"  v-bind:key="task.id" >
-        <div class="leftPanel col m3">
-          <span class="col truncate tooltip col m5">
+        <div class="leftPanel col m3">          
+          <span class="col truncate col m5 tooltipped" data-position="right" v-bind:data-tooltip="'Title: '+task.task_name+'<hr/> Details: '+task.task_description">
             {{task.task_name}}
             <!-- <span class="tooltiptext" v-html="task.task_description"></span> -->
-            <span class="tooltiptext ">
-              {{task.tsk_start_date}} >> {{task.tsk_end_date}}
-              <hr/>
-              <span v-html="task.task_description"></span>
-            </span>
+            
           </span>        
-            <span class="chip">{{task.task_status}}</span>
+            <span class="chip">{{task.task_status}}</span>            
             <div class="col iconContainer" >            
-              <div class="col ">
+              <div class="col tooltipped" data-position="top" data-tooltip="Edit">
                 <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
                   <i class="fas fa-edit"></i>
                 </router-link>  
@@ -70,26 +66,34 @@
         <div class="row z-depth-3 brown darken-1 white-text hide-on-small-only">      
             <h6 class="col m2 s12">Task name</h6>
             <h6 class="col m3 s12">Description</h6>        
-            <h6 class="col m2 s12">Project</h6>          
-            <h6 class="col m2 s12">Status</h6>
+            <h6 class="col m1 s12">Project</h6>          
+            <h6 class="col m2 s12">Attachment</h6>
+            <h6 class="col m1 s12">Status</h6>
             <h6 class="col m1 s12">Deadline</h6>        
-            <h6 class="col m2 iconContainer">
+            <h6 class="col  iconContainer">
               <span class="red-text">Archive</span>
               <span class="white-text">Edit</span>
             </h6>
         </div>
     </div>
       <div v-for="task in backLog" v-bind:key="task.id" class="row z-depth-2">        
-          <div class="col m2 s12 truncate"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
+          <div class="col m2 s12 truncate">
+            <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
           <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>        
-          <div class="col m2 s12 truncate"><i>{{task.task_project}}</i></div>        
-          <div class="col m2 s12"><i>{{task.task_status}}</i></div>
-          <div class="col m2 s12">{{task.tsk_end_date}}</div>     
+          <div class="col m1 s12 truncate"><i>{{task.task_project}}</i></div>        
+          <div class="col m2 s12">
+                <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
+                <span id="Attachment_span" v-html="attach" >                
+                </span>
+              </div>
+          </div>
+          <div class="col m1 s12"><i>{{task.task_status}}</i></div>
+          <div class="col m1 s12">{{task.tsk_end_date}}</div>     
           <div class="col iconContainer" >
-            <div class="col ">
+            <div class="col tooltipped" data-position="top" data-tooltip="Archive">
               <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
             </div>
-            <div class="col ">
+            <div class="col tooltipped" data-position="top" data-tooltip="Edit">
               <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
                 <i class="fas fa-edit"></i>
               </router-link>  
@@ -147,7 +151,7 @@ export default {
               task_name: doc.data().tName,
               task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
               task_project: doc.data().tProject,
-              task_env: doc.data().tEnvironment,
+              task_attachement:doc.data().tAttach,
               tsk_start_date: doc.data().tStart,
               tsk_end_date: doc.data().tDeadline,
               task_status: doc.data().tStatus

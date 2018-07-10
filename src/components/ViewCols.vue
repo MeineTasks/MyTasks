@@ -5,7 +5,7 @@
         <center><h3>No date</h3></center>
         <!-- vue component structure 1 -->
         <div v-for="task in ViewCat1" v-bind:key="task.id" class="col s6">
-          <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-1'">
+          <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-2'">
             <div class="card-content white-text">
               <span class="card-title truncate cyan-text"> 
                 <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name" >
@@ -13,6 +13,15 @@
                 </span>                
               </span>
               <span class="tskDetails" v-html="task.task_description"></span>
+               <div v-if="task.task_attachement!=undefined">
+                <hr/>
+                <span class="cyan-text">Attachments:</span>
+                  <div class="Attachment_spans" v-for="attach in task.task_attachement" v-bind:key="attach.id">                   
+                  <span class="attSpan" v-html="attach">
+                  </span>
+                  <span>; </span>
+                </div>
+              </div>
               <hr/>
               <div class="row" style="margin-left:0px">
                 <div class="chip col">{{task.task_status}}</div>
@@ -46,7 +55,7 @@
         <center><h3>Today</h3></center>
         <!-- vue component structure 2-->
         <div v-for="task in ViewCat2" v-bind:key="task.id" class="col s6">
-          <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-1'">
+          <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-2'">
             <div class="card-content white-text">
               <span class="card-title truncate cyan-text"> 
                 <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name" >
@@ -54,6 +63,15 @@
                 </span>                
               </span>
               <span class="tskDetails" v-html="task.task_description"></span>
+               <div v-if="task.task_attachement!=undefined">
+                <hr/>
+                <span class="cyan-text">Attachments:</span>
+                  <div class="Attachment_spans" v-for="attach in task.task_attachement" v-bind:key="attach.id">                   
+                  <span class="attSpan" v-html="attach">
+                  </span>
+                  <span>; </span>
+                </div>
+              </div>
               <hr/>
               <div class="row" style="margin-left:0px">
                 <div class="chip col">{{task.task_status}}</div>
@@ -63,7 +81,7 @@
              <!-- START icon container -->
               <div class="row iconContainer">
                 <div class="col m4">                  
-                  <router-link class="tooltipped" data-position="top" data-tooltip="Edit" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+                  <router-link draggable="false" class="tooltipped" data-position="top" data-tooltip="Edit" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
                     <i class="fas fa-edit"></i>
                   </router-link>    
                 </div>
@@ -87,7 +105,7 @@
         <center><h3>Future</h3></center>
         <!-- vue component structure 3 -->
         <div  v-for="task in ViewCat3" v-bind:key="task.id" class="col s6">
-          <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-1'">
+          <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-2'">
             <div class="card-content white-text">                
               <span class="card-title truncate cyan-text"> 
                 <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name" >
@@ -95,6 +113,17 @@
                 </span>                
               </span>
               <span class="tskDetails" v-html="task.task_description"></span>
+              <div v-if="task.task_attachement!=undefined">
+                <hr/>
+                <span class="cyan-text">Attachments:</span>
+                  <div class="Attachment_spans" v-for="attach in task.task_attachement" v-bind:key="attach.id">                   
+                  <span class="attSpan" v-html="attach">
+                  </span>
+                  <span>; </span>
+                </div>
+              </div>
+              
+             
               <hr/>
               <div class="row" style="margin-left:0px">
                 <div class="chip col">{{task.task_status}}</div>
@@ -188,6 +217,7 @@ export default {
               task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
               task_deadline: doc.data().tDeadline,
               task_status: doc.data().tStatus,
+              task_attachement:doc.data().tAttach,
               task_completed: doc.data().tStatus == "Completed",
               task_canceled: doc.data().tStatus == "Canceled",
               task_Category: tskCalculated.tCategory,
@@ -303,8 +333,6 @@ export default {
 .tooltipped{
   cursor: pointer;
 }
-
-
 .fa-stop-circle {
   color: #ff9800;
 }

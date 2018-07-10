@@ -17,18 +17,7 @@
               />
             <label for="textarea1" class="active">Details:</label>
 
-             <div class="helperfield row">
-              <label for="linkDetail" class="col">URL:</label>
-              <input id="linkDetail" class="col m4" type="text" v-model="detail_link">
-              
-              <label for="linkDetail"  class="col">Caption:</label>
-              <input id="linkhyper" class="col m2" type="text" v-model="detail_title">
-              
-              <a @click="AddHyperlink()" class="waves-effect waves-light btn-small col cyan darken-2"   style="margin-right: 10px;">
-                <i class="material-icons">public</i>              
-                Add attachment hyperlink
-              </a>              
-            </div>
+            
           </div>
         </div>
         <!-- timings -->
@@ -117,9 +106,36 @@
                   </span>
               </div>
           </div>
+          <!-- Attachement -->
+            <!-- details -->
+        <div class="row">
+          <div class="input-field col s12">
+            <label for="textarea1" class="active">Attachment:</label>
+
+            <div v-for="attach in task_attachement" v-bind:key="attach.id">
+              <span id="Attachment_span" v-html="attach" >                
+              </span>              
+              <i class="fas fa-minus-square red-text" style="cursor:pointer" @click="RemoveHyperlink(attach)"></i>
+            </div>
+
+            <div style="margin-top:10px" class="helperfield row">
+              <label for="linkDetail" class="col">URL:</label>
+              <input id="linkDetail" class="col m4" type="text" v-model="detail_link">
+              
+              <label for="linkDetail"  class="col">Caption:</label>
+              <input id="linkhyper" class="col m2" type="text" v-model="detail_title">
+              
+              <a @click="AddHyperlink()" class="waves-effect waves-light btn-small col cyan darken-2" style="margin-right: 10px;">
+                <i class="material-icons">public</i>              
+                Add attachment hyperlink
+              </a>              
+            </div>
+          </div>
+        </div>
+           
 
         <button type="submit" class="btn">Save</button>
-        <router-link to="/view/cols" class="btn grey">Cancel</router-link>
+        <router-link to="/view/projcat" class="btn grey">Cancel</router-link>
         <a @click="DeleteTask" class="btn waves-effect waves-light red darken-4 right"><i class="material-icons right">delete_forever</i>Delete</a>
 
       </form>
@@ -144,8 +160,10 @@ export default {
       showNewProj: false,
       showNewProjCat: false,
       showUsers:false,
+
       detail_link:"",
       detail_title:"",
+      task_attachement:[],
 
       task_name: null,
       task_details: "",
@@ -259,11 +277,12 @@ export default {
                     tProject: vueObj.SelectedProj,
                     tProjCateg: vueObj.SelectedProjCat,
                     tStatus: vueObj.nSelectedStatus,
+                    tAttach:vueObj.task_attachement,
                     tClosedDate: vueObj.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",
                     tOwner:vueObj.SelectedOwner,
                     // tEnvironment:vueObj.task_env?vueObj.task_env:"",
                     ModifiedBy:firebase.auth().currentUser.uid,
-                    ModifiedDate:moment().format("YYYY-MM-DD HH:MM"),
+                    ModifiedDate:moment().format("YYYY-MM-DD HH:MM"),                    
                     t_isActive: vueObj.task_isActive == "No"
                 })
                 .then( final=>{
@@ -299,7 +318,7 @@ export default {
             tProject: this.SelectedProj,
             tProjCateg: this.SelectedProjCat,
             tStatus: this.nSelectedStatus,
-            tClosedDate: this.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",
+            tClosedDate: this.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",  tAttach:this.task_attachement,
             // tOwner:this.SelectedOwner,
             // tEnvironment:this.task_env?this.task_env:"",
             CreatedBy:this.SelectedManager.OBJ.UID,
@@ -307,6 +326,7 @@ export default {
             ModifiedDate:moment().format("YYYY-MM-DD"),
             t_isActive: this.task_isActive == "No"
           })
+         // .set({tAttach:JSON.stringify(vueObj.task_attachement)},{ merge: true })
           .then(docRef => {       
             // console.log("task update done")
             this.$router.push("/view/projcat");
@@ -400,17 +420,24 @@ export default {
         .then(function() {
           vueObj.showNewProj = false;
         });
-    },AddHyperlink(){
+    },
+    AddHyperlink(){
       if (this.detail_link!=""){
         var title=this.detail_title?this.detail_title:"Click here"
 
-        this.task_details=this.task_details+"\n\n"+"Attachement: <a href='"+this.detail_link+"' target='_blank'>"+title+"</a>"
+        this.task_attachement.push("<a href='"+this.detail_link+"' target='_blank'>"+title+"</a>")
+
+        // this.task_attachement=this.task_attachement+"\n\n"+"Attachement: <a href='"+this.detail_link+"' target='_blank'>"+title+"</a>"
         this.detail_link=""
         this.detail_title=""
 
       }else{
         M.toast({ html: "URL field should not be empty" });
       }
+    },
+    RemoveHyperlink(attch){
+      var index=this.task_attachement.indexOf(attch)
+        this.task_attachement.splice(index,1)
     }
   },
   created() {
@@ -432,6 +459,7 @@ export default {
         this.SelectedProj = doc.data().tProject;
         this.SelectedOwner=doc.data().tOwner?doc.data().tOwner:{ Label: null, UID: null };
         this.initialOwner=this.SelectedOwner;
+        this.task_attachement=doc.data().tAttach;
         this.task_createdBy=doc.data().CreatedBy;
         
         this.task_isActive = doc.data().t_isActive ? "No" : "Yes";
@@ -475,14 +503,14 @@ export default {
           //  objVue.ManagersArray.push({OBJ:{UID:"All",name:"All"}})
            objVue.ManagersArray.sort(sortMNG);
 
-           objVue.ManagersArray.forEach(owner => {
-              console.log(owner.OBJ.UID)
+           objVue.ManagersArray.forEach(owner => {              
               if (owner.OBJ.UID ==  objVue.task_createdBy) {
                 objVue.SelectedManager = owner;
                 return true;
               }
             });
         }) 
+       $(".material-tooltip").remove()
   },
   mounted() {
     var objVue = this;

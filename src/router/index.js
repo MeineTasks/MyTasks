@@ -136,6 +136,9 @@ let router = new Router({
 
 // Nav Guard
 router.beforeEach((to, from, next) => {
+  //remove previous tooltips
+  $(".material-tooltip").remove()
+  // console.log(to,from,next)
   // Check for requiresAuth guard #1
   if (to.matched.some(record => record.meta.requiresAuth)) {
     //console.log("#1")
