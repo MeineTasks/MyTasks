@@ -257,6 +257,9 @@ export default {
             tStatus: "Completed",
             tClosedDate: moment().format("YYYY-MM-DD")
           })
+          .then(function(){
+            $(".material-tooltip").removeAttr("style")
+          })
           .catch(function(error) {
             console.error("Error writing document CompleteTask: ", error);
           });

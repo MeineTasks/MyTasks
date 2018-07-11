@@ -299,6 +299,9 @@ export default {
             tStatus: "Completed",
             tClosedDate: moment().format("YYYY-MM-DD")
           })
+          .then(function(){
+            $(".material-tooltip").removeAttr("style")
+          })
           .catch(function(error) {
             console.error("Error writing document CompleteTask: ", error);
           });
@@ -311,6 +314,9 @@ export default {
           .doc(task.id)
           .update({
             tStatus: "Canceled"
+          })
+           .then(function(){
+            $(".material-tooltip").removeAttr("style")
           })
           .catch(function(error) {
             console.error("Error writing document CompleteTask: ", error);
@@ -326,21 +332,8 @@ export default {
         .update({
           tStatus: newStatus
         })
-        .then(docRef => {
-          db
-            .collection("Log")
-            .add({
-              date:
-                new Date().toString().slice(0, 9) +
-                " " +
-                new Date(new Date()).toString().split(" ")[4],
-              tName: task.task_name,
-              updated: "Status:" + task.task_status + "##" + newStatus,
-              user: firebase.auth().currentUser.email
-            })
-            .catch(function(error) {
-              console.error("Error adding document ChangedInfo: ", error);
-            });
+        .then(docRef => {          
+            $(".material-tooltip").removeAttr("style")
         })
         .catch(function(error) {
           console.error("Error writing document CompleteTask: ", error);

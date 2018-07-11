@@ -196,7 +196,7 @@ export default {
         .doc(task.id)
         .set({ t_isActive: false }, { merge: true })
         .then(docRef => {
-            console.log("task closed")
+            $(".material-tooltip").removeAttr("style");
         })
         .catch(function(error) {
           console.log("Error getting documents: ", error);
