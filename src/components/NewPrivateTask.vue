@@ -133,6 +133,7 @@ export default {
           
           tStatus: this.nSelectedStatus,          
           // tOwner:this.SelectedOwner,
+          CreatedDate:moment().format("YYYY-MM-DD"),
           t_isActive: true,
           isPrivate:true
         })
