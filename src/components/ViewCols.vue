@@ -13,13 +13,11 @@
                 </span>                
               </span>
               <span class="tskDetails" v-html="task.task_description"></span>
-               <div v-if="task.task_attachement!=undefined">
+               <div v-if="task.task_attachement.length!=0">
                 <hr/>
                 <span class="cyan-text">Attachments:</span>
-                  <div class="Attachment_spans" v-for="attach in task.task_attachement" v-bind:key="attach.id">                   
-                  <span class="attSpan" v-html="attach">
-                  </span>
-                  <span>; </span>
+                  <div class="Attachment_spans" v-for="attach in task.task_attachement" v-bind:key="attach.id">
+                  <span class="attSpan" v-html="attach"></span>
                 </div>
               </div>
               <hr/>
@@ -63,13 +61,11 @@
                 </span>                
               </span>
               <span class="tskDetails" v-html="task.task_description"></span>
-               <div v-if="task.task_attachement!=undefined">
+               <div v-if="task.task_attachement.length!=0">
                 <hr/>
                 <span class="cyan-text">Attachments:</span>
                   <div class="Attachment_spans" v-for="attach in task.task_attachement" v-bind:key="attach.id">                   
-                  <span class="attSpan" v-html="attach">
-                  </span>
-                  <span>; </span>
+                  <span class="attSpan" v-html="attach"></span>
                 </div>
               </div>
               <hr/>
@@ -113,13 +109,11 @@
                 </span>                
               </span>
               <span class="tskDetails" v-html="task.task_description"></span>
-              <div v-if="task.task_attachement!=undefined">
+              <div v-if="task.task_attachement.length!=0">
                 <hr/>
                 <span class="cyan-text">Attachments:</span>
                   <div class="Attachment_spans" v-for="attach in task.task_attachement" v-bind:key="attach.id">                   
-                  <span class="attSpan" v-html="attach">
-                  </span>
-                  <span>; </span>
+                  <span class="attSpan" v-html="attach"></span>
                 </div>
               </div>
               
@@ -217,7 +211,7 @@ export default {
               task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
               task_deadline: doc.data().tDeadline,
               task_status: doc.data().tStatus,
-              task_attachement:doc.data().tAttach,
+              task_attachement:doc.data().tAttach?doc.data().tAttach:[],
               task_completed: doc.data().tStatus == "Completed",
               task_canceled: doc.data().tStatus == "Canceled",
               task_Category: tskCalculated.tCategory,
@@ -352,5 +346,12 @@ export default {
   display: block;
   overflow: hidden;
   word-break: break-word;
+}
+
+</style>
+<style>
+.attSpan a{
+ color: limegreen;
+ text-decoration: underline;
 }
 </style>

@@ -187,6 +187,7 @@ export default {
           // tFTE: this.task_FTE,
           // tProject: this.SelectedProj,
           // tProjCateg: this.SelectedProjCat,
+          tAttach:this.task_attachement,
           tStatus: this.nSelectedStatus,
           // tOwner:this.SelectedOwner,
           // tEnvironment:this.task_env?this.task_env:"",
@@ -306,6 +307,7 @@ export default {
         this.nSelectedStatus = doc.data().tStatus;
         this.SelectedProjCat = doc.data().tProjCateg;
         this.SelectedProj = doc.data().tProject;
+        this.task_attachement=doc.data().tAttach?doc.data().tAttach:[];
         // this.SelectedOwner=doc.data().tOwner?doc.data().tOwner:{ Label: null, UID: null };
         this.task_env = doc.data().tEnvironment;
         this.task_isActive = doc.data().t_isActive ? "No" : "Yes";

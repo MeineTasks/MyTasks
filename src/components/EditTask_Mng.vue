@@ -464,7 +464,7 @@ export default {
         this.SelectedProj = doc.data().tProject;
         this.SelectedOwner=doc.data().tOwner?doc.data().tOwner:{ Label: null, UID: null };
         this.initialOwner=this.SelectedOwner;
-        this.task_attachement=doc.data().tAttach;
+        this.task_attachement=doc.data().tAttach?doc.data().tAttach:[];
         this.task_createdBy=doc.data().CreatedBy;
         
         this.task_isActive = doc.data().t_isActive ? "No" : "Yes";

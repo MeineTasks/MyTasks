@@ -165,6 +165,8 @@ export default {
   methods: {
     GrantTasks() {
       var i;
+      this.headerDates=[]
+      this.NextHeaderDates=[]
       //Created currWeek header
       for (i = 1; i < 6; i++) {
         this.headerDates.push(
@@ -191,8 +193,8 @@ export default {
       var luni = moment().weekday(0);
       var duminica = moment().weekday(7);
 
-      var NEXTluni = moment().weekday(8);
-      var NEXTduminica = moment().weekday(14);
+      var NEXTluni = moment(moment().weekday(8).format("YYYY-MM-DD"),"YYYY-MM-DD");
+      var NEXTduminica = moment(moment().weekday(14),"YYYY-MM-DD");
 
       // console.log("StartOFWeek: "+StartOFWeek.format("YYYY-MM-DD"))
       // console.log("EndOFWeek: "+EndOFWeek.format("YYYY-MM-DD"))
@@ -245,10 +247,11 @@ export default {
           this.tasks[i].isInWeek_1 = true;
           this.tasks[i].isInGantt = true;
         }
-
+        console.log(NEXTluni)
+        console.log(END)
         if (
-          (NEXTluni.isBefore(START) && START.isBefore(NEXTduminica)) ||
-          (NEXTluni.isBefore(END) && END.isBefore(NEXTduminica)) ||
+          (NEXTluni.isSameOrBefore(START) && START.isBefore(NEXTduminica)) ||
+          (NEXTluni.isSameOrBefore(END) && END.isBefore(NEXTduminica)) ||
           (START.isBefore(NEXTduminica) && NEXTduminica.isBefore(END))
         ) {
           if (START.isBefore(NEXT_StartOFWeek.format("YYYY-MM-DD"))) {
