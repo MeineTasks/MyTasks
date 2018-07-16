@@ -97,7 +97,7 @@
             </div>
         </div>
         <div v-if="isManager" class="fixed-action-btn">
-          <router-link to ="/new" class="btn-floating btn-large red">
+          <router-link v-bind:to="{name:'new-task',query:{mnext:'viewusers'}}" class="btn-floating btn-large red">
             <i class="fa fa-plus"></i>
           </router-link>
         </div>

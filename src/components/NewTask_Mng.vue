@@ -109,7 +109,7 @@
         </div>
 
           <button type="submit" class="btn brown lighten-1">Save</button>
-          <router-link to="/view/cols" class="btn grey">Cancel</router-link>
+          <router-link v-bind:to="{name:$route.query.mnext}" class="btn grey">Cancel</router-link>
       </form>
   </div>
 </div>
@@ -292,7 +292,7 @@ export default {
           CreatedBy:firebase.auth().currentUser.uid,
           CreatedDate:moment().format("YYYY-MM-DD")
         })
-        .then(docRef => this.$router.push("/view/projcat"))
+        .then(docRef => this.$router.push({name:this.$route.query.mnext}))
         .catch(error => console.log(err));
     },
       AddHyperlink(){
