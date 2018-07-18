@@ -2,14 +2,24 @@
     <div id="dashboard" style="margin: 0px 25px;">
         <!-- filter -->
         <div class="row z-depth-2 filterContainer brown lighten-4">
-            <div class="col m6 s12">
-            Filter by status &#8594;
-                <span @click="SelectedStatus=opt,GetFire_ForTasks()" v-for="opt in StatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedStatus==opt}" class="mySingle chip">
+            <div class="col m6 s12 " >              
+            <span class="tooltipped" data-position="right" data-tooltip="Click for single selection, or Ctrl+Click for multiple selections">Filter by status &#8594;</span>
+                <span 
+                  @click.exact="SelectedStatus=[opt],GetFire_ForTasks()"
+                  @click.ctrl="MultiStatus(opt)" 
+                  v-for="opt in StatusesList" 
+                  v-bind:key="opt.id" 
+                  v-bind:class="{'mySingleSelected':SelectedStatus.indexOf(opt)>-1}" class="mySingle chip">
                     {{opt}}
                   </span>
             </div>
             <div class="col m6 s12 right" style="text-align:right">
-                <span @click="SelectedManager=mng,GetFire_ForTasks()" v-for="mng in ManagersArray" v-bind:key="mng.id" v-bind:class="{'mySingleSelected':SelectedManager.OBJ.UID==mng.OBJ.UID}" class="mySingle chip">
+                <span 
+                  @click.exact="SelectedManager=mng,GetFire_ForTasks()" 
+                  v-for="mng in ManagersArray" 
+                  v-bind:key="mng.id" 
+                  v-bind:class="{'mySingleSelected':SelectedManager.OBJ.UID==mng.OBJ.UID}" 
+                  class="mySingle chip">
                     {{mng.OBJ.name}}
                   </span>
              &#8592; filter by creator 
@@ -49,55 +59,49 @@
                 <div class="col m10">
                     <!-- card container structure -->
                     <div v-for="task in cat.tasks" v-bind:key="task.id" class="col m2 s12">
-                        <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-2'">
-                            <!-- card tittle -->
+                        <div class="card blue-grey" v-bind:class="task.task_status=='In progress'?'darken-2':'lighten-3'">
+                             <!-- card tittle -->
                             <div class="card-content white-text">
                                 <!-- project category -->
-                               <span class="truncate tooltip"> 
-                                 {{task.task_project}}
-                                 </span>
-                                <span class="task-title cyan-text tooltip"> 
-                                  <span class="tooltiptext">
+                              <span class="truncate"> 
+                                  {{task.task_project}}                                  
+                              </span>
+                              <span class="task-title" v-bind:class="task.task_status=='In progress'?'cyan-text text-lighten-3':'black-text'"> 
+                                  <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name">
                                     {{task.task_name}}
                                   </span>
-                                  <span>
-                                    {{task.task_name}}
-                                  </span>                                  
-                                </span>
+                              </span>
                                 <div class="row" style="margin-left:0px">
                                     <div class="chip col">{{task.task_status}}</div>
                                     <span class="col">{{task.task_deadline}}</span>
                                     <br/>
                                     <div v-if="task.task_FTE!=undefined && task.task_FTE!=''" class="red-text col">{{task.task_FTE}} FTE</div>
                                 </div>
-                                <div class="row">
+                                 <div class="row">
                                   {{task.task_owner_label}}
                                 </div>
+
                                 <hr/>
                                 <!-- START icon container -->
                                 <div v-if="isManager" class="row iconContainer">
-                                    <div class="col m3 tooltip">
-                                      <span class="tooltiptext2">Edit</span>
-                                        <router-link v-bind:to="{name:'edit-task_mng',params:{task_id:task.id},query:{uid:task.task_owner} }">
+                                    <div class="col m3">                                      
+                                        <router-link class="tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Edit</span>" v-bind:to="{name:'edit-task_mng',params:{task_id:task.id},query:{uid:task.task_owner,mnext:'viewprojcat'} }">
                                             <i class="fas fa-edit"></i>
                                         </router-link>
                                     </div>
                                     <div v-if="task.task_status!='Completed' && task.task_status!='Canceled'" class="col m3">
-                                      <span v-bind:class="{'myBtn':!task.task_completed}" class="tooltip">
-                                        <span class="tooltiptext2">Complete</span>
-                                        <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
+                                      <span v-bind:class="{'myBtn':!task.task_completed}" >                                        
+                                        <i class="tooltipped fas" data-position="top" data-tooltip="<span style='font-size:small'>Complete</span>" @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" ></i>
                                       </span>
                                     </div>
                                     <div class="col m3">
-                                        <span class="myBtn tooltip">
-                                            <span class="tooltiptext2">In progress/on hold</span>
-                                            <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'" class="far"></i>
+                                        <span class="myBtn">                
+                                            <i class="tooltipped far" data-position="top" data-tooltip="<span style='font-size:small'>In progress/on hold</span>" @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'" ></i>
                                         </span>
                                     </div>
                                      <div class="col m3">
                                         <span class="myBtn tooltip">
-                                            <span class="tooltiptext2">Cancel</span>
-                                            <i @click="CancelTask(task)" class="fas fa-ban"></i>
+                                            <i class="tooltipped fas fa-ban" data-position="top" data-tooltip="<span style='font-size:small'>Cancel</span>" @click="CancelTask(task)" ></i>
                                         </span>
                                     </div>
                                 </div>
@@ -132,8 +136,7 @@ export default {
       showDateFilter: false,
       Datefilter_start: moment().weekday(1).format("YYYY-MM-DD"),
       Datefilter_end: moment().weekday(5).format("YYYY-MM-DD"),
-      StatusesList: [
-        "All active",
+      StatusesList: [        
         "In progress",
         "On hold",
         "Completed",
@@ -143,11 +146,15 @@ export default {
       UsersAndArrays: [],
       ManagersArray: [],
       isManager: false,
-      SelectedManager: { OBJ: { UID: "All", name: "All" } },
       GotUsers: 0,
       ProjCatArray: [],
-      SelectedStatus: "All active"
+      SelectedManager: { OBJ: { UID: "All", name: "All" } },
+      SelectedStatus: ["In progress","On hold","Not allocated"]
     };
+  },
+   updated() {
+    // $(".sidenav").sidenav();
+    $('.tooltipped').tooltip();
   },
   created() {
     // this.ADDTasksIncat();
@@ -182,6 +189,15 @@ export default {
     this.GetFire_users();
   },
   methods: {
+    MultiStatus(opt){
+      var objVue = this;
+          if (objVue.SelectedStatus.indexOf(opt)==-1){
+            objVue.SelectedStatus.push(opt)
+            objVue.GetFire_ForTasks()
+          }else{
+            return false;
+          }
+    },
     datefilter_setEnd() {
       this.Datefilter_end = moment(this.Datefilter_start, "YYYY-MM-DD")
         .weekday(5)
@@ -267,11 +283,21 @@ export default {
           OBJ.tasks = [];
 
           var queryString;
-          queryString =
-            objVue.SelectedStatus == undefined ||
-            objVue.SelectedStatus == "All active"
-              ? "(doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold'|| doc.data().tStatus == 'Not allocated')"
-              : "(doc.data().tStatus == '" + objVue.SelectedStatus + "')";
+          //status filter
+          queryString="("
+          objVue.SelectedStatus.forEach(stat=>{
+            queryString=queryString+"doc.data().tStatus == '"+stat+"' || "
+          })
+          // remove last ||
+          queryString=queryString.substring(0,queryString.length-4)
+          queryString=queryString+")"
+
+          // console.log(queryString)
+
+          // if (objVue.SelectedStatus=["In progress","On hold"]){
+          //   queryString = "(doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold'|| doc.data().tStatus == 'Not allocated')"
+          // }
+          //      "(doc.data().tStatus == '" + objVue.SelectedStatus + "')";
 
           queryString =
             queryString +
@@ -507,56 +533,6 @@ export default {
   color: #a5a5a5;
 }
 
-.tooltip {
-  cursor: pointer;
-}
-
-.tooltiptext {
-  visibility: hidden;
-  font-size: 20px;
-  background-color: #484545;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 3px;
-  /* top: -46px; */
-  bottom: 150px;
-
-  /* Position the tooltip */
-  position: absolute;
-}
-.tooltiptext2 {
-  visibility: hidden;
-  font-size: 12px;
-  background-color: #484545;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px;
-  top: 118px;
-  white-space: nowrap;
-
-  /* Position the tooltip */
-  position: absolute;
-}
-.tooltip:hover .tooltiptext,
-.tooltip:hover .tooltiptext2 {
-  visibility: visible;
-  z-index: 10;
-}
-.tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 10%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #484545 transparent transparent transparent;
-}
-.OnHold {
-  opacity: 0.6;
-}
 .fa-stop-circle {
   color: #ff9800;
 }

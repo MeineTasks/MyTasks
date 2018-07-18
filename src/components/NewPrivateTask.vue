@@ -1,7 +1,7 @@
 <template>
 <div id="new-task" class="container">
   <h3>Add new task</h3>
-  <div class="row">
+  <div class="">
       <form @submit.prevent="saveTask" class="col s12">
           <div class="row">
               <div class="input-field col s12">
@@ -25,7 +25,7 @@
           <div class="row">
               <label class="active">Status:</label>
               <div class="input-field col s12">
-                  <span @click="nSelectedStatus=opt" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
+                  <span @click="nSelectedStatus=opt" v-if="opt!='Not allocated'" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
               </div>
@@ -96,13 +96,11 @@ export default {
       task_status: null,
       
       Statuses: fireList.statusesList,
-
       nStatusesList: fireList.statusesList,
       nSelectedStatus: "In progress",
 
-      
     };
-  },
+  },  
   methods: {
     SetDeadline() {
       this.task_deadline = moment(this.task_start, "YYYY-MM-DD")

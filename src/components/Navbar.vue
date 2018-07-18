@@ -1,22 +1,23 @@
 <template>
 <div>
   <nav>
-    <div class="nav-wrapper brown lighten-1 row">
+    <div class="nav-wrapper grey darken-3 row">
         <span v-if="isLoggedIn" style="margin-left:20px" class="brand-logo left hide-on-small-only"> 
-          <i class="large material-icons tooltipped" style="color:#8bbf8b"  data-position="bottom" v-bind:data-tooltip="currentUser">account_circle</i>
-          <a v-if="isLoggedIn"><button v-on:click="logout" class="btn black">Logout</button></a>
+          <i class="large material-icons tooltipped" style="padding-top: 4px;color:#8bbf8b;cursor: help;"  data-position="bottom" v-bind:data-tooltip="currentUser">account_circle</i>
+          <a v-if="isLoggedIn">
+            <button v-on:click="logout" class="btn-flat white-text">Logout</button></a>
         </span>
         <!-- small screen only -->
         <a class="dropdown-trigger right col s12 hide-on-med-and-up	" href="#!" data-target="dropdown1">Select View<i class="material-icons right">arrow_drop_down</i></a>
         <!-- large screens -->
         <ul class="hide-on-small-only right">
-          <li v-if="isLoggedIn"><router-link to="/">My Dashboard</router-link></li>
-          <li v-if="isLoggedIn"><router-link to="/view/all">My All</router-link></li>  
-          <li v-if="isLoggedIn"><router-link to="/view/cols">My Active</router-link></li>  
-          <li v-if="isLoggedIn"><router-link to="/view/gantt">My Gantt</router-link></li>  
+          <li v-if="isLoggedIn"><router-link class="link" to="/">My Dashboard</router-link></li>
+          <li v-if="isLoggedIn"><router-link class="link" to="/view/all">My All</router-link></li>  
+          <li v-if="isLoggedIn"><router-link class="link" to="/view/cols">My Active</router-link></li>  
+          <li v-if="isLoggedIn"><router-link class="link" to="/view/gantt">My Gantt</router-link></li>  
           
-          <li v-if="isLoggedIn"><router-link to="/view/users">View Users </router-link></li>  
-          <li v-if="isLoggedIn"><router-link to="/view/projcat">View Projects </router-link></li>
+          <li v-if="isLoggedIn"><router-link class="link" to="/view/users">View Users </router-link></li>  
+          <li v-if="isLoggedIn"><router-link class="link" to="/view/projcat">View Projects </router-link></li>
 
           <li v-if="!isLoggedIn"><router-link to="/login">Login</router-link></li>
           <!-- <li v-if="!isLoggedIn"><router-link to="/register">Register</router-link></li>         -->
@@ -87,9 +88,18 @@ export default {
 </script>
 <style>
 .router-link-exact-active {
-  background: #6e7686
+  background: #3eb0ae
 }
 .tooltipped{
+  cursor: help;
+}
+.material-icons{
   cursor: pointer;
+}
+.fas{
+  cursor: pointer;
+}
+.link:hover{
+  background-color: #8e8e8e 
 }
 </style>

@@ -74,7 +74,7 @@
           <label class="active">Owner:</label>
           <div v-if="!showUsers" >
             <b>{{initialOwner.Label}}</b><br/>
-            <a @click="showUsers=true" class="btn waves-effect waves-light blue darken-3">
+            <a @click="showUsers=true" style="z-index:0" class="btn waves-effect waves-light blue darken-3">
               <i class="material-icons right">assignment_ind</i>Change owner
             </a>
           </div>
@@ -135,10 +135,13 @@
           </div>
         </div>
            
-
-        <button type="submit" class="btn">Save</button>
-        <router-link to="/view/projcat" class="btn grey">Cancel</router-link>
-        <a @click="DeleteTask" class="btn waves-effect waves-light red darken-4 right"><i class="material-icons right">delete_forever</i>Delete</a>
+        <div class="row MyFixed" style="width:100%">
+          <div class="col left" style="margin-left:37px;z-index:100">
+            <button type="submit" class="btn">Save</button>
+            <router-link  v-bind:to="{name:$route.query.mnext}" class="btn grey">Cancel</router-link>
+          </div>
+          <a @click="DeleteTask" class="btn waves-effect waves-light red darken-4 right"><i class="material-icons right">delete_forever</i>Delete</a>
+        </div> 
 
       </form>
     </div>
@@ -252,9 +255,12 @@ export default {
         M.toast({ html: msg });
         return false;
       }
-
-      if (vueObj.SelectedOwner!= vueObj.initialOwner) {
+      
+      
+      
+      if (vueObj.SelectedOwner.UID!= vueObj.initialOwner.UID) {
         // move existing task
+        console.log("reasignare")
           db
           .collection(vueObj.$route.query.uid)
           .doc(vueObj.$route.params.task_id)
@@ -292,11 +298,15 @@ export default {
                     .collection(vueObj.$route.query.uid)
                     .doc(vueObj.$route.params.task_id)
                     .delete()
-                    .then( navig=>{
-                      vueObj.$router.push("/");
+                    .then( navig=>{                      
+                      vueObj.$router.push({name:vueObj.$route.query.mnext})
+                      console.log("task removed from old user")
                     })
 
                 })
+                 .catch(function(error) {
+                  console.error("Error writing document: ", error);
+                });
                 // console.log("done")
 
             }
@@ -331,13 +341,13 @@ export default {
          // .set({tAttach:JSON.stringify(vueObj.task_attachement)},{ merge: true })
           .then(docRef => {       
             // console.log("task update done")
-            this.$router.push("/view/projcat");
+            vueObj.$router.push({name:vueObj.$route.query.mnext})
           })
           .catch(function(error) {
             console.error("Error writing document: ", error);
           });
       }  
-
+    
     },
     addProjCategory() {
       var vueObj = this;
@@ -374,7 +384,8 @@ export default {
             .doc(this.$route.params.task_id)
             .delete()
             .then(function() {
-                vueObj.$router.push("/view/projcat");
+                // vueObj.$router.push("/view/projcat");
+                vueObj.$router.push({name:vueObj.$route.query.mnext})
             });
       }
     },
@@ -555,6 +566,15 @@ input[type="date"] {
 }
 label{
   margin-bottom: 5px
+}
+.MyFixed{
+  position: fixed;
+  bottom: -17px;
+  left: 13px;
+  width: 100%;
+  padding: 10px;
+      background: #8d6d62c9;
+      z-index: 999;
 }
 </style>
 

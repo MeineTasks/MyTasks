@@ -45,19 +45,18 @@
                 <div class="col m10">
                     <!-- card container structure -->
                     <div v-for="task in user.OBJ.tasks" v-bind:key="task.id" class="col m2 s12">
-                        <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-2'">
+                        <div class="card blue-grey" v-bind:class="task.task_status=='In progress'?'darken-2':'lighten-3'">
                             <!-- card tittle -->
                             <div class="card-content white-text">
                                 <!-- project category -->
-                               <span class="truncate"> 
+                              <span class="truncate"> 
                                   {{task.task_project}}                                  
-                                 </span>
-                                <span class="task-title cyan-text"> 
+                              </span>
+                              <span class="task-title" v-bind:class="task.task_status=='In progress'?'cyan-text text-lighten-3':'black-text'"> 
                                   <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name">
                                     {{task.task_name}}
                                   </span>
-                                    
-                                </span>
+                              </span>
                                 <div class="row" style="margin-left:0px">
                                     <div class="chip col">{{task.task_status}}</div>
                                     <span class="col">{{task.task_deadline}}</span>
@@ -68,7 +67,7 @@
                                 <!-- START icon container -->
                                 <div v-if="isManager" class="row iconContainer">
                                     <div class="col m3">                                      
-                                        <router-link class="tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Edit</span>" v-bind:to="{name:'edit-task_mng',params:{task_id:task.id},query:{uid:task.task_owner} }">
+                                        <router-link class="tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Edit</span>" v-bind:to="{name:'edit-task_mng',params:{task_id:task.id},query:{uid:task.task_owner,mnext:'viewusers'} }">
                                             <i class="fas fa-edit"></i>
                                         </router-link>
                                     </div>
@@ -412,9 +411,7 @@ export default {
 .fa-clipboard-check {
   color: #a5a5a5;
 }
-.tooltipped{
-  cursor: pointer;
- }
+
  /*
 .tooltiptext {
   visibility: hidden;

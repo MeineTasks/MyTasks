@@ -3,7 +3,7 @@
     <div class="row z-depth-3 brown darken-1 white-text hide-on-small-only">      
         <h6 class="col m2 s12">Task name</h6>
         <h6 class="col m3 s12">Description</h6>   
-        <h6 class="col m1 s12">Project</h6>     
+        <h6 class="col m1 s12">Category</h6>     
         <h6 class="col m2 s12">Attachments</h6>
         <h6 class="col m1 s12">Status</h6>
         <h6 class="col m1 s12">Deadline</h6>        
@@ -17,7 +17,7 @@
     <div v-bind:class="{'notActive':task.task_isActive}" v-for="task in tasks" v-bind:key="task.id" class="row z-depth-2">                
         <div class="col m2 s12 truncate"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
         <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>     
-        <div class="col m1 s12 truncate"><i>{{task.task_project}}</i></div>
+        <div class="col m1 s12 truncate"><i>{{task.task_projectCategory}}</i></div>
         <div class="col m2 s12">
               <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
               <span id="Attachment_span" v-html="attach" >                
@@ -82,6 +82,7 @@ export default {
               task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
               task_deadline: doc.data().tDeadline,
               task_status: doc.data().tStatus,
+              task_projectCategory:doc.data().tProjCateg,
               task_project:doc.data().tProject,
               task_attachement:doc.data().tAttach,
               task_isActive:!doc.data().t_isActive

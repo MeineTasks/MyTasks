@@ -184,7 +184,7 @@ export default {
           tDescription: this.task_details,
           tStart: this.task_start,
           tDeadline: this.task_deadline,
-          // tFTE: this.task_FTE,
+          tFTE: this.task_FTE,
           // tProject: this.SelectedProj,
           // tProjCateg: this.SelectedProjCat,
           tAttach:this.task_attachement,
@@ -303,7 +303,7 @@ export default {
         this.task_details = doc.data().tDescription;
         this.task_start = doc.data().tStart;
         this.task_deadline = doc.data().tDeadline;
-        this.task_FTE = doc.data().tFTE;
+        this.task_FTE = doc.data().tFTE?doc.data().tFTE:"TBD";
         this.nSelectedStatus = doc.data().tStatus;
         this.SelectedProjCat = doc.data().tProjCateg;
         this.SelectedProj = doc.data().tProject;

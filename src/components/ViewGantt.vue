@@ -247,8 +247,7 @@ export default {
           this.tasks[i].isInWeek_1 = true;
           this.tasks[i].isInGantt = true;
         }
-        console.log(NEXTluni)
-        console.log(END)
+        
         if (
           (NEXTluni.isSameOrBefore(START) && START.isBefore(NEXTduminica)) ||
           (NEXTluni.isSameOrBefore(END) && END.isBefore(NEXTduminica)) ||

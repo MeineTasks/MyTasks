@@ -321,14 +321,11 @@ export default {
   opacity: 1;
 }
 .fa-edit {
-  color: #26a69a;
+  color: #6bded3 ;
   opacity: 0.6;
 }
 .fa-clipboard-check {
   color: #a5a5a5;
-}
-.tooltipped{
-  cursor: pointer;
 }
 .fa-stop-circle {
   color: #ff9800;
