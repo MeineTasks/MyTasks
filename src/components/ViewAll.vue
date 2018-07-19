@@ -10,11 +10,11 @@
         <h6 class="col m1 s12">Is archived</h6>
         <h6 class="col iconContainer">
           <!-- <span class="red-text">Close</span> -->
-          <span class="white-text">Edit</span>
+          <span >Edit</span>
         </h6>
     </div>
     <!-- view in progress -->
-    <div v-bind:class="{'notActive':task.task_isActive}" v-for="task in tasks" v-bind:key="task.id" class="row z-depth-2">                
+    <div v-bind:class="[{'notActive':task.task_isActive},task.task_status.replace(' ','')]" v-for="task in tasks" v-bind:key="task.id" class="row z-depth-1">                
         <div class="col m2 s12"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
         <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>     
         <div class="col m1 s12 truncate"><i>{{task.task_projectCategory}}</i></div>
@@ -113,23 +113,38 @@ export default {
 h6{
   font-weight: 500
 }
+
+.Inprogress {
+  /* background: #d6e9fd !important; */
+  border-left: solid 7px #a0cfff;
+  border-bottom: solid 1px lightgrey;
+}
+.Onhold {
+  /* background: #d6e9fd !important; */
+  border-left: solid 7px #FFC107;
+  border-bottom: solid 1px lightgrey;
+}
 .Completed {
   opacity: 0.7;
-  background: #cff1d0 !important;
+  /* background: #cff1d0 !important; */
+   border-left: solid 7px #69c56c;
+  border-bottom: solid 1px lightgrey;
+}
+
+.Canceled{
+  border-left: solid 7px lightgrey;
+  border-bottom: solid 1px lightgrey;
 }
 .Canceled > div {
   text-decoration: line-through;
   opacity: 0.5;
-}
-.inProgress {
-  background: #d6e9fd !important;
 }
 .secondary-content {
   margin-right: 5px;
   float: right;
 }
 .row {
-  margin-bottom: 5px !important;
+  margin-bottom: 3px !important;
   background-color: white !important
 }
 .logTigle {

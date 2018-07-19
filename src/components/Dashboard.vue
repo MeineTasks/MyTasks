@@ -265,6 +265,7 @@ h6{
   text-decoration: line-through;
   opacity: 0.5;
 }
+
 .secondary-content {
   margin-right: 5px;
   float: right;

@@ -18,6 +18,7 @@
           
           <li v-if="isLoggedIn"><router-link class="link" to="/view/users">View Users </router-link></li>  
           <li v-if="isLoggedIn"><router-link class="link" to="/view/projcat">View Projects </router-link></li>
+          <li v-if="isLoggedIn && isMng"><router-link class="link" to="/admn">Admin</router-link></li>
 
           <li v-if="!isLoggedIn"><router-link to="/login">Login</router-link></li>
           <!-- <li v-if="!isLoggedIn"><router-link to="/register">Register</router-link></li>         -->

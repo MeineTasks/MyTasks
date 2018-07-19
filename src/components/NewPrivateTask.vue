@@ -129,7 +129,8 @@ export default {
           tDeadline: this.task_deadline,
           tProjCateg: "Personal",
           
-          tStatus: this.nSelectedStatus,          
+          tStatus: this.nSelectedStatus, 
+          CreatedBy:firebase.auth().currentUser.uid,
           // tOwner:this.SelectedOwner,
           CreatedDate:moment().format("YYYY-MM-DD"),
           t_isActive: true,

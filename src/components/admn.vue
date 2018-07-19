@@ -1,9 +1,15 @@
     <template>
     <div id="edit-task" class="container">
-        <H1>Admin area</H1>
-
-        <button type="button" @click="runF1" class="btn">Run f1</button>
-        <button v-if="GotUsers >= tasks.length && tasks.length>0" type="button" @click="runF2" class="btn blue">Run f2</button>
+       <H3>Export DB as JSON</H3>
+      <div class="row">
+        <b>Step1:</b> <button type="button" @click="runF1" class="btn">Get data</button>
+      </div>
+      <div class="row" v-if="GotUsers >= tasks.length && tasks.length>0">        
+        <b>Step2:</b> <button type="button" @click="runF2" class="btn blue">Get file</button>
+      </div>    
+      <div class="row" v-if="GotUsers >= tasks.length && tasks.length>0">            
+         <b>Step3:</b> Go to a <a href="https://json-csv.com/" target="_blank">online converter</a> and paste the json file content to obtain a CSV
+      </div>
     </div>        
     </template>
       
