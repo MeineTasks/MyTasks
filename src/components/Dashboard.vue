@@ -1,14 +1,14 @@
 <template>
   <div id="dashboard" style="margin: 0px 50px;">    
-    <div class="row hide-on-small-only myHeader">      
+    <div class="row hide-on-small-only myHeader">
         <h6 class="col m2 s12">Task name</h6>
         <h6 class="col m3 s12">Description</h6>
-        <h6 class="col m1 s12">Category</h6>
-        <h6 class="col m2 s12">Attachments</h6>
-        <h6 class="col m1 s12">Status</h6>
-        <h6 class="col m1 s12">Deadline</h6>
+        <h6 class="col m1 s12 truncate">Category</h6>
+        <h6 class="col m2 s12 truncate">Attachments</h6>
+        <h6 class="col m1 s12 truncate">Status</h6>
+        <h6 class="col m1 s12 truncate">Deadline</h6>
         <h6 class="col m iconContainer">
-          <span class="">Quick actions</span>
+          <span class="truncate">Quick actions</span>
         </h6>
     </div>
     <!-- view in progress -->
@@ -305,8 +305,11 @@ h6{
   overflow: hidden;
   word-break: break-word;
 }
-.myHeader{
+.myHeader{ 
  border-bottom: solid 2px black
+}
+.truncate{
+padding-bottom: 3px;
 }
 
 </style>

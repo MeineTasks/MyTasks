@@ -1,28 +1,30 @@
 <template>
   <div id="dashboard">    
     <div class="row">
-       <div style="background: #f2f2f2" class="col m4 s12">
+       <div class="col m4 s12">
         <center><h3>No date</h3></center>
         <!-- vue component structure 1 -->
         <div v-for="task in ViewCat1" v-bind:key="task.id" class="col s6">
-          <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-2'">
-            <div class="card-content white-text">
-              <span class="card-title truncate cyan-text"> 
+          <div class="card" v-bind:class="task.task_status=='In progress' ? 'inProgressBar' : 'onHoldBar'">
+            <div class="card-content">                
+              <span class="card-title truncate"> 
                 <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name" >
                   {{task.task_name}}
                 </span>                
               </span>
               <span class="tskDetails" v-html="task.task_description"></span>
-               <div v-if="task.task_attachement.length!=0">
+              <div v-if="task.task_attachement.length!=0">
                 <hr/>
                 <span class="cyan-text">Attachments:</span>
-                  <div class="Attachment_spans" v-for="attach in task.task_attachement" v-bind:key="attach.id">
+                  <div class="Attachment_spans" v-for="attach in task.task_attachement" v-bind:key="attach.id">                   
                   <span class="attSpan" v-html="attach"></span>
                 </div>
               </div>
+              
+             
               <hr/>
               <div class="row" style="margin-left:0px">
-                <div class="chip col">{{task.task_status}}</div>
+                <div class="chip col" v-bind:class="task.task_status=='In progress' ? 'inProgress' : 'onHold'">{{task.task_status}}</div>
                 <span class="col">{{task.task_deadline}}</span>
                </div>
               <hr/>
@@ -49,35 +51,37 @@
           </div>
         </div>
       </div>
-      <div style="background: #d9cfc7" class="col m4 s12">
+      <div class="col m4 s12">
         <center><h3>Today</h3></center>
         <!-- vue component structure 2-->
         <div v-for="task in ViewCat2" v-bind:key="task.id" class="col s6">
-          <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-2'">
-            <div class="card-content white-text">
-              <span class="card-title truncate cyan-text"> 
+          <div class="card" v-bind:class="task.task_status=='In progress' ? 'inProgressBar' : 'onHoldBar'">
+            <div class="card-content">                
+              <span class="card-title truncate"> 
                 <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name" >
                   {{task.task_name}}
                 </span>                
               </span>
               <span class="tskDetails" v-html="task.task_description"></span>
-               <div v-if="task.task_attachement.length!=0">
+              <div v-if="task.task_attachement.length!=0">
                 <hr/>
                 <span class="cyan-text">Attachments:</span>
                   <div class="Attachment_spans" v-for="attach in task.task_attachement" v-bind:key="attach.id">                   
                   <span class="attSpan" v-html="attach"></span>
                 </div>
               </div>
+              
+             
               <hr/>
               <div class="row" style="margin-left:0px">
-                <div class="chip col">{{task.task_status}}</div>
-                <span v-bind:class="{'Delayed':task.task_Delayed}" class="col">{{task.task_deadline}}</span>
+                <div class="chip col" v-bind:class="task.task_status=='In progress' ? 'inProgress' : 'onHold'">{{task.task_status}}</div>
+                <span class="col">{{task.task_deadline}}</span>
                </div>
               <hr/>
              <!-- START icon container -->
               <div class="row iconContainer">
                 <div class="col m4">                  
-                  <router-link draggable="false" class="tooltipped" data-position="top" data-tooltip="Edit" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+                  <router-link class="tooltipped" data-position="top" data-tooltip="Edit" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
                     <i class="fas fa-edit"></i>
                   </router-link>    
                 </div>
@@ -97,13 +101,13 @@
           </div>
         </div>
       </div>
-      <div style="background:#a69992" class="col m4 s12">
+      <div  class="col m4 s12">
         <center><h3>Future</h3></center>
         <!-- vue component structure 3 -->
         <div  v-for="task in ViewCat3" v-bind:key="task.id" class="col s6">
-          <div class="card blue-grey" v-bind:class="task.task_status=='On hold'?'lighten-1':'darken-2'">
-            <div class="card-content white-text">                
-              <span class="card-title truncate cyan-text"> 
+          <div class="card" v-bind:class="task.task_status=='In progress' ? 'inProgressBar' : 'onHoldBar'">
+            <div class="card-content">                
+              <span class="card-title truncate"> 
                 <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name" >
                   {{task.task_name}}
                 </span>                
@@ -120,7 +124,7 @@
              
               <hr/>
               <div class="row" style="margin-left:0px">
-                <div class="chip col">{{task.task_status}}</div>
+                <div class="chip col" v-bind:class="task.task_status=='In progress' ? 'inProgress' : 'onHold'">{{task.task_status}}</div>
                 <span class="col">{{task.task_deadline}}</span>
                </div>
               <hr/>
@@ -202,7 +206,7 @@ export default {
         querySnapshot.forEach(doc => {
           if (
             doc.data().tStatus == "In progress" ||
-            doc.data().tStatus == "On hold"
+            doc.data().tStatus == "On hold"            
           ) {
             var tskCalculated = taskCalculated(doc.data().tDeadline);
             const data = {
@@ -293,6 +297,30 @@ export default {
 </script>
 
 <style scoped>
+h3{
+  border-bottom:2px solid #424242;
+  padding-bottom:10px;
+  margin-top:10px;
+  margin-bottom:10px;
+  color: #747a80; 
+}
+.card,.card-title,.card-content{
+  font-family: 'Segoe UI','Segoe UI Web','Segoe UI Symbol','wf_segoe-ui_normal','Helvetica Neue','BBAlph';
+  font-size: 15px
+}
+.card-title{
+    font-family: 'Segoe UI','Segoe UI Web','Segoe UI Symbol','wf_segoe-ui_normal','Helvetica Neue','BBAlph';
+    font-size: 15px;
+    color: rgba(0, 0, 0, 0.87) !important;
+    font-weight: 600;
+}
+.tskDetails{
+  font-size: 13px;
+  display: block;
+  overflow: hidden;
+  word-break: break-word;
+  color: #747a80;
+}
 .card-content {
   padding: 10px !important;
   display: block;
@@ -312,7 +340,7 @@ export default {
 }
 .fas,
 .far {
-  opacity: 0.6;
+  opacity: 0.8;
 }
 .fas:not(.fa-clipboard-check):hover {
   opacity: 1;
@@ -321,17 +349,21 @@ export default {
   opacity: 1;
 }
 .fa-edit {
-  color: #6bded3 ;
+  color: #5cc7bd;
   opacity: 0.6;
 }
 .fa-clipboard-check {
   color: #a5a5a5;
 }
+.fa-check{
+  color: #a5a5a5;
+}
+
 .fa-stop-circle {
   color: #ff9800;
 }
 .fa-play-circle {
-  color: #9cffa0;
+  color: #06d210;
 }
 .iconContainer {
   text-align: center;
@@ -339,12 +371,18 @@ export default {
 .red-text{
   font-size: small !important;
 }
-.tskDetails{
-  display: block;
-  overflow: hidden;
-  word-break: break-word;
+.inProgress{
+background-color:#a0cfff;
 }
-
+.onHold{
+background-color:#FFC107;
+}
+.inProgressBar{
+  border-left: 5px solid #a0cfff;
+}
+.onHoldBar{
+  border-left: 5px solid #ffc107;
+}
 </style>
 <style>
 .attSpan a{

@@ -1,7 +1,7 @@
 <template>
   <div id="edit-task" class="container">
     <h3>Edit task</h3>
-    <div class="row">
+    <div class="row MyContainer">
       <form @submit.prevent="updateTask" class="col s12">
         <div class="row">
           <div class="input-field col s12">
@@ -60,11 +60,13 @@
           </div> -->
           <!-- status -->
           <div class="row">
-              <label class="active">Status:</label>
               <div class="input-field col s12">
-                  <span @click="nSelectedStatus=opt" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
+                <label class="active">Status:</label>
+                <div class="input-field">
+                  <span @click="nSelectedStatus=opt" v-if="opt!='Not allocated'" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
+                </div>
               </div>
           </div>
           <!-- Owners -->
@@ -88,7 +90,7 @@
             </span>
           </div>
         </div>
-                 <!-- Attachement -->
+        <!-- Attachement -->
         <div class="row">
           <div class="input-field col s12">
             <label for="textarea1" class="active">Attachment:</label>
@@ -115,8 +117,19 @@
               </div>
           </div>
         </div>
-        <button type="submit" class="btn">Save</button>
-        <router-link to="/view/cols" class="btn grey">Cancel</router-link>
+        <!-- created by -->
+        <div class="row">
+           <div class="input-field col s12">
+            <span class="info">Task created by : {{task_createdBy}}</span>
+           </div>
+        </div>
+        <!-- navigation -->
+        <div class="row MyFixed" style="width:100%">
+          <div class="col left" style="margin-left:37px;z-index:100">
+            <button type="submit" class="btn">Save</button>
+           <router-link to="/view/cols" class="btn grey">Cancel</router-link>
+          </div>          
+        </div> 
       </form>
     </div>
   </div>
@@ -150,6 +163,7 @@ export default {
       task_project: null,
       task_env: null,
       task_isActive: null,
+      task_createdBy:null,
       // Statuses: fireList.statusesList,
 
       // ProjectsCat: [],
@@ -188,7 +202,7 @@ export default {
           // tProject: this.SelectedProj,
           // tProjCateg: this.SelectedProjCat,
           tAttach:this.task_attachement,
-          tStatus: this.nSelectedStatus,
+          tStatus: this.nSelectedStatus,          
           // tOwner:this.SelectedOwner,
           // tEnvironment:this.task_env?this.task_env:"",
           ModifiedBy:firebase.auth().currentUser.uid,
@@ -292,7 +306,24 @@ export default {
       var index=this.task_attachement.indexOf(attch)
         this.task_attachement.splice(index,1)
     },
-  },
+    getCreatorLabel(UID){
+      
+      var objVue=this
+
+        db.collection("Users") 
+       // .where("isManager", "==", true)
+        .get()
+        .then(doc => {
+          doc.forEach(LstItem => {
+            // console.log(LstItem.data())
+            // Owners.push(LstItem.data().Label)
+            if (LstItem.id==UID){              
+              objVue.task_createdBy= LstItem.data().Label
+            }
+          })          
+        });
+    }
+  },  
   created() {
     db
       .collection(firebase.auth().currentUser.uid)
@@ -311,6 +342,7 @@ export default {
         // this.SelectedOwner=doc.data().tOwner?doc.data().tOwner:{ Label: null, UID: null };
         this.task_env = doc.data().tEnvironment;
         this.task_isActive = doc.data().t_isActive ? "No" : "Yes";
+        this.getCreatorLabel(doc.data().CreatedBy);
 
         // this.orig_task_name = this.task_name;
         // this.orig_task_details = this.task_details;
@@ -360,6 +392,19 @@ input[type="date"] {
 }
 label{
   margin-bottom: 5px
+}
+.MyContainer{
+  background-color: white;
+  padding: 10px
+}
+.MyFixed{
+  position: fixed;
+  bottom: -17px;
+  left: 13px;
+  width: 100%;
+  padding: 10px;
+      background: #424242b5;
+      z-index: 999;
 }
 </style>
 

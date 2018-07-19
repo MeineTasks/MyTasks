@@ -1,7 +1,7 @@
 <template>
   <div id="edit-task" class="container">
     <h3>Edit task</h3>
-    <div class="row">
+    <div class="row MyContainer">
       <form @submit.prevent="updateTask" class="col s12">
         <div class="row">
           <div class="input-field col s12">
@@ -40,58 +40,74 @@
         </div>        
         <!-- projects category -->
           <div class="row">
-              <label class="active">Category:</label>
               <div class="input-field col s12">
+              <label class="active">Category:</label>
+              <div class="input-field">
                   <span @click="SelectedProjCat=opt,getProjects(true)" v-for="opt in ProjectsCat" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProjCat==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
                   <a @click="showNewProjCat=true" v-if="!showNewProjCat" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>
                   <input v-if="showNewProjCat" v-model="AddNewProjCat" v-on:keydown.enter.prevent="addProjCategory" v-on:keydown.esc.prevent="DelProjCategory" placeholder="Add a new value and then 'pres Enter' or 'Esc' to remove it" type="text">
+                </div>
               </div>
           </div>
 
           <!-- project list -->
-          <div class="row">
-              <label class="active">Project:</label>
-              <div v-if="showProject" class="input-field col s12">
+          <div v-if="showProject" class="row">
+            <div class="input-field col s12">              
+                <label class="active">Project:</label>
+                <div class="input-field">
                   <span @click="SelectedProj=opt" v-for="opt in ProjectsList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProj==opt}" class="mySingle chip">
                 {{opt}}
               </span>
                   <a @click="showNewProj=true" v-if="!showNewProj" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>                  
                    <input v-if="showNewProj" v-model="AddNewProj" v-on:keydown.enter.prevent="addProj" v-on:keydown.esc.prevent="DelProj" placeholder="Add a new value and then 'pres Enter' or 'Esc' to remove it" type="text">
-              </div>
+                </div>
+            </div>  
           </div>
           <!-- status -->
           <div class="row">
-              <label class="active">Status:</label>
               <div class="input-field col s12">
+              <label class="active">Status:</label>
+                <div class="input-field">
                   <span @click="nSelectedStatus=opt" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
+                  </div>
               </div>
           </div>
           <!-- Owners -->
-          <label class="active">Owner:</label>
-          <div v-if="!showUsers" >
-            <b>{{initialOwner.Label}}</b><br/>
-            <a @click="showUsers=true" style="z-index:0" class="btn waves-effect waves-light blue darken-3">
-              <i class="material-icons right">assignment_ind</i>Change owner
-            </a>
-          </div>
-          <div v-if="showUsers" class="row">
-              <div class="input-field col s12">
-                  <span @click="SelectedOwner=opt" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.UID==opt.UID}" class="mySingle chip">
-                    {{opt.Label}}
-                  </span>
+          <div class="row">
+            <div class="input-field col s12">
+            <label class="active">Owner:</label>
+               <div class="input-field">
+                <div v-if="!showUsers" >
+                  <b>{{initialOwner.Label}}</b><br/>
+                  <a @click="showUsers=true" style="z-index:0" class="btn waves-effect waves-light blue darken-3">
+                    <i class="material-icons right">assignment_ind</i>Change owner
+                  </a>
+                </div>
+
+                <div v-if="showUsers" class="row">
+                    <div class="input-field col s12">
+                        <span @click="SelectedOwner=opt" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.UID==opt.UID}" class="mySingle chip">
+                          {{opt.Label}}
+                        </span>
+                    </div>
+                </div>
               </div>
-          </div>
+              </div>
+            </div>
+
         <div class="row">
           <div class="input-field col s12">
-            <select required style="display:block;width:150px" v-model="task_isActive">
-              <option>Yes</option>
-              <option>No</option>
-            </select>
             <label class="active">Is archived:</label>
+            <div class="input-field">
+              <select required style="display:block;width:150px" v-model="task_isActive">
+                <option>Yes</option>
+                <option>No</option>
+              </select>
+            </div>  
             <span class="info">
               By setting this to <b>Yes</b> the task will only be visible in 'My All' view
             </span>
@@ -99,11 +115,13 @@
         </div>
           <!-- Created by -->
           <div class="row">
-              <label class="active">Created by:</label>
               <div class="input-field col s12">
+                <label class="active">Created by:</label>
+                <div class="input-field">
                  <span @click="SelectedManager=mng" v-for="mng in ManagersArray" v-bind:key="mng.id" v-bind:class="{'mySingleSelected':SelectedManager==mng}" class="mySingle chip">
                     {{mng.OBJ.name}}
                   </span>
+                </div>  
               </div>
           </div>
           <!-- Attachement -->
@@ -111,13 +129,11 @@
         <div class="row">
           <div class="input-field col s12">
             <label for="textarea1" class="active">Attachment:</label>
-
             <div v-for="attach in task_attachement" v-bind:key="attach.id">
               <span id="Attachment_span" v-html="attach" >                
               </span>              
               <i class="fas fa-minus-square red-text" style="cursor:pointer" @click="RemoveHyperlink(attach)"></i>
             </div>
-
             <div style="margin-top:10px" class="helperfield row">
                 <div class="input-field col m4">
                   <label for="linkDetails" class="col">File URL path:</label>
@@ -134,15 +150,14 @@
             </div>
           </div>
         </div>
-           
+     <!-- navigation -->
         <div class="row MyFixed" style="width:100%">
           <div class="col left" style="margin-left:37px;z-index:100">
             <button type="submit" class="btn">Save</button>
             <router-link  v-bind:to="{name:$route.query.mnext}" class="btn grey">Cancel</router-link>
           </div>
           <a @click="DeleteTask" class="btn waves-effect waves-light red darken-4 right"><i class="material-icons right">delete_forever</i>Delete</a>
-        </div> 
-
+        </div>
       </form>
     </div>
   </div>
@@ -573,8 +588,12 @@ label{
   left: 13px;
   width: 100%;
   padding: 10px;
-      background: #8d6d62c9;
+      background: #424242b5;
       z-index: 999;
+}
+.MyContainer{
+  background-color: white;
+  padding: 10px
 }
 </style>
 

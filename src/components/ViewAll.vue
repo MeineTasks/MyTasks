@@ -1,6 +1,6 @@
 <template>
   <div id="dashboard" style="margin: 0px 50px;">    
-    <div class="row z-depth-3 brown darken-1 white-text hide-on-small-only">      
+    <div class="row hide-on-small-only myHeader">
         <h6 class="col m2 s12">Task name</h6>
         <h6 class="col m3 s12">Description</h6>   
         <h6 class="col m1 s12">Category</h6>     
@@ -15,7 +15,7 @@
     </div>
     <!-- view in progress -->
     <div v-bind:class="{'notActive':task.task_isActive}" v-for="task in tasks" v-bind:key="task.id" class="row z-depth-2">                
-        <div class="col m2 s12 truncate"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
+        <div class="col m2 s12"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
         <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>     
         <div class="col m1 s12 truncate"><i>{{task.task_projectCategory}}</i></div>
         <div class="col m2 s12">
@@ -110,6 +110,9 @@ export default {
 </script>
 
 <style scoped>
+h6{
+  font-weight: 500
+}
 .Completed {
   opacity: 0.7;
   background: #cff1d0 !important;
@@ -127,6 +130,7 @@ export default {
 }
 .row {
   margin-bottom: 5px !important;
+  background-color: white !important
 }
 .logTigle {
   color: teal;
@@ -162,6 +166,9 @@ export default {
 }
 .info2{
   color: red !important
+}
+.myHeader{ 
+ border-bottom: solid 2px black
 }
 </style>
 

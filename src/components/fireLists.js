@@ -72,7 +72,7 @@ ListRef.doc("Environments")
 export default {
   statusesList: Statuses,
   FTEList: FTEs,  
-  envList: Envrmnts,
+  // envList: Envrmnts,
   innoProjCat: InnoProjCat,
   OwnersList:Owners
 };
