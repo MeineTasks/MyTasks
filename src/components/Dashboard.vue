@@ -132,6 +132,14 @@
             <i class="fa fa-plus-square"></i>
           </router-link>
         </div>
+    <!-- grafic -->    
+    <div class="row GraphContainer">      
+      <div class="col m12 s12">
+        <center>
+        <pie-chart :data="chartData" :colors="['#a0cfff', '#FFC107', '#69c56c']" :download="true" :donut="true" height="200px" legend="bottom" ></pie-chart>
+       </center>
+       </div>
+    </div>
     
   </div>
 </template>
@@ -148,10 +156,11 @@ export default {
       hasDone: false,
       viewDone: null,
       tasks: [],
-      logData: []
+      logData: [],
+      chartData: []
     };
-  },
-  created() {
+  },  
+  mounted() {
     if (firebase.auth().currentUser) {
       this.isLoggedIn = true;
       db
@@ -177,10 +186,11 @@ export default {
             };
             this.tasks.push(data);
           });
+          this.SetGraphic()
         });
      
     }
-  },
+  },  
   computed: {
     ViewOnHold: function() {
       return this.tasks.filter(function(task) {
@@ -208,6 +218,27 @@ export default {
     $('.tooltipped').tooltip();
   },
   methods: {
+    SetGraphic(){
+      this.chartData=[]
+
+      var C_inProgress=0
+      var C_OnHold=0
+      var C_Complete=0
+      this.tasks.forEach(task =>{
+        if(task.task_inProgress){
+          C_inProgress++
+        }
+        if(task.task_onHold){
+          C_OnHold++
+        }
+        if(task.task_completed){
+          C_Complete++
+        }
+      })
+      this.chartData.push(["In progress",C_inProgress])
+      this.chartData.push(["On hold",C_OnHold])
+      this.chartData.push(["Completed",C_Complete])
+    },
     CloseTask(task) {
       db
         .collection(firebase.auth().currentUser.uid)
@@ -312,5 +343,8 @@ h6{
 .truncate{
 padding-bottom: 3px;
 }
-
+.GraphContainer{
+  margin-top: 30px;
+  padding:5px 
+}
 </style>

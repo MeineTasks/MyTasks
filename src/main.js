@@ -6,8 +6,12 @@ import router from './router'
 import firebase from 'firebase';
 import './components/firebaseInit';
 
-Vue.config.productionTip = false
+import Chartkick from 'chartkick'
+import VueChartkick from 'vue-chartkick'
+import 'chart.js'
 
+Vue.config.productionTip = false
+Vue.use(VueChartkick, { Chartkick })
 /* eslint-disable no-new */
 let app;
 firebase.auth().onAuthStateChanged(function(user) {
