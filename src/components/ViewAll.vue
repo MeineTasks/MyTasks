@@ -6,7 +6,8 @@
         <h6 class="col m1 s12">Category</h6>     
         <h6 class="col m2 s12">Attachments</h6>
         <h6 class="col m1 s12">Status</h6>
-        <h6 class="col m1 s12">Deadline</h6>        
+        <h6 class="col m1 s12">Deadline</h6>  
+        <h6 class="col m1 s12 truncate">FTE</h6>      
         <h6 class="col m1 s12">Is archived</h6>
         <h6 class="col iconContainer">
           <!-- <span class="red-text">Close</span> -->
@@ -14,7 +15,7 @@
         </h6>
     </div>
     <!-- view in progress -->
-    <div v-bind:class="[{'notActive':task.task_isActive},task.task_status.replace(' ','')]" v-for="task in tasks" v-bind:key="task.id" class="row z-depth-1">                
+    <div v-bind:class="[{'notActive':task.task_isActive},task.task_status.replace(' ','')]" v-for="task in tasks" v-bind:key="task.id" class="row">
         <div class="col m2 s12"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
         <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>     
         <div class="col m1 s12 truncate"><i>{{task.task_projectCategory}}</i></div>
@@ -25,7 +26,8 @@
             </div>
         </div>
         <div class="col m1 s12"><i>{{task.task_status}}</i></div>
-        <div class="col m1 s12">{{task.task_deadline}}</div>     
+        <div class="col m1 s12">{{task.task_deadline}}</div>
+        <div class="col m1 s12">{{task.task_FTE}}</div> 
         <div class="col m1 s12">{{task.task_isActive}}</div>     
         <div v-if="isLoggedIn" class="col iconContainer" >
           <!-- <div class="col ">
@@ -81,6 +83,7 @@ export default {
               task_name: doc.data().tName,
               task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
               task_deadline: doc.data().tDeadline,
+              task_FTE: doc.data().tFTE?doc.data().tFTE:"none",
               task_status: doc.data().tStatus,
               task_projectCategory:doc.data().tProjCateg,
               task_project:doc.data().tProject,
@@ -113,7 +116,6 @@ export default {
 h6{
   font-weight: 500
 }
-
 .Inprogress {
   /* background: #d6e9fd !important; */
   border-left: solid 7px #a0cfff;
@@ -139,12 +141,13 @@ h6{
   text-decoration: line-through;
   opacity: 0.5;
 }
+
 .secondary-content {
   margin-right: 5px;
   float: right;
 }
 .row {
-  margin-bottom: 3px !important;
+  margin-bottom: 5px !important;
   background-color: white !important
 }
 .logTigle {
@@ -160,10 +163,13 @@ h6{
   text-align: right;
 }
 .fa-trash-alt {
-  color: #f5764e;
+  color: #8a4f3b;
 }
 .fa-edit {
   color: #00bcd4;
+}
+.DelIcn{
+  color:#ea1010
 }
 .fas {
   opacity: 0.6;
@@ -171,20 +177,19 @@ h6{
 .fas:hover {
   opacity: 1;
 }
-.notActive{
-    background: lightgray
-}
 .tskDetails{
   display: block;
   overflow: hidden;
   word-break: break-word;
 }
-.info2{
-  color: red !important
-}
 .myHeader{ 
  border-bottom: solid 2px black
 }
+.truncate{
+padding-bottom: 3px;
+}
+.GraphContainer{
+  margin-top: 30px;
+  padding:5px 
+}
 </style>
-
-

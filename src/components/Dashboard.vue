@@ -7,7 +7,8 @@
         <h6 class="col m2 s12 truncate">Attachments</h6>
         <h6 class="col m1 s12 truncate">Status</h6>
         <h6 class="col m1 s12 truncate">Deadline</h6>
-        <h6 class="col m iconContainer">
+        <h6 class="col m1 s12 truncate">FTE</h6>
+        <h6 class="col m1 iconContainer">
           <span class="truncate">Quick actions</span>
         </h6>
     </div>
@@ -24,6 +25,7 @@
         </div>
         <div class="col m1 s12"><i>{{task.task_status}}</i></div>
         <div class="col m1 s12">{{task.task_deadline}}</div>     
+        <div class="col m1 s12">{{task.task_FTE}}</div>     
         <!-- icons  -->
         <div v-if="isLoggedIn" class="col iconContainer" >
           
@@ -55,6 +57,7 @@
         </div>     
         <div class="col m1 s12"><i>{{task.task_status}}</i></div>
         <div class="col m1 s12">{{task.task_deadline}}</div>
+        <div class="col m1 s12">{{task.task_FTE}}</div>
         <!-- icons   -->
         <div v-if="isLoggedIn" class="col iconContainer" >
           <div v-if="task.t_isPrivate" class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Delete</span>">
@@ -84,6 +87,7 @@
         </div>   
         <div class="col m1 s12"><i>{{task.task_status}}</i></div>
         <div class="col m1 s12">{{task.task_deadline}}</div>   
+        <div class="col m1 s12">{{task.task_FTE}}</div>
         <!-- icons   -->
         <div v-if="isLoggedIn" class="col iconContainer" >
           <div v-if="task.t_isPrivate" class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Delete</span>">
@@ -111,7 +115,8 @@
             </div>
         </div>
         <div class="col m1 s12"><i>{{task.task_status}}</i></div>
-        <div class="col m1 s12">{{task.task_deadline}}</div>     
+        <div class="col m1 s12">{{task.task_deadline}}</div>   
+        <div class="col m1 s12">{{task.task_FTE}}</div>  
         <div v-if="isLoggedIn" class="col iconContainer" >
            <div v-if="task.t_isPrivate" class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Delete</span>">
             <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
@@ -177,6 +182,7 @@ export default {
               task_project:doc.data().tProject,    
               task_attachement:doc.data().tAttach,
               task_deadline: doc.data().tDeadline,
+              task_FTE: doc.data().tFTE?doc.data().tFTE:"none",
               task_status: doc.data().tStatus,              
               task_completed: doc.data().tStatus == "Completed",
               task_canceled: doc.data().tStatus == "Canceled",
@@ -253,7 +259,7 @@ export default {
     },
       DeleteTask(task) {
 
-      if (window.confirm("The task will be permanently deleted, are you sure?")){
+      if (window.confirm("The task: \n*** "+task.task_name+" ***\nwill be permanently deleted, are you sure?")){
           db
           .collection(firebase.auth().currentUser.uid)
           .doc(task.id)

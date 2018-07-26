@@ -119,8 +119,10 @@
         </div>
         <!-- created by -->
         <div class="row">
-           <div class="input-field col s12">
-            <span class="info">Task created by : {{task_createdBy}}</span>
+           <div class="input-field col s12 info">
+            <span>Task category : <b>{{SelectedProjCat}}</b></span><br/>
+            <span>Task created by : <b>{{task_createdBy}}</b></span>
+            
            </div>
         </div>
         <!-- navigation -->
@@ -164,6 +166,9 @@ export default {
       task_env: null,
       task_isActive: null,
       task_createdBy:null,
+      SelectedProjCat:null,
+      // SelectedProj:null,
+
       // Statuses: fireList.statusesList,
 
       // ProjectsCat: [],
@@ -339,16 +344,14 @@ export default {
         this.SelectedProjCat = doc.data().tProjCateg;
         this.SelectedProj = doc.data().tProject;
         this.task_attachement=doc.data().tAttach?doc.data().tAttach:[];
+        
         // this.SelectedOwner=doc.data().tOwner?doc.data().tOwner:{ Label: null, UID: null };
         this.task_env = doc.data().tEnvironment;
         this.task_isActive = doc.data().t_isActive ? "No" : "Yes";
+
         this.getCreatorLabel(doc.data().CreatedBy);
 
-        // this.orig_task_name = this.task_name;
-        // this.orig_task_details = this.task_details;
-        // this.orig_task_start=this.task_start;
-        // this.orig_task_deadline = this.task_deadline;
-        // this.orig_task_status = this.task_status;
+        
         this.getProjects();
       });
 

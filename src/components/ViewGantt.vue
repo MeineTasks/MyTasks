@@ -19,12 +19,11 @@
       <!-- task rows  -->
       <div class="row taskRow" v-for="task in inGantt"  v-bind:key="task.id" >
         <div class="leftPanel col m3">          
-          <span class="col truncate col m5 tooltipped" data-position="right" v-bind:data-tooltip="'Title: '+task.task_name+'<hr/> Details: '+task.task_description">
+          <span class="truncate col m6 tooltipped" data-position="right" v-bind:data-tooltip="'Title: '+task.task_name+'<hr/> Details: '+task.task_description">
             {{task.task_name}}
-            <!-- <span class="tooltiptext" v-html="task.task_description"></span> -->
-            
-          </span>        
-            <span class="chip">{{task.task_status}}</span>            
+          </span>
+          <span class="col m6 right">
+            <span class="col chip" v-bind:class="[task.task_status.replace(' ','')]">{{task.task_status}}</span>            
             <div class="col iconContainer" >            
               <div class="col tooltipped" data-position="top" data-tooltip="Edit">
                 <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
@@ -32,12 +31,14 @@
                 </router-link>  
               </div>
           </div>  
+
+          </span>
         </div>
         <div class="col m9">
           <!-- week 1 -->
           <span v-if="task.isInWeek_1">
-            <div class="drawBar col" v-bind:class="['m'+task.duration,'offset-m'+task.offset,task.BarClass,task.task_status=='On hold'?'onHold':'']">
-              {{task.task_name}}
+            <div class="drawBar col" v-bind:class="['m'+task.duration,'offset-m'+task.offset,task.BarClass,task.task_status.replace(' ','')]">
+              &nbsp;
             </div>
             <div class="arrow-right"></div>
             <div class="col m1 WkndBar" v-bind:class="'offset-m'+(5-task.duration-task.offset)">--</div>
@@ -52,7 +53,7 @@
           </span>
           <span v-if="task.isInWeek_2">
             <div class="drawBar col" v-bind:class="['m'+task.NEXTduration,'offset-m'+task.NEXToffset,task.NEXT_BarClass]">
-              {{task.task_name}}
+              &nbsp;
             </div>
           </span>
         </div>         
@@ -63,22 +64,22 @@
     <div v-if="backLog.length>0" class="section">
       <span class="title">BackLog/Remaining:</span>
       <div id="dashboard">    
-        <div class="row z-depth-3 brown darken-1 white-text hide-on-small-only">      
+        <div class="row z-depth-3 grey darken-3 white-text hide-on-small-only">      
             <h6 class="col m2 s12">Task name</h6>
             <h6 class="col m3 s12">Description</h6>        
             <h6 class="col m1 s12">Project</h6>          
             <h6 class="col m2 s12">Attachment</h6>
             <h6 class="col m1 s12">Status</h6>
+            <h6 class="col m1 s12">Start</h6>
             <h6 class="col m1 s12">Deadline</h6>        
-            <h6 class="col  iconContainer">
-              <span class="red-text">Archive</span>
-              <span class="white-text">Edit</span>
+            <h6 class="col m1 s12">
+              <span >Quick actions</span>
             </h6>
         </div>
     </div>
       <div v-for="task in backLog" v-bind:key="task.id" class="row z-depth-2">        
-          <div class="col m2 s12 truncate">
-            <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
+          <div class="col m2 s12">
+            <span><b>{{task.task_name}}</b></span></div>
           <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>        
           <div class="col m1 s12 truncate"><i>{{task.task_project}}</i></div>        
           <div class="col m2 s12">
@@ -87,9 +88,11 @@
                 </span>
               </div>
           </div>
-          <div class="col m1 s12"><i>{{task.task_status}}</i></div>
+          <div class="col m1 s12" >
+            <i><span class="chip" v-bind:class="[task.task_status.replace(' ','')]">{{task.task_status}}</span></i></div>
+            <div class="col m1 s12">{{task.tsk_start_date}}</div>     
           <div class="col m1 s12">{{task.tsk_end_date}}</div>     
-          <div class="col iconContainer" >
+          <div class="col m1 iconContainer" >
             <div class="col tooltipped" data-position="top" data-tooltip="Archive">
               <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
             </div>
@@ -348,7 +351,7 @@ export default {
 <style scoped>
 .main {
   margin: 10px;
-  background: aliceblue;
+  background: white;
   padding: 5px;
 }
 .HeaderDays,
@@ -359,7 +362,7 @@ export default {
   border-left: solid;
 }
 .HeaderRow {
-  background: lightgray;
+  background: white;
   box-shadow: 6px 4px 8px 0px;
   border-right: solid;
   padding: 0 !important;
@@ -398,14 +401,17 @@ export default {
   visibility: visible;
 }
 .drawBar {
-  background: #26a69a;
+  background: #a0cfff;
   border-radius: 50px;
   /* border: solid 1px #1b7169; */
   text-align: center;
 }
 
-.onHold{
-  background:#cac7c7;
+.Onhold{
+  background:#ffc107;
+}
+.Inprogress{
+  background:#a0cfff;
 }
 .taskRow {
   border-bottom: solid #bbb8b8 1px;
@@ -413,15 +419,15 @@ export default {
 }
 .StartsBefore {
   border-radius: 0px 10px 10px 0px;
-  background: linear-gradient(to right, #cccccc, #26a69a 10%);
+  background: linear-gradient(to right, #cccccc, #a0cfff 10%);
 }
 .EndsAfter {
   border-radius: 10px 0px 0px 10px;
-  background: linear-gradient(to left, #cccccc, #26a69a 10%);
+  background: linear-gradient(to left, #cccccc, #a0cfff 10%);
 }
 .BothStartEnd {
   border-radius: 0px 0px 0px 0px;
-  background: linear-gradient(to right, #cccccc, #26a69a, #cccccc);
+  background: linear-gradient(to right, #cccccc, #a0cfff, #cccccc);
 }
 .secondary-content {
   margin-right: 5px;
@@ -448,7 +454,7 @@ export default {
   opacity: 1;
 }
 .section {
-  background: #e8e8e8;
+  background: white;
 }
 .tskDetails{
   display: block;
@@ -464,6 +470,9 @@ export default {
     display: block;
     text-align: center;
     font-style: italic;
+}
+.z-depth-2{
+  padding-top: 5px;
 }
 </style>
 

@@ -1,14 +1,14 @@
 <template>
   <div id="dashboard">    
     <div class="row">
-       <div class="col m4 s12">
+       <div class="col m2 s12">
         <center><h3>No date</h3></center>
         <!-- vue component structure 1 -->
-        <div v-for="task in ViewCat1" v-bind:key="task.id" class="col s6">
+        <div v-for="task in ViewCat1" v-bind:key="task.id" class="col s12">
           <div class="card" v-bind:class="task.task_status=='In progress' ? 'inProgressBar' : 'onHoldBar'">
             <div class="card-content">                
-              <span class="card-title truncate"> 
-                <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name" >
+              <span class="MyTitle"> 
+                <span>
                   {{task.task_name}}
                 </span>                
               </span>
@@ -20,27 +20,29 @@
                   <span class="attSpan" v-html="attach"></span>
                 </div>
               </div>
-              
-             
+              <!-- status and deadline -->
               <hr/>
-              <div class="row" style="margin-left:0px">
-                <div class="chip col" v-bind:class="task.task_status=='In progress' ? 'inProgress' : 'onHold'">{{task.task_status}}</div>
-                <span class="col">{{task.task_deadline}}</span>
-               </div>
+               <div class="row valign-wrapper" style="margin-left:0px"> 
+                <div class="chip col truncate" v-bind:class="task.task_status=='In progress' ? 'inProgress' : 'onHold'">{{task.task_status}}</div>
+                <span class="col myDates valign-wrapper">
+                  <span class="col">{{task.task_deadline}}</span>
+                  <span v-if="task.task_FTE!='TBD' && task.task_FTE!='none'" class="col red-text">{{task.task_FTE}} FTE</span> 
+                </span>
+              </div>
               <hr/>
              <!-- START icon container -->
               <div class="row iconContainer">
-                <div class="col m4">                  
+                <div class="col m4 s4">                  
                   <router-link class="tooltipped" data-position="top" data-tooltip="Edit" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
                     <i class="fas fa-edit"></i>
                   </router-link>    
                 </div>
-                <div class="col m4">                  
+                <div class="col m4 s4">                  
                   <span class="myBtn tooltipped" data-position="top" data-tooltip="Complete">                    
                     <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
                   </span>
                 </div>
-                 <div class="col m4">                  
+                 <div class="col m4 s4">                  
                   <span class="myBtn tooltipped" data-position="top" data-tooltip="Start/Stop" >                    
                     <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"  class="far"></i>
                   </span>
@@ -51,14 +53,14 @@
           </div>
         </div>
       </div>
-      <div class="col m4 s12">
+      <div class="col m5 s12">
         <center><h3>Today</h3></center>
         <!-- vue component structure 2-->
-        <div v-for="task in ViewCat2" v-bind:key="task.id" class="col s6">
+        <div v-for="task in ViewCat2" v-bind:key="task.id" class="col m6 s12">
           <div class="card" v-bind:class="task.task_status=='In progress' ? 'inProgressBar' : 'onHoldBar'">
             <div class="card-content">                
-              <span class="card-title truncate"> 
-                <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name" >
+              <span class="MyTitle"> 
+                <span>
                   {{task.task_name}}
                 </span>                
               </span>
@@ -70,27 +72,29 @@
                   <span class="attSpan" v-html="attach"></span>
                 </div>
               </div>
-              
-             
               <hr/>
-              <div class="row" style="margin-left:0px">
-                <div class="chip col" v-bind:class="task.task_status=='In progress' ? 'inProgress' : 'onHold'">{{task.task_status}}</div>
-                <span class="col">{{task.task_deadline}}</span>
-               </div>
+              <!-- status and deadilne -->
+              <div class="row valign-wrapper" style="margin-left:0px">                          
+                <div class="chip col truncate" v-bind:class="task.task_status=='In progress' ? 'inProgress' : 'onHold'">{{task.task_status}}</div>
+                <span class="col myDates valign-wrapper">
+                  <span class="col">{{task.task_deadline}}</span>
+                  <span v-if="task.task_FTE!='TBD' && task.task_FTE!='none'" class="col red-text">{{task.task_FTE}} FTE</span> 
+                </span>
+              </div>              
               <hr/>
              <!-- START icon container -->
               <div class="row iconContainer">
-                <div class="col m4">                  
+                <div class="col m4 s4">                  
                   <router-link class="tooltipped" data-position="top" data-tooltip="Edit" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
                     <i class="fas fa-edit"></i>
                   </router-link>    
                 </div>
-                <div class="col m4">                  
+                <div class="col m4 s4">                  
                   <span class="myBtn tooltipped" data-position="top" data-tooltip="Complete">                    
                     <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
                   </span>
                 </div>
-                 <div class="col m4">                  
+                 <div class="col m4 s4">                  
                   <span class="myBtn tooltipped" data-position="top" data-tooltip="Start/Stop" >                    
                     <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"  class="far"></i>
                   </span>
@@ -101,14 +105,14 @@
           </div>
         </div>
       </div>
-      <div  class="col m4 s12">
+      <div  class="col m5 s12">
         <center><h3>Future</h3></center>
         <!-- vue component structure 3 -->
-        <div  v-for="task in ViewCat3" v-bind:key="task.id" class="col s6">
+        <div  v-for="task in ViewCat3" v-bind:key="task.id" class="col m6 s12">
           <div class="card" v-bind:class="task.task_status=='In progress' ? 'inProgressBar' : 'onHoldBar'">
             <div class="card-content">                
-              <span class="card-title truncate"> 
-                <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name" >
+              <span class="MyTitle"> 
+                <span>
                   {{task.task_name}}
                 </span>                
               </span>
@@ -120,27 +124,29 @@
                   <span class="attSpan" v-html="attach"></span>
                 </div>
               </div>
-              
-             
               <hr/>
-              <div class="row" style="margin-left:0px">
-                <div class="chip col" v-bind:class="task.task_status=='In progress' ? 'inProgress' : 'onHold'">{{task.task_status}}</div>
-                <span class="col">{{task.task_deadline}}</span>
-               </div>
+             <!-- status and deadilne -->
+            <div class="row valign-wrapper" style="margin-left:0px">                          
+                <div class="chip col truncate" v-bind:class="task.task_status=='In progress' ? 'inProgress' : 'onHold'">{{task.task_status}}</div>
+                <span class="col myDates valign-wrapper">
+                  <span class="col">{{task.task_deadline}}</span>
+                  <span v-if="task.task_FTE!='TBD' && task.task_FTE!='none'" class="col red-text">{{task.task_FTE}} FTE</span> 
+                </span>
+              </div>              
               <hr/>
              <!-- START icon container -->
               <div class="row iconContainer">
-                <div class="col m4">                  
+                <div class="col m4 s4">                  
                   <router-link class="tooltipped" data-position="top" data-tooltip="Edit" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
                     <i class="fas fa-edit"></i>
                   </router-link>    
                 </div>
-                <div class="col m4">                  
+                <div class="col m4 s4">                  
                   <span class="myBtn tooltipped" data-position="top" data-tooltip="Complete">                    
                     <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
                   </span>
                 </div>
-                 <div class="col m4">                  
+                 <div class="col m4 s4">                  
                   <span class="myBtn tooltipped" data-position="top" data-tooltip="Start/Stop" >                    
                     <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"  class="far"></i>
                   </span>
@@ -152,6 +158,13 @@
         </div>
       </div>            
       </div>
+
+        <!-- add new -->
+        <div class="fixed-action-btn">
+          <router-link to ="/AddNew" class="btn-floating btn-large blue">
+            <i class="fa fa-plus-square"></i>
+          </router-link>
+        </div>
   </div>
 </template>
 
@@ -214,6 +227,7 @@ export default {
               task_name: doc.data().tName,
               task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
               task_deadline: doc.data().tDeadline,
+              task_FTE: doc.data().tFTE?doc.data().tFTE:"none",
               task_status: doc.data().tStatus,
               task_attachement:doc.data().tAttach?doc.data().tAttach:[],
               task_completed: doc.data().tStatus == "Completed",
@@ -368,9 +382,7 @@ h3{
 .iconContainer {
   text-align: center;
 }
-.red-text{
-  font-size: small !important;
-}
+
 .inProgress{
 background-color:#a0cfff;
 }
@@ -382,6 +394,25 @@ background-color:#FFC107;
 }
 .onHoldBar{
   border-left: 5px solid #ffc107;
+}
+.MyTitle{
+  font-weight: 500;
+}
+.col{
+  padding: 0 5px !important;
+}
+.myDates{  
+  height: 32px;
+    font-size: 13px;
+    font-weight: 500;
+    height: 32px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 5px;
+    margin-right: 5px;
+}
+.chip{
+   margin-right: 0px !important;
 }
 </style>
 <style>
