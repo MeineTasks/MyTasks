@@ -127,7 +127,7 @@
         </div>
         <!-- navigation -->
         <div class="row MyFixed" style="width:100%">
-          <div class="col left" style="margin-left:37px;z-index:100">
+          <div class="col right" style="margin-left:37px;z-index:100">
             <button type="submit" class="btn">Save</button>
            <router-link to="/view/cols" class="btn grey">Cancel</router-link>
           </div>          
