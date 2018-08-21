@@ -156,7 +156,18 @@
             <button type="submit" class="btn">Save</button>
             <router-link  v-bind:to="{name:$route.query.mnext}" class="btn grey">Cancel</router-link>
           </div>
-          <a @click="DeleteTask" class="btn waves-effect waves-light red darken-4 right"><i class="material-icons right">delete_forever</i>Delete</a>
+          <div class="right">
+            <a @click="CloneTask" class="btn waves-effect waves-light blue-grey lighten-2">
+              <span class="right">
+                <i class="material-icons">check</i>
+                <i class="material-icons">filter_none</i>
+              </span>
+              Complete & extend |
+            </a>
+            <a @click="DeleteTask" class="btn waves-effect waves-light red darken-4">
+              <i class="material-icons right">delete_forever</i>Delete
+            </a>
+          </div>
         </div>
       </form>
     </div>
@@ -393,7 +404,7 @@ export default {
     },
     DeleteTask(){
       var vueObj = this;
-      if (window.confirm("The task will be permanently deleted, are you sure?")){
+      if (window.confirm("This task will be permanently deleted, are you sure?")){
           db
             .collection(this.$route.query.uid)
             .doc(this.$route.params.task_id)
@@ -403,6 +414,77 @@ export default {
                 vueObj.$router.push({name:vueObj.$route.query.mnext})
             });
       }
+    },
+    CloneTask(){
+        var vueObj = this;
+
+        // create clone
+         db
+          .collection(vueObj.$route.query.uid)
+          .doc(vueObj.$route.params.task_id)
+          .get()
+          .then(doc => {
+            //extend timings with one week
+            var TaskObj=doc.data()
+            TaskObj.tStart=moment(TaskObj.tStart,"YYYY-MM-DD HH:MM").weekday(8).format("YYYY-MM-DD")
+            TaskObj.tDeadline=moment(TaskObj.tDeadline,"YYYY-MM-DD HH:MM").weekday(12).format("YYYY-MM-DD")
+            // TaskObj.tStatus='In progress'
+
+            // add new task on same user
+            db
+            .collection(vueObj.$route.query.uid)
+            .add(TaskObj)
+            .then( updt =>{
+              vueObj.nSelectedStatus='Completed'
+              M.toast({ html: 'Clone succesfully created !' });
+              // // update new task
+              //   db
+              //   .collection(vueObj.SelectedOwner.UID)
+              //   .doc(vueObj.$route.params.task_id)
+              //   .update({
+              //       tName: vueObj.task_name,
+              //       tDescription: vueObj.task_details,
+              //       tStart: vueObj.task_start,
+              //       tDeadline: vueObj.task_deadline,
+              //       tFTE: vueObj.task_FTE,
+              //       tProject: vueObj.SelectedProj,
+              //       tProjCateg: vueObj.SelectedProjCat,
+              //       tStatus: vueObj.nSelectedStatus,
+              //       tAttach:vueObj.task_attachement,
+              //       tClosedDate: vueObj.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",
+              //       tOwner:vueObj.SelectedOwner,
+              //       // tEnvironment:vueObj.task_env?vueObj.task_env:"",
+              //       ModifiedBy:firebase.auth().currentUser.uid,
+              //       ModifiedDate:moment().format("YYYY-MM-DD HH:MM"),                    
+              //       t_isActive: vueObj.task_isActive == "No"
+              //   })
+              //   .then( final=>{
+              //       db
+              //       .collection(vueObj.$route.query.uid)
+              //       .doc(vueObj.$route.params.task_id)
+              //       .delete()
+              //       .then( navig=>{                      
+              //         vueObj.$router.push({name:vueObj.$route.query.mnext})
+              //         console.log("task removed from old user")
+              //       })
+
+              //   })
+              //    .catch(function(error) {
+              //     console.error("Error writing document: ", error);
+              //   });
+                // console.log("done")
+
+             })
+            .catch(function(error) {
+              console.error("Error writing document: ", error);
+            });
+            
+          })
+
+
+
+
+
     },
     getProjects(remProj) {
       var vueObj = this;
