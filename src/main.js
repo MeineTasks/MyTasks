@@ -12,6 +12,7 @@ import 'chart.js'
 
 Vue.config.productionTip = false
 Vue.use(VueChartkick, { Chartkick })
+
 /* eslint-disable no-new */
 let app;
 firebase.auth().onAuthStateChanged(function(user) {

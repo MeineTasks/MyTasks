@@ -113,7 +113,7 @@ export default {
   name: "userview",
   data() {
     return {
-      //   users: fireList.OwnersList,
+      //   users: fireList.OwnersList,      
       showDateFilter: false,
       Datefilter_start: moment().weekday(1).format("YYYY-MM-DD"),
       Datefilter_end: moment().weekday(5).format("YYYY-MM-DD"),
@@ -128,8 +128,8 @@ export default {
       UsersAndArrays: [],
       ManagersArray: [],
       isManager:false,
-      SelectedManager: { OBJ: { UID: "All", name: "All" } },
-      SelectedStatus: "All active"
+      SelectedManager: localStorage.getItem("viewUser_CreatorFilterObj")?JSON.parse(localStorage.getItem("viewUser_CreatorFilterObj")):{ OBJ: { UID: "All", name: "All" } },
+      SelectedStatus: localStorage.getItem("viewUser_StatusFilterObj")?JSON.parse(localStorage.getItem("viewUser_StatusFilterObj")):"All active"
     };
   },
   updated() {
@@ -211,6 +211,9 @@ export default {
     GetFire_ForTasks() {
       var objVue = this;
       // objVue.SelectedStatus = opt;
+      localStorage.setItem("viewUser_StatusFilterObj", JSON.stringify(objVue.SelectedStatus));  
+      localStorage.setItem("viewUser_CreatorFilterObj", JSON.stringify(objVue.SelectedManager));  
+      
 
       objVue.UsersAndArrays.forEach(itm => {
         objVue.GetFire_userTasks(itm.OBJ);

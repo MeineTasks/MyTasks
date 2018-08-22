@@ -132,7 +132,7 @@ export default {
   name: "viewProjcat",
   data() {
     return {
-      //   users: fireList.OwnersList,
+      //   users: fireList.OwnersList,      
       showDateFilter: false,
       Datefilter_start: moment().weekday(1).format("YYYY-MM-DD"),
       Datefilter_end: moment().weekday(5).format("YYYY-MM-DD"),
@@ -148,15 +148,15 @@ export default {
       isManager: false,
       GotUsers: 0,
       ProjCatArray: [],
-      SelectedManager: { OBJ: { UID: "All", name: "All" } },
-      SelectedStatus: ["In progress","On hold","Not allocated"]
+      SelectedManager: localStorage.getItem("viewProj_CreatorFilterObj")?JSON.parse(localStorage.getItem("viewProj_CreatorFilterObj")):{ OBJ: { UID: "All", name: "All" } },
+      SelectedStatus: localStorage.getItem("viewProj_StatusFilterObj")?JSON.parse(localStorage.getItem("viewProj_StatusFilterObj")):["In progress","On hold","Not allocated"]      
     };
   },
    updated() {
     // $(".sidenav").sidenav();
     $('.tooltipped').tooltip();
   },
-  created() {
+  created() {    
     // this.ADDTasksIncat();
     db
       .collection("Users")
@@ -265,6 +265,8 @@ export default {
     GetFire_ForTasks() {
       var objVue = this;
       // objVue.SelectedStatus = opt;
+      localStorage.setItem("viewProj_StatusFilterObj", JSON.stringify(objVue.SelectedStatus));  
+      localStorage.setItem("viewProj_CreatorFilterObj", JSON.stringify(objVue.SelectedManager));
       //reset number of users
       objVue.GotUsers = 0;
 

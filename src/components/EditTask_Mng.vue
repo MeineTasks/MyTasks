@@ -157,7 +157,7 @@
             <router-link  v-bind:to="{name:$route.query.mnext}" class="btn grey">Cancel</router-link>
           </div>
           <div class="right">
-            <a @click="CloneTask" class="btn waves-effect waves-light blue-grey lighten-2">
+            <a @click="updateTask('Clone')" class="btn waves-effect waves-light blue-grey lighten-2">
               <span class="right">
                 <i class="material-icons">check</i>
                 <i class="material-icons">filter_none</i>
@@ -240,7 +240,10 @@ export default {
         .doc(this.$route.params.task_id)
 
     },
-    updateTask() {
+    updateTask(Action) {
+      var CloneT= Action=='Clone';
+      
+
       var vueObj=this
       var original
       //validate end start times
@@ -282,7 +285,9 @@ export default {
         return false;
       }
       
-      
+      if (CloneT){
+        vueObj.nSelectedStatus="Completed"
+      }
       
       if (vueObj.SelectedOwner.UID!= vueObj.initialOwner.UID) {
         // move existing task
@@ -324,9 +329,11 @@ export default {
                     .collection(vueObj.$route.query.uid)
                     .doc(vueObj.$route.params.task_id)
                     .delete()
-                    .then( navig=>{                      
-                      vueObj.$router.push({name:vueObj.$route.query.mnext})
-                      console.log("task removed from old user")
+                    .then( navig=>{      
+                      if (!CloneT){
+                        vueObj.$router.push({name:vueObj.$route.query.mnext})
+                        console.log("task removed from old user")
+                      }
                     })
 
                 })
@@ -367,12 +374,17 @@ export default {
          // .set({tAttach:JSON.stringify(vueObj.task_attachement)},{ merge: true })
           .then(docRef => {       
             // console.log("task update done")
-            vueObj.$router.push({name:vueObj.$route.query.mnext})
+            if (!CloneT){
+              vueObj.$router.push({name:vueObj.$route.query.mnext})
+            }
           })
           .catch(function(error) {
             console.error("Error writing document: ", error);
           });
       }  
+      if (CloneT){
+        vueObj.CloneTask()
+      }
     
     },
     addProjCategory() {
@@ -420,60 +432,27 @@ export default {
 
         // create clone
          db
-          .collection(vueObj.$route.query.uid)
+          // .collection(vueObj.$route.query.uid)
+          .collection(vueObj.SelectedOwner.UID)
           .doc(vueObj.$route.params.task_id)
           .get()
           .then(doc => {
             //extend timings with one week
             var TaskObj=doc.data()
-            TaskObj.tStart=moment(TaskObj.tStart,"YYYY-MM-DD HH:MM").weekday(8).format("YYYY-MM-DD")
+            TaskObj.tStart=moment(TaskObj.tDeadline,"YYYY-MM-DD HH:MM").weekday(8).format("YYYY-MM-DD")
             TaskObj.tDeadline=moment(TaskObj.tDeadline,"YYYY-MM-DD HH:MM").weekday(12).format("YYYY-MM-DD")
-            // TaskObj.tStatus='In progress'
+            TaskObj.tStatus='In progress'
+            
 
             // add new task on same user
+            
             db
             .collection(vueObj.$route.query.uid)
             .add(TaskObj)
             .then( updt =>{
               vueObj.nSelectedStatus='Completed'
               M.toast({ html: 'Clone succesfully created !' });
-              // // update new task
-              //   db
-              //   .collection(vueObj.SelectedOwner.UID)
-              //   .doc(vueObj.$route.params.task_id)
-              //   .update({
-              //       tName: vueObj.task_name,
-              //       tDescription: vueObj.task_details,
-              //       tStart: vueObj.task_start,
-              //       tDeadline: vueObj.task_deadline,
-              //       tFTE: vueObj.task_FTE,
-              //       tProject: vueObj.SelectedProj,
-              //       tProjCateg: vueObj.SelectedProjCat,
-              //       tStatus: vueObj.nSelectedStatus,
-              //       tAttach:vueObj.task_attachement,
-              //       tClosedDate: vueObj.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",
-              //       tOwner:vueObj.SelectedOwner,
-              //       // tEnvironment:vueObj.task_env?vueObj.task_env:"",
-              //       ModifiedBy:firebase.auth().currentUser.uid,
-              //       ModifiedDate:moment().format("YYYY-MM-DD HH:MM"),                    
-              //       t_isActive: vueObj.task_isActive == "No"
-              //   })
-              //   .then( final=>{
-              //       db
-              //       .collection(vueObj.$route.query.uid)
-              //       .doc(vueObj.$route.params.task_id)
-              //       .delete()
-              //       .then( navig=>{                      
-              //         vueObj.$router.push({name:vueObj.$route.query.mnext})
-              //         console.log("task removed from old user")
-              //       })
-
-              //   })
-              //    .catch(function(error) {
-              //     console.error("Error writing document: ", error);
-              //   });
-                // console.log("done")
-
+              vueObj.$router.push({name:vueObj.$route.query.mnext})
              })
             .catch(function(error) {
               console.error("Error writing document: ", error);
