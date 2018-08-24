@@ -284,7 +284,7 @@ export default {
           tProject: this.SelectedProj,
           tProjCateg: this.SelectedProjCat,
           tStatus: this.SelectedStatus,
-          tFTE: this.task_fte,
+          tFTE: this.task_fte?this.task_fte:"TBD",
           tOwner: this.SelectedOwner,
           tAttach:this.task_attachement,
           t_isActive: true,
