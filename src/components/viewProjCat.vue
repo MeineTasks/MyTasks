@@ -39,7 +39,22 @@
                           <a @click="showDateFilter=false,GetFire_ForTasks()" class="waves-effect waves-light btn-small  grey darken-2">Remove date filter<i class="material-icons left">event_busy</i></a>
                 </span>
             </div>
+         
+              
         </div>
+           <!-- user filter -->
+            <div class="row z-depth-1">
+              <div class="col m12 s12" >              
+              <span class="tooltipped " data-position="right" data-tooltip="Ctrl+Click for multiple selections">Filter by users (CTRL+Click) &#8594;</span>
+                <span
+                  @click.ctrl="MultiUser(opt)" 
+                  v-for="opt in FireUsersArray" 
+                  v-bind:key="opt.id" 
+                  v-bind:class="{'mySingleSelected':SelectedUsers.indexOf(opt.OBJ.UID)>-1}" class="mySingle chip">
+                    {{opt.OBJ.name}}
+                  </span>
+            </div>
+            </div>
         <!--  tasks -->
         <div v-for="cat in ProjCatArray" v-bind:key="cat.id" class="z-depth-1">
             <div v-if="cat.tasks.length>0" class="row  valign-wrapper" style="border-bottom: #484545 solid 1px; ">
@@ -132,31 +147,43 @@ export default {
   name: "viewProjcat",
   data() {
     return {
-      //   users: fireList.OwnersList,      
+      //   users: fireList.OwnersList,
       showDateFilter: false,
-      Datefilter_start: moment().weekday(1).format("YYYY-MM-DD"),
-      Datefilter_end: moment().weekday(5).format("YYYY-MM-DD"),
-      StatusesList: [        
+      Datefilter_start: moment()
+        .weekday(1)
+        .format("YYYY-MM-DD"),
+      Datefilter_end: moment()
+        .weekday(5)
+        .format("YYYY-MM-DD"),
+      StatusesList: [
         "In progress",
         "On hold",
         "Completed",
         "Canceled",
         "Not allocated"
       ],
+      FireUsersArray: [],
       UsersAndArrays: [],
+      SelectedUsers: localStorage.getItem("viewProj_SelectedUsersFilterObj")
+        ? JSON.parse(localStorage.getItem("viewProj_SelectedUsersFilterObj"))
+        : [],
       ManagersArray: [],
       isManager: false,
       GotUsers: 0,
       ProjCatArray: [],
-      SelectedManager: localStorage.getItem("viewProj_CreatorFilterObj")?JSON.parse(localStorage.getItem("viewProj_CreatorFilterObj")):{ OBJ: { UID: "All", name: "All" } },
-      SelectedStatus: localStorage.getItem("viewProj_StatusFilterObj")?JSON.parse(localStorage.getItem("viewProj_StatusFilterObj")):["In progress","On hold","Not allocated"]      
+      SelectedManager: localStorage.getItem("viewProj_CreatorFilterObj")
+        ? JSON.parse(localStorage.getItem("viewProj_CreatorFilterObj"))
+        : { OBJ: { UID: "All", name: "All" } },
+      SelectedStatus: localStorage.getItem("viewProj_StatusFilterObj")
+        ? JSON.parse(localStorage.getItem("viewProj_StatusFilterObj"))
+        : ["In progress", "On hold", "Not allocated"]
     };
   },
-   updated() {
+  updated() {
     // $(".sidenav").sidenav();
-    $('.tooltipped').tooltip();
+    $(".tooltipped").tooltip();
   },
-  created() {    
+  created() {
     // this.ADDTasksIncat();
     db
       .collection("Users")
@@ -189,14 +216,27 @@ export default {
     this.GetFire_users();
   },
   methods: {
-    MultiStatus(opt){
+    MultiStatus(opt) {
       var objVue = this;
-          if (objVue.SelectedStatus.indexOf(opt)==-1){
-            objVue.SelectedStatus.push(opt)
-            objVue.GetFire_ForTasks()
-          }else{
-            return false;
-          }
+      if (objVue.SelectedStatus.indexOf(opt) == -1) {
+        objVue.SelectedStatus.push(opt);
+        objVue.GetFire_ForTasks();
+      } else {
+        return false;
+      }
+    },
+    MultiUser(opt) {
+      var objVue = this;
+      console.log("MultiUser:" + opt);
+      var index = objVue.SelectedUsers.indexOf(opt.OBJ.UID);
+
+      if (index == -1) {
+        objVue.SelectedUsers.push(opt.OBJ.UID);
+      } else {
+        objVue.SelectedUsers.splice(index, 1);
+      }
+
+      objVue.GetFire_ForTasks();
     },
     datefilter_setEnd() {
       this.Datefilter_end = moment(this.Datefilter_start, "YYYY-MM-DD")
@@ -206,6 +246,8 @@ export default {
     GetFire_users() {
       var objVue = this;
       // set users array
+      // console.log("GetFire_users");
+
       db
         .collection("Users")
         .where("isOwner", "==", true)
@@ -220,14 +262,15 @@ export default {
               }
             };
 
-            objVue.UsersAndArrays.push(data);
+            // objVue.UsersAndArrays.push(data);
+            objVue.FireUsersArray.push(data);
           });
           function sortTasks(a, b) {
             if (a.OBJ.name < b.OBJ.name) return -1;
             if (a.OBJ.name > b.OBJ.name) return 1;
             return 0;
           }
-          // objVue.UsersAndArrays.sort(sortTasks);
+          objVue.FireUsersArray.sort(sortTasks);
 
           objVue.GetFire_ForTasks();
         });
@@ -263,18 +306,45 @@ export default {
         });
     },
     GetFire_ForTasks() {
+      console.log("GetFire_ForTasks");
       var objVue = this;
       // objVue.SelectedStatus = opt;
-      localStorage.setItem("viewProj_StatusFilterObj", JSON.stringify(objVue.SelectedStatus));  
-      localStorage.setItem("viewProj_CreatorFilterObj", JSON.stringify(objVue.SelectedManager));
+      localStorage.setItem(
+        "viewProj_StatusFilterObj",
+        JSON.stringify(objVue.SelectedStatus)
+      );
+      localStorage.setItem(
+        "viewProj_CreatorFilterObj",
+        JSON.stringify(objVue.SelectedManager)
+      );
+      localStorage.setItem(
+        "viewProj_SelectedUsersFilterObj",
+        JSON.stringify(objVue.SelectedUsers)
+      );
       //reset number of users
       objVue.GotUsers = 0;
+      var userFilter = objVue.SelectedUsers.length != 0;
+      console.log("userFilter" + userFilter);
+      objVue.UsersAndArrays = [];
 
+      if (userFilter) {
+        // objVue.UsersAndArrays = objVue.SelectedUsers;
+        objVue.FireUsersArray.forEach(itm => {
+          if (objVue.SelectedUsers.indexOf(itm.OBJ.UID) > -1) {
+            objVue.UsersAndArrays.push(itm);
+          }
+        });
+      } else {
+        objVue.UsersAndArrays = objVue.FireUsersArray;
+      }
+
+      // populate user tasks
       objVue.UsersAndArrays.forEach(itm => {
         objVue.GetFire_userTasks(itm.OBJ);
       });
     },
     GetFire_userTasks(OBJ) {
+      console.log("GetFire_user:" + OBJ.UID);
       var objVue = this;
       // get tasks for each user
       db
@@ -286,13 +356,14 @@ export default {
 
           var queryString;
           //status filter
-          queryString="("
-          objVue.SelectedStatus.forEach(stat=>{
-            queryString=queryString+"doc.data().tStatus == '"+stat+"' || "
-          })
+          queryString = "(";
+          objVue.SelectedStatus.forEach(stat => {
+            queryString =
+              queryString + "doc.data().tStatus == '" + stat + "' || ";
+          });
           // remove last ||
-          queryString=queryString.substring(0,queryString.length-4)
-          queryString=queryString+")"
+          queryString = queryString.substring(0, queryString.length - 4);
+          queryString = queryString + ")";
 
           // console.log(queryString)
 
@@ -311,7 +382,7 @@ export default {
               objVue.SelectedManager.OBJ.UID +
               "'";
           }
-          if(objVue.showDateFilter){
+          if (objVue.showDateFilter) {
             //  if (objVue.Datefilter_start !=null && objVue.Datefilter_start !="" ){
             //     queryString =
             //   queryString + " &&  moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tStart,'YYYY-MM-DD'))"
@@ -320,15 +391,19 @@ export default {
             //     queryString =
             //   queryString + "&& moment(doc.data().tDeadline,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_end,'YYYY-MM-DD'))"
             //  }
-            queryString = queryString + "&& "
-              queryString = queryString + "(( moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tStart,'YYYY-MM-DD')) && moment(doc.data().tStart,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_start,'YYYY-MM-DD')) )"
-              queryString =queryString + "|| "
-              queryString =queryString + "( moment(doc.data().tDeadline,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_end,'YYYY-MM-DD')) && moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tDeadline,'YYYY-MM-DD')) ))"
-
+            queryString = queryString + "&& ";
+            queryString =
+              queryString +
+              "(( moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tStart,'YYYY-MM-DD')) && moment(doc.data().tStart,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_start,'YYYY-MM-DD')) )";
+            queryString = queryString + "|| ";
+            queryString =
+              queryString +
+              "( moment(doc.data().tDeadline,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_end,'YYYY-MM-DD')) && moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tDeadline,'YYYY-MM-DD')) ))";
           }
 
           querySnapshot.forEach(doc => {
             //custom filter
+            // console.log(doc.data());
 
             if (eval(queryString)) {
               const data = {
@@ -357,12 +432,15 @@ export default {
           });
           // call next function
           objVue.GotUsers++;
-          if (objVue.GotUsers >= objVue.UsersAndArrays.length && objVue.GotUsers> 0) {
+          if (
+            objVue.GotUsers >= objVue.UsersAndArrays.length &&
+            objVue.GotUsers > 0
+          ) {
             objVue.ADDTasksIncat();
           }
         });
     },
-    ADDTasksIncat() {      
+    ADDTasksIncat() {
       var objVue = this;
       //reset proj cat
       objVue.ProjCatArray.forEach(cat => {
@@ -391,15 +469,13 @@ export default {
       });
       //sort tasks
       function sortMYTasks(a, b) {
-            if (a.task_project < b.task_project) return -1;
-            if (a.task_project > b.task_project) return 1;
-            return 0;
-      }      
-      objVue.ProjCatArray.forEach(itm =>{
-        itm.tasks.sort(sortMYTasks)
-      })
-      
-
+        if (a.task_project < b.task_project) return -1;
+        if (a.task_project > b.task_project) return 1;
+        return 0;
+      }
+      objVue.ProjCatArray.forEach(itm => {
+        itm.tasks.sort(sortMYTasks);
+      });
     },
     CompleteTask(task) {
       if (!task.task_completed) {
@@ -410,8 +486,8 @@ export default {
             tStatus: "Completed",
             tClosedDate: moment().format("YYYY-MM-DD")
           })
-          .then(function(){
-            $(".material-tooltip").removeAttr("style")
+          .then(function() {
+            $(".material-tooltip").removeAttr("style");
           })
           .catch(function(error) {
             console.error("Error writing document CompleteTask: ", error);
@@ -426,8 +502,8 @@ export default {
           .update({
             tStatus: "Canceled"
           })
-          .then(function(){
-            $(".material-tooltip").removeAttr("style")
+          .then(function() {
+            $(".material-tooltip").removeAttr("style");
           })
           .catch(function(error) {
             console.error("Error writing document CompleteTask: ", error);
@@ -443,8 +519,8 @@ export default {
         .update({
           tStatus: newStatus
         })
-        .then(docRef => {     
-            $(".material-tooltip").removeAttr("style")
+        .then(docRef => {
+          $(".material-tooltip").removeAttr("style");
         })
         .catch(function(error) {
           console.error("Error writing document CompleteTask: ", error);
@@ -457,7 +533,7 @@ export default {
           task.task_FTE != undefined &&
           task.task_FTE != "TBD" &&
           task.task_FTE != null &&
-          task.task_FTE != "" 
+          task.task_FTE != ""
           //&& task.task_status == "In progress"
         ) {
           // console.log(task.task_FTE)
@@ -569,11 +645,11 @@ export default {
 .dateField {
   width: 150px !important;
   height: auto !important;
-  border: 1px solid #c4c4c4!important;
-  border-radius: 5px!important;
-  background-color: #fff!important;
-  padding: 3px 5px!important;
-  box-shadow: inset 0 3px 6px rgba(0,0,0,0.1)!important;
+  border: 1px solid #c4c4c4 !important;
+  border-radius: 5px !important;
+  background-color: #fff !important;
+  padding: 3px 5px !important;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.1) !important;
 }
 </style>
 
