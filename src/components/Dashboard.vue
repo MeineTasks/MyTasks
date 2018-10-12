@@ -34,7 +34,7 @@
           </div>
 
           <!-- <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Archive</span>">
-            <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
+            <i @click="CloseTask(task)" class="fas fa-eye-slash"></i>
           </div> -->
           <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Edit</span>">
             <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
@@ -64,7 +64,7 @@
             <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
           </div>
           <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Archive</span>">
-            <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
+            <i @click="CloseTask(task)" class="fas fa-eye-slash"></i>
           </div>
           <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Edit</span>">
             <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
@@ -94,7 +94,7 @@
             <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
           </div>
           <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Archive</span>">
-            <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
+            <i @click="CloseTask(task)" class="fas fa-eye-slash"></i>
           </div>
           <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Edit</span>">
             <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
@@ -122,7 +122,7 @@
             <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
           </div>
           <div class="col ">
-            <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
+            <i @click="CloseTask(task)" class="fas fa-eye-slash"></i>
           </div>
           <div class="col ">
             <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
@@ -155,95 +155,65 @@ import firebase from "firebase";
 
 export default {
   name: "dashboard",
+  props: { tasksDashboard: Array, chartData: Array, isLoggedIn: Boolean },
   data() {
     return {
-      isLoggedIn: false,
+      // isLoggedIn: false,
       hasDone: false,
       viewDone: null,
-      tasks: [],
-      logData: [],
-      chartData: []
+      // tasks: this.tasksDashboard,
+      logData: []
     };
-  },  
-  mounted() {
-    if (firebase.auth().currentUser) {
-      this.isLoggedIn = true;
-      db
-        .collection(firebase.auth().currentUser.uid)        
-        .where("t_isActive", "==", true)
-        .onSnapshot(querySnapshot => {
-          this.tasks = [];
-          querySnapshot.forEach(doc => {
-            const data = {
-              id: doc.id,
-              task_name: doc.data().tName,
-              task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
-              task_projectCategory:doc.data().tProjCateg,
-              task_project:doc.data().tProject,    
-              task_attachement:doc.data().tAttach,
-              task_deadline: doc.data().tDeadline,
-              task_FTE: doc.data().tFTE?doc.data().tFTE:"none",
-              task_status: doc.data().tStatus,              
-              task_completed: doc.data().tStatus == "Completed",
-              task_canceled: doc.data().tStatus == "Canceled",
-              task_inProgress: doc.data().tStatus == "In progress",
-              task_onHold: doc.data().tStatus == "On hold",
-              t_isPrivate:doc.data().tProjCateg == "Personal"
-            };
-            this.tasks.push(data);
-          });
-          this.SetGraphic()
-        });
-     
-    }
-  },  
+  },
   computed: {
     ViewOnHold: function() {
-      return this.tasks.filter(function(task) {
+      return this.tasksDashboard.filter(function(task) {
         return task.task_onHold == true;
       });
     },
     ViewInProgress: function() {
-      return this.tasks.filter(function(task) {
+      return this.tasksDashboard.filter(function(task) {
         return task.task_inProgress == true;
       });
     },
     ViewCompleted: function() {
-      return this.tasks.filter(function(task) {
+      return this.tasksDashboard.filter(function(task) {
         return task.task_completed == true;
       });
     },
     ViewCanceled: function() {
-      return this.tasks.filter(function(task) {
+      return this.tasksDashboard.filter(function(task) {
         return task.task_canceled == true;
       });
     }
   },
   updated() {
     // $(".sidenav").sidenav();
-    $('.tooltipped').tooltip();
+    $(".tooltipped").tooltip();
+    // this.SetGraphic();
   },
+  created() {},
   methods: {
-    SetGraphic(){
-      this.chartData=[]
+    SetGraphic() {
+      this.chartData = [];
 
-      var C_inProgress=0
-      var C_OnHold=0
-      var C_Complete=0
-      this.tasks.forEach(task =>{
-        if(task.task_inProgress){
-          C_inProgress++
+      var C_inProgress = 0;
+      var C_OnHold = 0;
+      var C_Complete = 0;
+      this.tasksDashboard.forEach(task => {
+        if (task.task_inProgress) {
+          C_inProgress++;
         }
-        if(task.task_onHold){
-          C_OnHold++
+        if (task.task_onHold) {
+          C_OnHold++;
         }
-        if(task.task_completed){
-          C_Complete++
+        if (task.task_completed) {
+          C_Complete++;
         }
-      })
-      this.chartData.push(["In progress",C_inProgress])
-      this.chartData.push(["On hold",C_OnHold])
-      this.chartData.push(["Completed",C_Complete])
+      });
+      this.chartData.push(["In progress", C_inProgress]);
+      this.chartData.push(["On hold", C_OnHold]);
+      this.chartData.push(["Completed", C_Complete]);
     },
     CloseTask(task) {
       db
@@ -251,22 +221,27 @@ export default {
         .doc(task.id)
         .set({ t_isActive: false }, { merge: true })
         .then(docRef => {
-            $(".material-tooltip").removeAttr("style");
+          $(".material-tooltip").removeAttr("style");
         })
         .catch(function(error) {
           console.log("Error getting documents: ", error);
         });
     },
-      DeleteTask(task) {
-
-      if (window.confirm("The task: \n*** "+task.task_name+" ***\nwill be permanently deleted, are you sure?")){
-          db
+    DeleteTask(task) {
+      if (
+        window.confirm(
+          "The task: \n*** " +
+            task.task_name +
+            " ***\nwill be permanently deleted, are you sure?"
+        )
+      ) {
+        db
           .collection(firebase.auth().currentUser.uid)
           .doc(task.id)
-            .delete()
-            .then(function() {
-                $(".material-tooltip").removeAttr("style");
-            });
+          .delete()
+          .then(function() {
+            $(".material-tooltip").removeAttr("style");
+          });
       }
     }
   }
@@ -274,8 +249,8 @@ export default {
 </script>
 
 <style scoped>
-h6{
-  font-weight: 500
+h6 {
+  font-weight: 500;
 }
 .inProgress {
   /* background: #d6e9fd !important; */
@@ -284,17 +259,17 @@ h6{
 }
 .OnHold {
   /* background: #d6e9fd !important; */
-  border-left: solid 7px #FFC107;
+  border-left: solid 7px #ffc107;
   border-bottom: solid 1px lightgrey;
 }
 .Completed {
   opacity: 0.7;
   /* background: #cff1d0 !important; */
-   border-left: solid 7px #69c56c;
+  border-left: solid 7px #69c56c;
   border-bottom: solid 1px lightgrey;
 }
 
-.Canceled{
+.Canceled {
   border-left: solid 7px lightgrey;
   border-bottom: solid 1px lightgrey;
 }
@@ -309,7 +284,7 @@ h6{
 }
 .row {
   margin-bottom: 5px !important;
-  background-color: white !important
+  background-color: white !important;
 }
 .logTigle {
   color: teal;
@@ -323,14 +298,14 @@ h6{
   float: right;
   text-align: right;
 }
-.fa-trash-alt {
+.fa-eye-slash {
   color: #8a4f3b;
 }
 .fa-edit {
   color: #00bcd4;
 }
-.DelIcn{
-  color:#ea1010
+.DelIcn {
+  color: #ea1010;
 }
 .fas {
   opacity: 0.6;
@@ -338,19 +313,19 @@ h6{
 .fas:hover {
   opacity: 1;
 }
-.tskDetails{
+.tskDetails {
   display: block;
   overflow: hidden;
   word-break: break-word;
 }
-.myHeader{ 
- border-bottom: solid 2px black
+.myHeader {
+  border-bottom: solid 2px black;
 }
-.truncate{
-padding-bottom: 3px;
+.truncate {
+  padding-bottom: 3px;
 }
-.GraphContainer{
+.GraphContainer {
   margin-top: 30px;
-  padding:5px 
+  padding: 5px;
 }
 </style>

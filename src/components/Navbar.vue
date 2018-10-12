@@ -14,7 +14,7 @@
           <li v-if="isLoggedIn"><router-link class="link" to="/">My Dashboard</router-link></li>
           <li v-if="isLoggedIn"><router-link class="link" to="/view/all">My All</router-link></li>  
           <li v-if="isLoggedIn"><router-link class="link" to="/view/cols">My Active</router-link></li>  
-          <li v-if="isLoggedIn"><router-link class="link" to="/view/gantt">My Gantt</router-link></li>  
+          <!-- <li v-if="isLoggedIn"><router-link class="link" to="/view/gantt">My Gantt</router-link></li>   -->
           
           <li v-if="isLoggedIn"><router-link class="link" to="/view/users">View Users </router-link></li>  
           <li v-if="isLoggedIn"><router-link class="link" to="/view/projcat">View Projects </router-link></li>
@@ -41,38 +41,42 @@
 </template>
 
 <script>
-import firebase from 'firebase';
+import firebase from "firebase";
 import db from "./firebaseInit";
 
 export default {
-  name: 'navbar',
+  name: "navbar",
   data() {
     return {
       isLoggedIn: false,
       currentUser: false,
-      isMng:false
+      isMng: false
     };
   },
   created() {
-    if (firebase.auth().currentUser) {      
+    if (firebase.auth().currentUser) {
       this.isLoggedIn = true;
       this.currentUser = firebase.auth().currentUser.email;
       db
-      .collection("Users")
-      .doc(firebase.auth().currentUser.uid)
-      .get()
-      .then(doc => {
-        if(doc.data().isManager){this.isMng=true}
-      })
+        .collection("Users")
+        .doc(firebase.auth().currentUser.uid)
+        .get()
+        .then(doc => {
+          if (doc.data().isManager) {
+            this.isMng = true;
+          }
+        });
     }
   },
-   mounted() {     
-    $('.tooltipped').tooltip();
+  mounted() {
+    $(".tooltipped").tooltip();
     $(".dropdown-trigger").dropdown();
     //  if (!(/chrom(e|ium)/.test(navigator.userAgent.toLowerCase())) || /opr/.test(navigator.userAgent.toLowerCase())) {
-     if ((/trident/).test(navigator.userAgent.toLowerCase())){
-        $('body').html("<center>The application was designed for Google Chrome</center>");
-        alert("== Please use Chrome to open this page ==");
+    if (/trident/.test(navigator.userAgent.toLowerCase())) {
+      $("body").html(
+        "<center>The application was designed for Google Chrome</center>"
+      );
+      alert("== Please use Chrome to open this page ==");
     }
   },
   methods: {
@@ -81,7 +85,7 @@ export default {
         .auth()
         .signOut()
         .then(() => {
-           this.$router.go({ path: this.$router.path });
+          this.$router.go({ path: this.$router.path });
         });
     }
   }
@@ -89,18 +93,18 @@ export default {
 </script>
 <style>
 .router-link-exact-active {
-  background: #3eb0ae
+  background: #3eb0ae;
 }
-.tooltipped{
+.tooltipped {
   cursor: help;
 }
-.material-icons{
+.material-icons {
   cursor: pointer;
 }
-.fas{
+.fas {
   cursor: pointer;
 }
-.link:hover{
-  background-color: #8e8e8e 
+.link:hover {
+  background-color: #8e8e8e;
 }
 </style>

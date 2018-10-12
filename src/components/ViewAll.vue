@@ -4,7 +4,7 @@
         <h6 class="col m2 s12">Task name</h6>
         <h6 class="col m3 s12">Description</h6>   
         <h6 class="col m1 s12">Category</h6>     
-        <h6 class="col m2 s12">Attachments</h6>
+        <h6 class="col m1 s12">Attachments</h6>
         <h6 class="col m1 s12">Status</h6>
         <h6 class="col m1 s12">Deadline</h6>  
         <h6 class="col m1 s12 truncate">FTE</h6>      
@@ -15,11 +15,15 @@
         </h6>
     </div>
     <!-- view in progress -->
-    <div v-bind:class="[{'notActive':task.task_isActive},task.task_status.replace(' ','')]" v-for="task in tasks" v-bind:key="task.id" class="row">
+    <div 
+      v-bind:class="[{'notActive':tasks.task_isActive},task.task_status.replace(' ','')]" 
+      v-for="task in tasks" 
+      v-bind:key="task.id" 
+      class="row">
         <div class="col m2 s12"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
         <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>     
         <div class="col m1 s12 truncate"><i>{{task.task_projectCategory}}</i></div>
-        <div class="col m2 s12">
+        <div class="col m1 s12">
               <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
               <span id="Attachment_span" v-html="attach" >                
               </span>
@@ -55,10 +59,14 @@ import db from "./firebaseInit";
 import firebase from "firebase";
 
 export default {
-  name: "dashboard",
+  name: "viewAll",
+  props: {
+    // tasksAllview: Array,
+    isLoggedIn: Boolean
+  },
   data() {
     return {
-      isLoggedIn: false,
+      // isLoggedIn: false,
       hasDone: false,
       viewDone: null,
       tasks: [],
@@ -67,15 +75,18 @@ export default {
   },
   updated() {
     // $(".sidenav").sidenav();
-    $('.tooltipped').tooltip();
+    $(".tooltipped").tooltip();
   },
   created() {
-    if (firebase.auth().currentUser) {
-      this.isLoggedIn = true;
+    // if (firebase.auth().currentUser) {
+    // this.isLoggedIn = true;
+    if (this.isLoggedIn) {
       db
         .collection(firebase.auth().currentUser.uid)
-        .orderBy("t_isActive","desc")
-        .onSnapshot(querySnapshot => {
+        .orderBy("t_isActive", "desc")
+        //.onSnapshot(querySnapshot => {
+        .get()
+        .then(querySnapshot => {
           this.tasks = [];
           querySnapshot.forEach(doc => {
             const data = {
@@ -83,18 +94,18 @@ export default {
               task_name: doc.data().tName,
               task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
               task_deadline: doc.data().tDeadline,
-              task_FTE: doc.data().tFTE?doc.data().tFTE:"none",
+              task_FTE: doc.data().tFTE ? doc.data().tFTE : "none",
               task_status: doc.data().tStatus,
-              task_projectCategory:doc.data().tProjCateg,
-              task_project:doc.data().tProject,
-              task_attachement:doc.data().tAttach,
-              task_isActive:!doc.data().t_isActive
+              task_projectCategory: doc.data().tProjCateg,
+              task_project: doc.data().tProject,
+              task_attachement: doc.data().tAttach,
+              task_isActive: !doc.data().t_isActive
             };
             this.tasks.push(data);
           });
-        });      
+        });
     }
-  },  
+  },
   methods: {
     CloseTask(task) {
       db
@@ -102,7 +113,7 @@ export default {
         .doc(task.id)
         .set({ t_isActive: false }, { merge: true })
         .then(docRef => {
-            $(".material-tooltip").removeAttr("style")
+          $(".material-tooltip").removeAttr("style");
         })
         .catch(function(error) {
           console.log("Error getting documents: ", error);
@@ -113,8 +124,8 @@ export default {
 </script>
 
 <style scoped>
-h6{
-  font-weight: 500
+h6 {
+  font-weight: 500;
 }
 .Inprogress {
   /* background: #d6e9fd !important; */
@@ -123,17 +134,17 @@ h6{
 }
 .Onhold {
   /* background: #d6e9fd !important; */
-  border-left: solid 7px #FFC107;
+  border-left: solid 7px #ffc107;
   border-bottom: solid 1px lightgrey;
 }
 .Completed {
   opacity: 0.7;
   /* background: #cff1d0 !important; */
-   border-left: solid 7px #69c56c;
+  border-left: solid 7px #69c56c;
   border-bottom: solid 1px lightgrey;
 }
 
-.Canceled{
+.Canceled {
   border-left: solid 7px lightgrey;
   border-bottom: solid 1px lightgrey;
 }
@@ -148,7 +159,7 @@ h6{
 }
 .row {
   margin-bottom: 5px !important;
-  background-color: white !important
+  background-color: white !important;
 }
 .logTigle {
   color: teal;
@@ -168,8 +179,8 @@ h6{
 .fa-edit {
   color: #00bcd4;
 }
-.DelIcn{
-  color:#ea1010
+.DelIcn {
+  color: #ea1010;
 }
 .fas {
   opacity: 0.6;
@@ -177,19 +188,19 @@ h6{
 .fas:hover {
   opacity: 1;
 }
-.tskDetails{
+.tskDetails {
   display: block;
   overflow: hidden;
   word-break: break-word;
 }
-.myHeader{ 
- border-bottom: solid 2px black
+.myHeader {
+  border-bottom: solid 2px black;
 }
-.truncate{
-padding-bottom: 3px;
+.truncate {
+  padding-bottom: 3px;
 }
-.GraphContainer{
+.GraphContainer {
   margin-top: 30px;
-  padding:5px 
+  padding: 5px;
 }
 </style>

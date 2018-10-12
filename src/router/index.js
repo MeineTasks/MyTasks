@@ -8,7 +8,6 @@ import ViewGantt from "@/components/ViewGantt";
 import ViewUsers from "@/components/viewUsers";
 import ViewProjCat from "@/components/viewProjCat";
 
-
 import NewTask from "@/components/NewTask_Mng";
 import NewPrivateTask from "@/components/NewPrivateTask";
 
@@ -35,6 +34,7 @@ let router = new Router({
     },
     {
       path: "/view/all",
+      props: true,
       name: "viewall",
       component: ViewAll,
       meta: {
@@ -73,7 +73,7 @@ let router = new Router({
       meta: {
         requiresAuth: true
       }
-    },    
+    },
     {
       path: "/new",
       name: "new-task",
@@ -82,7 +82,7 @@ let router = new Router({
         requiresAuth: true,
         requiresMng: true
       }
-    }, 
+    },
     {
       path: "/AddNew",
       name: "new-privateTask",
@@ -137,7 +137,7 @@ let router = new Router({
 // Nav Guard
 router.beforeEach((to, from, next) => {
   //remove previous tooltips
-  $(".material-tooltip").remove()
+  $(".material-tooltip").remove();
   // console.log(to,from,next)
   // Check for requiresAuth guard #1
   if (to.matched.some(record => record.meta.requiresAuth)) {
