@@ -2,36 +2,75 @@
     <div id="dashboard" style="margin: 0px 25px;">
         <!-- filter -->
         <div class="row z-depth-2 filterContainer brown lighten-4">
-            <div class="col m6 s12">
-            Filter by status &#8594;
-                <span @click="SelectedStatus=opt,GetFire_ForTasks()" v-for="opt in StatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedStatus==opt}" class="mySingle chip">
+            <div class="col m6 s12 " >              
+              <span class="tooltipped" data-position="right" 
+                data-tooltip="Click for multiple selections">
+                Filter by status :</span>
+               <div id="listStat">
+                 <span 
+                  @click="MultiStatus(opt)"
+                  
+                  v-for="opt in StatusesList" 
+                  v-bind:key="opt.id" 
+                  v-bind:class="{'mySingleSelected':SelectedStatus.indexOf(opt)>-1}" class="mySingle chip">
                     {{opt}}
                   </span>
+               </div> 
+              
             </div>
+            <!-- Creator filter -->
             <div class="col m6 s12 right" style="text-align:right">
-                <span @click="SelectedManager=mng,GetFire_ForTasks()" v-for="mng in ManagersArray" v-bind:key="mng.id" v-bind:class="{'mySingleSelected':SelectedManager.OBJ.UID==mng.OBJ.UID}" class="mySingle chip">
-                    {{mng.OBJ.name}}
-                  </span>
-             &#8592; filter by creator 
+                <span>
+                    Filter by creator: 
+                </span>
+                <div id="listCreator">
+                  <span 
+                    @click="MultiCreator(mng)" 
+                    v-for="mng in FireManagersArray" 
+                    v-bind:key="mng.id" 
+                    v-bind:class="{'mySingleSelected':SelectedManager.indexOf(mng.OBJ.UID)>-1}" 
+                    class="mySingle chip">
+                      {{mng.OBJ.name}}
+                    </span>                
+                </div>
+             
             </div>
-               <!-- date filter -->
+            <!-- date filter -->
             <div class="col m6 s12">
-                Filter by Date &#8594;
+                <span>Filter by Date &#8594;</span>
                 <span v-if="!showDateFilter">
                           No date filter applied: 
-                          <a @click="showDateFilter=true" class="waves-effect waves-light btn-small">Add filter<i class="material-icons left">event</i></a>
+                          <a 
+                            @click="showDateFilter=true" 
+                            class="waves-effect waves-light btn-small"
+                          >Add filter<i class="material-icons left">event</i></a>
                         </span>
-                <span v-if="showDateFilter">
+                    <span v-if="showDateFilter">
                          From:  <input @change="datefilter_setEnd()" class="dateField" type="date" placeholder="start date" v-model="Datefilter_start">
                           - To: 
                           <input class="dateField" type="date" placeholder="end date" v-model="Datefilter_end" >
-                          <a @click="GetFire_ForTasks()" class="waves-effect waves-light btn-small">Add date filter</a>
-                          <a @click="showDateFilter=false,GetFire_ForTasks()" class="waves-effect waves-light btn-small  grey darken-1">Remove date filter<i class="material-icons left">event_busy</i></a>
+                          <a @click="ADDTasksIncat()" class="waves-effect waves-light btn-small">Add date filter</a>
+                          <a @click="showDateFilter=false,ADDTasksIncat()" class="waves-effect waves-light btn-small  grey darken-2">Remove date filter<i class="material-icons left">event_busy</i></a>
                 </span>
             </div>
+         
+              
         </div>
+           <!-- user filter -->
+            <div class="row z-depth-1">
+              <div class="col m12 s12" >              
+              <span class="tooltipped " data-position="right" data-tooltip="Click for multiple selections">Filter by users &#8594;</span>
+                <span
+                  @click="MultiUser(opt)" 
+                  v-for="opt in FireUsersArray" 
+                  v-bind:key="opt.id" 
+                  v-bind:class="{'mySingleSelected':SelectedUsers.indexOf(opt.OBJ.UID)>-1}" class="mySingle chip">
+                    {{opt.OBJ.name}}
+                  </span>
+            </div>
+         </div>
         <!-- user tasks -->
-        <div v-for="user in UsersAndArrays" v-bind:key="user.id" class="z-depth-1">
+        <div v-for="user in xFilteredUsersArr" v-bind:key="user.id" class="z-depth-1">
             <div v-if="user.OBJ.tasks.length>0" class="row valign-wrapper" style="border-bottom: #484545 solid 1px; ">
                 <!-- first coll -->
                 <div class="col m2">
@@ -59,7 +98,7 @@
                               </span>
                                 <div class="row" style="margin-left:0px">
                                     <div class="chip col">{{task.task_status}}</div>
-                                    <span class="col">{{task.task_deadline}}</span>
+                                    <span class="col">{{task.task_deadline_short}}</span>
                                     <br/>
                                     <div v-if="task.task_FTE!=undefined && task.task_FTE!=''" class="red-text col">{{task.task_FTE}} FTE</div>
                                 </div>
@@ -113,39 +152,127 @@ export default {
   name: "userview",
   data() {
     return {
-      //   users: fireList.OwnersList,      
+      //   users: fireList.OwnersList,
       showDateFilter: false,
-      Datefilter_start: moment().weekday(1).format("YYYY-MM-DD"),
-      Datefilter_end: moment().weekday(5).format("YYYY-MM-DD"),
+      Datefilter_start: moment()
+        .weekday(1)
+        .format("YYYY-MM-DD"),
+      Datefilter_end: moment()
+        .weekday(5)
+        .format("YYYY-MM-DD"),
       StatusesList: [
-        "All active",
         "In progress",
         "On hold",
         "Completed",
         "Canceled",
         "Not allocated"
       ],
-      UsersAndArrays: [],
-      ManagersArray: [],
-      isManager:false,
-      SelectedManager: localStorage.getItem("viewUser_CreatorFilterObj")?JSON.parse(localStorage.getItem("viewUser_CreatorFilterObj")):{ OBJ: { UID: "All", name: "All" } },
-      SelectedStatus: localStorage.getItem("viewUser_StatusFilterObj")?JSON.parse(localStorage.getItem("viewUser_StatusFilterObj")):"All active"
+      SelectedStatus: localStorage.getItem("viewUser_StatusesFilterObj")
+        ? JSON.parse(localStorage.getItem("viewUser_StatusesFilterObj"))
+        : ["In progress", "On hold", "Not allocated"],
+      FireUsersArray: [],
+      xFilteredUsersArr: [],
+      SelectedUsers: localStorage.getItem("viewUser_SelectedUsersFilterObj")
+        ? JSON.parse(localStorage.getItem("viewUser_SelectedUsersFilterObj"))
+        : [],
+      FireManagersArray: [],
+      isManager: false,
+      GotUsers: 0,
+      FireProjCatArray: [],
+      SelectedManager: localStorage.getItem("viewUser_CreatorsFilterObj")
+        ? JSON.parse(localStorage.getItem("viewUser_CreatorsFilterObj"))
+        : []
     };
   },
   updated() {
     // $(".sidenav").sidenav();
-    $('.tooltipped').tooltip();
+    $(".tooltipped").tooltip();
+  },
+  created() {
+    // this.ADDTasksIncat();
+    db
+      .collection("Users")
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(doc => {
+        this.isManager = doc.data().isManager;
+      });
   },
   mounted() {
     this.GetFire_users();
-      db.collection("Users")
-          .doc(firebase.auth().currentUser.uid)
-          .get()
-          .then(doc => {
-            this.isManager=doc.data().isManager
-          });
+    //   db.collection("Users")
+    //       .doc(firebase.auth().currentUser.uid)
+    //       .get()
+    //       .then(doc => {
+    //         this.isManager=doc.data().isManager
+    //       });
   },
   methods: {
+    MultiStatus(opt) {
+      var objVue = this;
+      var index = objVue.SelectedStatus.indexOf(opt);
+
+      if (objVue.SelectedStatus.length == objVue.StatusesList.length) {
+        objVue.SelectedStatus = [opt];
+      } else {
+        if (index == -1) {
+          objVue.SelectedStatus.push(opt);
+        } else {
+          objVue.SelectedStatus.splice(index, 1);
+        }
+        //select All
+        if (objVue.SelectedStatus.length == 0) {
+          objVue.StatusesList.forEach(itm => {
+            objVue.SelectedStatus.push(itm);
+          });
+        }
+      }
+      objVue.ADDTasksIncat();
+    },
+    MultiUser(opt) {
+      var objVue = this;
+      var index = objVue.SelectedUsers.indexOf(opt.OBJ.UID);
+
+      if (objVue.SelectedUsers.length == objVue.FireUsersArray.length) {
+        objVue.SelectedUsers = [opt.OBJ.UID];
+      } else {
+        if (index == -1) {
+          objVue.SelectedUsers.push(opt.OBJ.UID);
+        } else {
+          objVue.SelectedUsers.splice(index, 1);
+        }
+        //select All
+        if (objVue.SelectedUsers.length == 0) {
+          objVue.FireUsersArray.forEach(itm => {
+            objVue.SelectedUsers.push(itm.OBJ.UID);
+          });
+        }
+      }
+
+      objVue.ADDTasksIncat();
+    },
+    MultiCreator(opt) {
+      var objVue = this;
+      var index = objVue.SelectedManager.indexOf(opt.OBJ.UID);
+
+      if (objVue.SelectedManager.length == objVue.FireManagersArray.length) {
+        objVue.SelectedManager = [opt.OBJ.UID];
+      } else {
+        if (index == -1) {
+          objVue.SelectedManager.push(opt.OBJ.UID);
+        } else {
+          objVue.SelectedManager.splice(index, 1);
+        }
+        //select All
+        if (objVue.SelectedManager.length == 0) {
+          objVue.FireManagersArray.forEach(mng => {
+            objVue.SelectedManager.push(mng.OBJ.UID);
+          });
+        }
+      }
+
+      objVue.ADDTasksIncat();
+    },
     datefilter_setEnd() {
       this.Datefilter_end = moment(this.Datefilter_start, "YYYY-MM-DD")
         .weekday(5)
@@ -167,14 +294,14 @@ export default {
               }
             };
 
-            objVue.UsersAndArrays.push(data);
+            objVue.FireUsersArray.push(data);
           });
           function sortTasks(a, b) {
             if (a.OBJ.name < b.OBJ.name) return -1;
             if (a.OBJ.name > b.OBJ.name) return 1;
             return 0;
           }
-          objVue.UsersAndArrays.sort(sortTasks);
+          objVue.FireUsersArray.sort(sortTasks);
 
           objVue.GetFire_ForTasks();
         });
@@ -192,7 +319,7 @@ export default {
               }
             };
 
-            objVue.ManagersArray.push(data);
+            objVue.FireManagersArray.push(data);
           });
           function sortMNG(a, b) {
             if (b.OBJ.name == "All") return 1;
@@ -201,96 +328,175 @@ export default {
             return 0;
           }
 
-          objVue.ManagersArray.push({ OBJ: { UID: "All", name: "All" } });
+          // objVue.ManagersArray.push({ OBJ: { UID: "All", name: "All" } });
           //  objVue.ManagersArray.push({OBJ:{UID:"None",name:"None"}})
-          objVue.ManagersArray.sort(sortMNG);
+          objVue.FireManagersArray.sort(sortMNG);
 
           // objVue.GetFire_ForTasks("All active");
         });
     },
     GetFire_ForTasks() {
       var objVue = this;
-      // objVue.SelectedStatus = opt;
-      localStorage.setItem("viewUser_StatusFilterObj", JSON.stringify(objVue.SelectedStatus));  
-      localStorage.setItem("viewUser_CreatorFilterObj", JSON.stringify(objVue.SelectedManager));  
-      
 
-      objVue.UsersAndArrays.forEach(itm => {
+      //reset number of users
+      objVue.GotUsers = 0;
+
+      // populate user tasks
+      objVue.FireUsersArray.forEach(itm => {
         objVue.GetFire_userTasks(itm.OBJ);
       });
     },
     GetFire_userTasks(OBJ) {
+      // console.log("GetFire_user:" + OBJ.UID);
       var objVue = this;
+      // get tasks for each user
       db
         .collection(OBJ.UID)
         .where("t_isActive", "==", true)
         .onSnapshot(querySnapshot => {
-          // reset
-          OBJ.tasks = [];
+          console.log("onSnapshot");
+          objVue.AddTasksInFireUsrsArr(OBJ, querySnapshot);
+        });
+    },
+    AddTasksInFireUsrsArr(OBJ, querySnapshot) {
+      var objVue = this;
+      // reset
+      OBJ.tasks = [];
 
-          var queryString;
+      querySnapshot.forEach(doc => {
+        // if (eval(queryString)) {
+        const data = {
+          id: doc.id,
+          task_name: doc.data().tName,
+          task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
+          task_start: moment(doc.data().tStart, "YYYY-MM-DD"),
+          task_deadline: moment(doc.data().tDeadline, "YYYY-MM-DD"),
+          task_start_short: moment(doc.data().tStart, "YYYY-MM-DD").format(
+            "DD-MMM"
+          ),
+          task_deadline_short: moment(
+            doc.data().tDeadline,
+            "YYYY-MM-DD"
+          ).format("DD-MMM"),
+          task_FTE: doc.data().tFTE,
+          task_wkNo: moment(doc.data().tDeadline, "YYYY-MM-DD").week(),
+          task_project: doc.data().tProject,
+          task_ProjCat: doc.data().tProjCateg,
+          task_status: doc.data().tStatus,
+          task_owner: OBJ.UID,
+          task_owner_label: OBJ.name,
+          task_isPrivate: doc.data().isPrivate,
+          task_Createdby: doc.data().CreatedBy
+        };
+        OBJ.tasks.push(data);
+        // }
+      });
+      // call next function if task got for all users
+      objVue.GotUsers++;
+      if (
+        objVue.GotUsers >= objVue.FireUsersArray.length &&
+        objVue.GotUsers > 0
+      ) {
+        objVue.ADDTasksIncat();
+      }
+    },
+    // aici se poate filtra
+    ADDTasksIncat() {
+      var objVue = this;
+      //reset proj cat
+      objVue.FireProjCatArray.forEach(cat => {
+        cat.tasks = [];
+      });
+      // update local storage
+      localStorage.setItem(
+        "viewUser_StatusesFilterObj",
+        JSON.stringify(objVue.SelectedStatus)
+      );
+      localStorage.setItem(
+        "viewUser_CreatorsFilterObj",
+        JSON.stringify(objVue.SelectedManager)
+      );
+      localStorage.setItem(
+        "viewUser_SelectedUsersFilterObj",
+        JSON.stringify(objVue.SelectedUsers)
+      );
+      // filter displayed information
+
+      // setup filters
+      var queryString = "";
+      //status filter
+      if (objVue.SelectedStatus.length > 0) {
+        queryString = "(";
+        objVue.SelectedStatus.forEach(stat => {
+          queryString = queryString + "task.task_status == '" + stat + "' || ";
+        });
+        // remove last ||
+        queryString = queryString.substring(0, queryString.length - 4);
+        queryString = queryString + ") &&";
+      }
+
+      // remove private tasks
+      queryString =
+        queryString +
+        "(task.task_isPrivate == undefined || task.task_isPrivate == false)";
+
+      // created by filter
+      if (objVue.SelectedManager.length > 0) {
+        // queryString =  queryString +  " && task.task_Createdby=='" + objVue.SelectedManager.OBJ.UID + "'";
+        queryString = queryString + " && (";
+        objVue.SelectedManager.forEach(mng => {
           queryString =
-            objVue.SelectedStatus == undefined ||
-            objVue.SelectedStatus == "All active"
-              ? "(doc.data().tStatus == 'In progress' || doc.data().tStatus == 'On hold'|| doc.data().tStatus == 'Not allocated')"
-              : "(doc.data().tStatus == '" + objVue.SelectedStatus + "')";
+            queryString + "task.task_Createdby == '" + mng + "' || ";
+        });
+        // remove last ||
+        queryString = queryString.substring(0, queryString.length - 4);
+        queryString = queryString + ")";
+      }
 
-          queryString =
-            queryString +
-            " && (doc.data().isPrivate == undefined || doc.data().isPrivate == false)";
+      // date filter
+      if (objVue.showDateFilter) {
+        queryString = queryString + "&& ";
+        queryString =
+          queryString +
+          "(( moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(task.task_start,'YYYY-MM-DD')) && moment(task.task_start,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_start,'YYYY-MM-DD')) )";
+        queryString = queryString + "|| ";
+        queryString =
+          queryString +
+          "( moment(task.task_deadline,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_end,'YYYY-MM-DD')) && moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(task.task_deadline,'YYYY-MM-DD')) ))";
+      }
+      // console.log(queryString);
 
-          //   if (objVue.SelectedManager.OBJ.name=='None'){
-          //   queryString=queryString+" && doc.data().CreatedBy==undefined"
-          // }else
-          if (objVue.SelectedManager.OBJ.name != "All") {
-            queryString =
-              queryString +
-              " && doc.data().CreatedBy=='" +
-              objVue.SelectedManager.OBJ.UID +
-              "'";
-          }
-          // for date filter
-           if(objVue.showDateFilter){
-              
-              queryString = queryString + "&& "
-              queryString = queryString + "(( moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tStart,'YYYY-MM-DD')) && moment(doc.data().tStart,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_start,'YYYY-MM-DD')) )"
-              queryString =queryString + "|| "
-              queryString =queryString + "( moment(doc.data().tDeadline,'YYYY-MM-DD').isSameOrBefore(moment(objVue.Datefilter_end,'YYYY-MM-DD')) && moment(objVue.Datefilter_start,'YYYY-MM-DD').isSameOrBefore(moment(doc.data().tDeadline,'YYYY-MM-DD')) ))"
-            
+      // for all selected users allocate in categories
+      var indx = 0;
+      // reset
+      objVue.xFilteredUsersArr = [];
 
-          }
-          // console.log(queryString)
-          querySnapshot.forEach(doc => {
-            //custom filter
+      objVue.FireUsersArray.forEach(itm => {
+        if (objVue.SelectedUsers.indexOf(itm.OBJ.UID) > -1) {
+          objVue.xFilteredUsersArr.push({
+            OBJ: { UID: itm.OBJ.UID, name: itm.OBJ.name, tasks: [] }
+          });
 
+          itm.OBJ.tasks.forEach(task => {
+            // FILTER tasks ***********
             if (eval(queryString)) {
-              const data = {
-                id: doc.id,
-                task_name: doc.data().tName,
-                task_description: doc
-                  .data()
-                  .tDescription.replace(/\n/g, "<br/>"),
-                task_start: moment(doc.data().tStart, "YYYY-MM-DD").format(
-                  "DD-MMM"
-                ),
-                task_deadline: moment(
-                  doc.data().tDeadline,
-                  "YYYY-MM-DD"
-                ).format("DD-MMM"),
-                task_FTE: doc.data().tFTE,
-                task_wkNo: moment(doc.data().tDeadline, "YYYY-MM-DD").week(),
-                task_project: doc.data().tProject,
-                task_ProjCat: doc.data().tProjCateg,
-                task_status: doc.data().tStatus,
-                task_owner: OBJ.UID
-              };
-              //   objVue.tasks_test.push(data);
-              // objVue[TaskArray].push(data)
-              OBJ.tasks.push(data);
+              // allocate in array
+              objVue.xFilteredUsersArr[indx].OBJ.tasks.push(task);
             }
           });
-          // call next function
-        });
+          indx++;
+        }
+      });
+
+      //sort tasks
+      function sortMYTasks(a, b) {
+        if (a.task_project < b.task_project) return -1;
+        if (a.task_project > b.task_project) return 1;
+        return 0;
+      }
+      objVue.FireProjCatArray.forEach(itm => {
+        itm.tasks.sort(sortMYTasks);
+      });
     },
     CompleteTask(task) {
       if (!task.task_completed) {
@@ -301,8 +507,8 @@ export default {
             tStatus: "Completed",
             tClosedDate: moment().format("YYYY-MM-DD")
           })
-          .then(function(){
-            $(".material-tooltip").removeAttr("style")
+          .then(function() {
+            $(".material-tooltip").removeAttr("style");
           })
           .catch(function(error) {
             console.error("Error writing document CompleteTask: ", error);
@@ -317,8 +523,8 @@ export default {
           .update({
             tStatus: "Canceled"
           })
-           .then(function(){
-            $(".material-tooltip").removeAttr("style")
+          .then(function() {
+            $(".material-tooltip").removeAttr("style");
           })
           .catch(function(error) {
             console.error("Error writing document CompleteTask: ", error);
@@ -334,8 +540,8 @@ export default {
         .update({
           tStatus: newStatus
         })
-        .then(docRef => {          
-            $(".material-tooltip").removeAttr("style")
+        .then(docRef => {
+          $(".material-tooltip").removeAttr("style");
         })
         .catch(function(error) {
           console.error("Error writing document CompleteTask: ", error);
@@ -415,7 +621,7 @@ export default {
   color: #a5a5a5;
 }
 
- /*
+/*
 .tooltiptext {
   visibility: hidden;
   font-size: 20px;
@@ -474,7 +680,7 @@ export default {
   cursor: pointer;
 }
 .mySingleSelected {
-  background: teal;
+  background: #689aa7;
   color: white;
 }
 .filterContainer {
@@ -484,22 +690,22 @@ export default {
 .red-text {
   font-size: small !important;
 }
-.task-title{
-    overflow-wrap: break-word;
-    font-size: small;
-    height: 40px;
-    white-space: unset;
-    display: block;
-    overflow: hidden;
+.task-title {
+  overflow-wrap: break-word;
+  font-size: small;
+  height: 40px;
+  white-space: unset;
+  display: block;
+  overflow: hidden;
 }
 .dateField {
   width: 150px !important;
   height: auto !important;
-  border: 1px solid #c4c4c4!important;
-  border-radius: 5px!important;
-  background-color: #fff!important;
-  padding: 3px 5px!important;
-  box-shadow: inset 0 3px 6px rgba(0,0,0,0.1)!important;
+  border: 1px solid #c4c4c4 !important;
+  border-radius: 5px !important;
+  background-color: #fff !important;
+  padding: 3px 5px !important;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.1) !important;
 }
 </style>
 

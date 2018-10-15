@@ -187,12 +187,16 @@ export default {
       });
     }
   },
-  updated() {
-    // $(".sidenav").sidenav();
-    $(".tooltipped").tooltip();
-    // this.SetGraphic();
-  },
+  // updated() {
+  //   // $(".sidenav").sidenav();
+  //   console.log("updated");
+  //   $(".tooltipped").tooltip();
+  //   // this.SetGraphic();
+  // },
   created() {},
+  mounted() {
+    $(".tooltipped").tooltip();
+  },
   methods: {
     SetGraphic() {
       this.chartData = [];

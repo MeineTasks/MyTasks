@@ -188,62 +188,10 @@ export default {
       // tasks: []
     };
   },
-  updated() {
+  mounted() {
     $(".tooltipped").tooltip();
   },
-  // created() {
-  //   db
-  //     .collection(firebase.auth().currentUser.uid)
-  //     .where("t_isActive", "==", true)
-  //     // .orderBy("tDeadline", "asc")
-  //     //.where("tStatus", "==", "In progress")
-  //     .onSnapshot(querySnapshot => {
-  //       this.tasks = [];
-  //       function taskCalculated(Deadline) {
-  //         var aziEOD = new Date().setHours(24);
-  //         var aziSOD = new Date().setHours(0);
-  //         var Calculated = { tCategory: null, tDelayed: null };
-  //         // console.log(Deadline)
-  //         // console.log(new Date(Deadline))
-  //         if (Deadline == null || Deadline == "") {
-  //           Calculated.tCategory = "1";
-  //           Calculated.tDelayed = false;
-  //         } else if (new Date(Deadline) < new Date(aziSOD)) {
-  //           Calculated.tCategory = "2";
-  //           Calculated.tDelayed = true;
-  //         } else if (new Date(Deadline) < new Date(aziEOD)) {
-  //           Calculated.tCategory = "2";
-  //           Calculated.tDelayed = false;
-  //         } else {
-  //           Calculated.tCategory = "3";
-  //           Calculated.tDelayed = false;
-  //         }
-  //         return Calculated;
-  //       }
-  //       querySnapshot.forEach(doc => {
-  //         if (
-  //           doc.data().tStatus == "In progress" ||
-  //           doc.data().tStatus == "On hold"
-  //         ) {
-  //           var tskCalculated = taskCalculated(doc.data().tDeadline);
-  //           const data = {
-  //             id: doc.id,
-  //             task_name: doc.data().tName,
-  //             task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
-  //             task_deadline: doc.data().tDeadline,
-  //             task_FTE: doc.data().tFTE ? doc.data().tFTE : "none",
-  //             task_status: doc.data().tStatus,
-  //             task_attachement: doc.data().tAttach ? doc.data().tAttach : [],
-  //             task_completed: doc.data().tStatus == "Completed",
-  //             task_canceled: doc.data().tStatus == "Canceled",
-  //             task_Category: tskCalculated.tCategory,
-  //             task_Delayed: tskCalculated.tDelayed
-  //           };
-  //           this.tasks.push(data);
-  //         }
-  //       });
-  //     });
-  // },
+
   computed: {
     ViewCat1: function() {
       return this.tasksMyActive.filter(function(task) {
