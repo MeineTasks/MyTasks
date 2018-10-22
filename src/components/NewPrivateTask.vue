@@ -83,30 +83,33 @@ var moment = require("moment");
 export default {
   name: "new-task",
   data() {
-    return {      
+    return {
       showDetails: false,
-      detail_link:"",
-      detail_title:"",
-      task_attachement:[],
+      detail_link: "",
+      detail_title: "",
+      task_attachement: [],
 
       task_name: null,
       task_details: "",
-      task_start: moment().weekday(1).format("YYYY-MM-DD"),
-      task_deadline: moment().weekday(5).format("YYYY-MM-DD"),
+      task_start: moment()
+        .weekday(1)
+        .format("YYYY-MM-DD"),
+      task_deadline: moment()
+        .weekday(5)
+        .format("YYYY-MM-DD"),
       task_status: null,
-      
+
       Statuses: fireList.statusesList,
       nStatusesList: fireList.statusesList,
-      nSelectedStatus: "In progress",
-
+      nSelectedStatus: "In progress"
     };
-  },  
+  },
   methods: {
     SetDeadline() {
       this.task_deadline = moment(this.task_start, "YYYY-MM-DD")
         .weekday(5)
         .format("YYYY-MM-DD");
-    },   
+    },
     saveTask() {
       //validate end start times
       if (new Date($("#DeadLine").val()) < new Date($("#StartDate").val())) {
@@ -114,54 +117,54 @@ export default {
         $("#StartDate,#DeadLine").css("border", "solid red 1px");
         return false;
       }
-      
-      if(this.detail_link!=""){
+
+      if (this.detail_link != "") {
         M.toast({ html: "Attachment URL should be empty" });
         return false;
       }
 
-      db
-        .collection(firebase.auth().currentUser.uid)
+      db.collection(firebase.auth().currentUser.uid)
         .add({
           tName: this.task_name,
           tDescription: this.task_details, //(this.task_details) ? this.task_details : '',
           tStart: this.task_start,
           tDeadline: this.task_deadline,
           tProjCateg: "Personal",
-          
-          tStatus: this.nSelectedStatus, 
-          CreatedBy:firebase.auth().currentUser.uid,
+
+          tStatus: this.nSelectedStatus,
+          tAttach: this.task_attachement,
+          CreatedBy: firebase.auth().currentUser.uid,
           // tOwner:this.SelectedOwner,
-          CreatedDate:moment().format("YYYY-MM-DD"),
+          CreatedDate: moment().format("YYYY-MM-DD"),
           t_isActive: true,
-          isPrivate:true
+          isPrivate: true
         })
         .then(docRef => this.$router.push("/"))
         .catch(error => console.log(err));
     },
-    AddHyperlink(){
-      if (this.detail_link!=""){
-        var title=this.detail_title?this.detail_title:"Click here"
+    AddHyperlink() {
+      if (this.detail_link != "") {
+        var title = this.detail_title ? this.detail_title : "Click here";
         //add https
-        if (this.detail_link.indexOf("http")==-1){
-          this.detail_link="https://"+this.detail_link
+        if (this.detail_link.indexOf("http") == -1) {
+          this.detail_link = "https://" + this.detail_link;
         }
 
-        this.task_attachement.push("<a href='"+this.detail_link+"' target='_blank'>"+title+"</a>")
+        this.task_attachement.push(
+          "<a href='" + this.detail_link + "' target='_blank'>" + title + "</a>"
+        );
 
         // this.task_attachement=this.task_attachement+"\n\n"+"Attachement: <a href='"+this.detail_link+"' target='_blank'>"+title+"</a>"
-        this.detail_link=""
-        this.detail_title=""
-
-      }else{
+        this.detail_link = "";
+        this.detail_title = "";
+      } else {
         M.toast({ html: "URL field should not be empty" });
       }
     },
-    RemoveHyperlink(attch){
-      var index=this.task_attachement.indexOf(attch)
-        this.task_attachement.splice(index,1)
-    },
-
+    RemoveHyperlink(attch) {
+      var index = this.task_attachement.indexOf(attch);
+      this.task_attachement.splice(index, 1);
+    }
   }
 };
 </script>
