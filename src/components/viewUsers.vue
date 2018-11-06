@@ -71,7 +71,7 @@
          </div>
         <!-- user tasks -->
         <div v-for="user in xFilteredUsersArr" v-bind:key="user.id" class="z-depth-1">
-            <div v-if="user.OBJ.tasks.length>0" class="row valign-wrapper" style="border-bottom: #484545 solid 1px; ">
+            <div  class="row valign-wrapper" style="border-bottom: #484545 solid 1px; ">
                 <!-- first coll -->
                 <div class="col m2">
                     <span class="chip">
@@ -190,8 +190,7 @@ export default {
   },
   created() {
     // this.ADDTasksIncat();
-    db
-      .collection("Users")
+    db.collection("Users")
       .doc(firebase.auth().currentUser.uid)
       .get()
       .then(doc => {
@@ -280,8 +279,7 @@ export default {
     },
     GetFire_users() {
       var objVue = this;
-      db
-        .collection("Users")
+      db.collection("Users")
         .where("isOwner", "==", true)
         .get()
         .then(doc => {
@@ -306,8 +304,7 @@ export default {
           objVue.GetFire_ForTasks();
         });
       //set managers
-      db
-        .collection("Users")
+      db.collection("Users")
         .where("isManager", "==", true)
         .get()
         .then(doc => {
@@ -350,8 +347,7 @@ export default {
       // console.log("GetFire_user:" + OBJ.UID);
       var objVue = this;
       // get tasks for each user
-      db
-        .collection(OBJ.UID)
+      db.collection(OBJ.UID)
         .where("t_isActive", "==", true)
         .onSnapshot(querySnapshot => {
           console.log("onSnapshot");
@@ -500,8 +496,7 @@ export default {
     },
     CompleteTask(task) {
       if (!task.task_completed) {
-        db
-          .collection(task.task_owner)
+        db.collection(task.task_owner)
           .doc(task.id)
           .update({
             tStatus: "Completed",
@@ -517,8 +512,7 @@ export default {
     },
     CancelTask(task) {
       if (!task.task_completed) {
-        db
-          .collection(task.task_owner)
+        db.collection(task.task_owner)
           .doc(task.id)
           .update({
             tStatus: "Canceled"
@@ -534,8 +528,7 @@ export default {
     StartStop(task) {
       var newStatus =
         task.task_status == "In progress" ? "On hold" : "In progress";
-      db
-        .collection(task.task_owner)
+      db.collection(task.task_owner)
         .doc(task.id)
         .update({
           tStatus: newStatus
