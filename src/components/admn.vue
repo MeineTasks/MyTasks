@@ -15,13 +15,31 @@
         <hr>
         <H3>Mark older tasks as archived</H3>
         <button type="button" @click="DoArchive()" class="btn red">Archive tasks</button>
-        </div>    
+      </div>
+      <div class="row" v-if="forCip">
+        <hr>
+        <H3>Cip custom export</H3>
+        <div class="row">
+          <b>Step1:</b> <button type="button" @click="runCipF1" class="btn">Get data</button>
+        </div>
+        <div class="row" >        
+          <b>Step2:</b> <button type="button" @click="runCipF2" class="btn blue">Get file</button>
+          <div v-for="el in testArr" :key="el.id">
+            {{el.name}}
+            <div v-for="tsk in el.tasks" :key="tsk.id">
+              {{tsk.CreatedBy}}
+            </div>
+          </div>
+        </div> 
+      </div>
       </div>    
     </template>
       
     <script>
 import db from "./firebaseInit";
 import firebase from "firebase";
+import RTDB from "./firebaseInitRTDB";
+
 var moment = require("moment");
 
 export default {
@@ -31,7 +49,8 @@ export default {
       tasks: [],
       UsersAndArrays: [],
       GotUsers: 0,
-      forCip: false
+      forCip: true,
+      testArr: []
     };
   },
   methods: {
@@ -231,6 +250,112 @@ export default {
       // var objVue=this.tasks
 
       this.exportDB(this.tasks);
+    },
+
+    runCipF1() {
+      // this.Cip_GetFire_users();
+      this.GetRTDB_users();
+    },
+    Cip_GetFire_users() {
+      var objVue = this;
+      db.collection("Users")
+        //.where("Label", "==", "Cip Cir")
+        .where("Label", "==", "Stefania Domnisoru")
+        .get()
+        .then(doc => {
+          doc.forEach(LstItem => {
+            // console.log(LstItem.data());
+
+            var UID = LstItem.id;
+            var updates = {};
+
+            updates["/USERS/" + UID + "/"] = LstItem.data();
+            RTDB.ref().update(updates);
+
+            // read all tasks
+            db.collection(UID)
+              .get()
+              .then(docTask => {
+                docTask.forEach(tskItm => {
+                  var taskID = tskItm.id;
+                  var taskObj = {};
+                  taskObj[
+                    "/USERS/" + UID + "/TASKS/" + taskID + "/"
+                  ] = tskItm.data();
+                  RTDB.ref().update(taskObj);
+                });
+              });
+          });
+        });
+    },
+    GetRTDB_users() {
+      var objVue = this;
+      RTDB.ref("USERS")
+        // .orderByChild("isManager")
+        // .equalTo(true)
+        // .once("value")
+        .on("value", querySnapshot => {
+          objVue.testArr = querySnapshot.val();
+          console.log(querySnapshot.val());
+          // querySnapshot.forEach(snapshot => {
+          //   const data = {
+          //     id: snapshot.key,
+          //     isOwner: snapshot.val().isOwner,
+          //     name: snapshot.val().name
+          //   };
+          //   objVue.testArr.push(data);
+          //   // console.log(snapshot.val());
+          //   // console.log(snapshot.key);
+          // });
+        });
+      db.collection("UserTasks")
+        .get()
+        .then(doc => {
+          // console.log(doc)
+
+          doc.forEach(LstItem => {
+            debugger;
+            console.log(LstItem);
+          });
+        });
+    },
+
+    GetFire_Cip_users() {
+      var objVue = this;
+      db.collection("Users")
+        // .where("isManager","==",true)
+        .get()
+        .then(doc => {
+          doc.forEach(LstItem => {
+            const uid = LstItem.id;
+
+            const data = {
+              [uid]: {
+                name: LstItem.data().Label,
+                isOwner: LstItem.data().isOwner,
+                isManager: LstItem.data().isManager
+              }
+            };
+
+            objVue.UsersAndArrays.push(data);
+          });
+          function sortTasks(a, b) {
+            if (a.OBJ.name < b.OBJ.name) return -1;
+            if (a.OBJ.name > b.OBJ.name) return 1;
+            return 0;
+          }
+          // objVue.UsersAndArrays.sort(sortTasks);
+
+          // this.exportDB(this.UsersAndArrays)
+          objVue.GotUsers = objVue.UsersAndArrays.length;
+
+          // this.UsersAndArrays.forEach(user => {
+          //   objVue.getTasksForUsers(user.OBJ.UID);
+          // });
+        });
+    },
+    runCipF2() {
+      this.exportDB(this.UsersAndArrays);
     }
   }
 };
