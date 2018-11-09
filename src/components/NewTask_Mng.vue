@@ -116,10 +116,10 @@
 </template>
 
 <script>
-import db from "./firebaseInit";
 import fireList from "./fireLists";
 import firebase from "firebase";
-import ProjectViewVue from "./ProjectView.vue";
+
+import RTDB from "./firebaseInitRTDB";
 
 var moment = require("moment");
 
@@ -137,9 +137,9 @@ export default {
       showDates: true,
       showStatus: true,
 
-      detail_link:"",
-      detail_title:"",
-      task_attachement:[],
+      detail_link: "",
+      detail_title: "",
+      task_attachement: [],
 
       task_name: null,
       task_details: "",
@@ -172,7 +172,7 @@ export default {
   },
   methods: {
     updateDeadline() {
-      console.log('update')
+      console.log("update");
       this.task_deadline = moment(this.task_start, "YYYY-MM-DD")
         .weekday(5)
         .format("YYYY-MM-DD");
@@ -182,24 +182,24 @@ export default {
       var objVue = this;
       // console.log(objVue.SelectedOwner.Label)
       if (objVue.SelectedOwner.Label != null) {
-        db
-          .collection(objVue.SelectedOwner.UID)
-          .where("t_isActive", "==", true)
-          .where("tStatus", "==", "In progress")
-          .onSnapshot(querySnapshot => {
-            // reset
+        RTDB.ref("/USERS/" + objVue.SelectedOwner.UID + "/TASKS/")
+          .orderByChild("t_isActive")
+          .equalTo(true)
+          // .orderByChild("tStatus")
+          // .equalTo("In progress")
+          .once("value", querySnapshot => {
             objVue.userTaskArr = [];
-            querySnapshot.forEach(doc => {
-              //custom filter
-              const data = {
-                id: doc.id,
-                task_name: doc.data().tName,
-                task_FTE: doc.data().tFTE
-              };
-              //   objVue.tasks_test.push(data);
-              // objVue[TaskArray].push(data)
-              objVue.userTaskArr.push(data);
-            });
+            const queryOBJ = querySnapshot.val();
+            for (var prop in queryOBJ) {
+              if (queryOBJ[prop].tStatus == "In progress") {
+                const data = {
+                  id: prop,
+                  task_name: queryOBJ[prop].tName,
+                  task_FTE: queryOBJ[prop].tFTE
+                };
+                objVue.userTaskArr.push(data);
+              }
+            }
             // call next function
             var sum = 0;
             objVue.userFTE = null;
@@ -234,7 +234,7 @@ export default {
       } else {
         this.task_start = null;
         this.task_deadline = null;
-        this.task_fte="TBD"
+        this.task_fte = "TBD";
       }
 
       // Project category
@@ -269,14 +269,13 @@ export default {
         M.toast({ html: msg });
         return false;
       }
-      if(this.detail_link!=""){
+      if (this.detail_link != "") {
         M.toast({ html: "Attachment URL should be empty" });
         return false;
       }
       // return true;
-      db
-        .collection(this.SelectedOwner.UID)
-        .add({
+      RTDB.ref("/USERS/" + this.SelectedOwner.UID + "/TASKS/")
+        .push({
           tName: this.task_name,
           tDescription: this.task_details, //(this.task_details) ? this.task_details : '',
           tStart: this.task_start,
@@ -284,58 +283,60 @@ export default {
           tProject: this.SelectedProj,
           tProjCateg: this.SelectedProjCat,
           tStatus: this.SelectedStatus,
-          tFTE: this.task_fte?this.task_fte:"TBD",
+          tFTE: this.task_fte ? this.task_fte : "TBD",
           tOwner: this.SelectedOwner,
-          tAttach:this.task_attachement,
+          tAttach: this.task_attachement,
           t_isActive: true,
           isPrivate: this.SelectedProjCat == "Personal" ? true : false,
-          CreatedBy:firebase.auth().currentUser.uid,
-          CreatedDate:moment().format("YYYY-MM-DD")
+          CreatedBy: firebase.auth().currentUser.uid,
+          CreatedDate: moment().format("YYYY-MM-DD")
         })
-        .then(docRef => this.$router.push({name:this.$route.query.mnext}))
+        .then(docRef => {
+          RTDB.ref("/LISTS/").off();
+          this.$router.push({ name: this.$route.query.mnext });
+        })
         .catch(error => console.log(err));
     },
-      AddHyperlink(){
-      if (this.detail_link!=""){
-        var title=this.detail_title?this.detail_title:"Click here"
+    AddHyperlink() {
+      if (this.detail_link != "") {
+        var title = this.detail_title ? this.detail_title : "Click here";
         //add https
-        if (this.detail_link.indexOf("http")==-1){
-          this.detail_link="https://"+this.detail_link
+        if (this.detail_link.indexOf("http") == -1) {
+          this.detail_link = "https://" + this.detail_link;
         }
 
-        this.task_attachement.push("<a href='"+this.detail_link+"' target='_blank'>"+title+"</a>")
+        this.task_attachement.push(
+          "<a href='" + this.detail_link + "' target='_blank'>" + title + "</a>"
+        );
 
         // this.task_attachement=this.task_attachement+"\n\n"+"Attachement: <a href='"+this.detail_link+"' target='_blank'>"+title+"</a>"
-        this.detail_link=""
-        this.detail_title=""
-
-      }else{
+        this.detail_link = "";
+        this.detail_title = "";
+      } else {
         M.toast({ html: "URL field should not be empty" });
       }
     },
-    RemoveHyperlink(attch){
-      var index=this.task_attachement.indexOf(attch)
-        this.task_attachement.splice(index,1)
+    RemoveHyperlink(attch) {
+      var index = this.task_attachement.indexOf(attch);
+      this.task_attachement.splice(index, 1);
     },
     addProjCategory() {
       var vueObj = this;
-      db
-        .collection("DropDowns/InnoPipeline/Projects")
-        .doc(vueObj.AddNewProjCat)
-        .set({
-          Projects: []
-        })
+      RTDB.ref("/LISTS/Projects/")
+        .update({ [vueObj.AddNewProjCat]: { 0: "" } })
         .then(function() {
           vueObj.showNewProjCat = false;
+        })
+        .catch(err => {
+          console.log(err);
         });
     },
     DelProjCategory(opt) {
       var vueObj = this;
+
       if (vueObj.AddNewProjCat != null) {
-        db
-          .collection("DropDowns/InnoPipeline/Projects")
-          .doc(vueObj.AddNewProjCat)
-          .delete()
+        RTDB.ref("/LISTS/Projects/" + vueObj.AddNewProjCat + "/")
+          .remove()
           .then(function() {
             vueObj.AddNewProjCat = null;
             vueObj.showNewProjCat = false;
@@ -375,7 +376,7 @@ export default {
         // vueObj.task_start=null
         // vueObj.task_deadline=null
         vueObj.showStatus = false;
-        vueObj.SelectedProj="Backlog"
+        vueObj.SelectedProj = "Backlog";
         vueObj.SelectedStatus = "Not allocated";
         vueObj.task_fte = null;
         vueObj.showDates = false;
@@ -408,20 +409,18 @@ export default {
         });
       }
       if (getProjects) {
-        db
-          .collection(
-            "DropDowns/InnoPipeline/Projects/" +
-              vueObj.SelectedProjCat +
-              "/Proj"
-          )
-          .onSnapshot(querySnapshot => {
+        RTDB.ref("/LISTS/Projects/" + vueObj.SelectedProjCat + "/").on(
+          "value",
+          querySnapshot => {
             vueObj.ProjectsList = [];
-
             querySnapshot.forEach(doc => {
-              vueObj.ProjectsList.push(doc.id);
+              if (doc.val() != "") {
+                vueObj.ProjectsList.push(doc.val());
+              }
             });
             vueObj.showProject = true;
-          });
+          }
+        );
       } else {
         vueObj.showProject = false;
       }
@@ -446,42 +445,59 @@ export default {
     },
     addProj() {
       var vueObj = this;
-      db
-        .collection(
-          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
-        )
-        .doc(vueObj.AddNewProj)
-        .set({
-          Projects: null
-        })
+      RTDB.ref("/LISTS/Projects/" + vueObj.SelectedProjCat + "/")
+        .push(vueObj.AddNewProj)
         .then(function() {
           vueObj.showNewProj = false;
+        })
+        .catch(err => {
+          console.log(err);
         });
     },
     DelProj() {
       var vueObj = this;
-      db
-        .collection(
-          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
-        )
-        .doc(vueObj.AddNewProj)
-        .delete()
-        .then(function() {
-          vueObj.showNewProj = false;
-        });
+      var TasksArr;
+      RTDB.ref("/LISTS/Projects/" + vueObj.SelectedProjCat + "/").once(
+        "value",
+        querySnapshot => {
+          TasksArr = querySnapshot.val();
+          // remove proj from db obj
+          delete TasksArr[
+            Object.keys(TasksArr).find(
+              key => TasksArr[key] === vueObj.AddNewProj
+            )
+          ];
+          //make the update
+          RTDB.ref("/LISTS/Projects/" + vueObj.SelectedProjCat + "/")
+            .set(TasksArr)
+            .then(ceva => {
+              vueObj.showNewProj = false;
+              console.log("done");
+            });
+        }
+      );
     }
   },
   mounted() {
     var objVue = this;
-    db
-      .collection("DropDowns/InnoPipeline/Projects")
-      .onSnapshot(querySnapshot => {
-        objVue.ProjectsCat = [];
-        querySnapshot.forEach(doc => {
-          objVue.ProjectsCat.push(doc.id);
-        });
-        objVue.ProjectsCat.sort();
-      });
+    RTDB.ref("/LISTS/Projects/").on("value", querySnapshot => {
+      objVue.ProjectsCat = [];
+      const queryOBJ = querySnapshot.val();
+      for (var prop in queryOBJ) {
+        objVue.ProjectsCat.push(prop);
+      }
+      objVue.ProjectsCat.sort();
+    });
+
+    // db.collection("DropDowns/InnoPipeline/Projects").onSnapshot(
+    //   querySnapshot => {
+    //     objVue.ProjectsCat = [];
+    //     querySnapshot.forEach(doc => {
+    //       objVue.ProjectsCat.push(doc.id);
+    //     });
+    //     objVue.ProjectsCat.sort();
+    //   }
+    // );
   }
 };
 </script>

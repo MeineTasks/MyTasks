@@ -4,4 +4,5 @@ import firebaseConfig from "./firebaseConfig";
 
 // const firebaseApp = firebase.initializeApp(firebaseConfig);
 //firebase.database(); //.settings({timestampsInSnapshots: true})
-export default firebase.database();
+const firebaseApp = firebase.initializeApp(firebaseConfig);
+export default firebaseApp.database();

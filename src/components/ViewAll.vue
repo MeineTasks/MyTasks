@@ -55,8 +55,8 @@
 </template>
 
 <script>
-import db from "./firebaseInit";
 import firebase from "firebase";
+import RTDB from "./firebaseInitRTDB";
 
 export default {
   name: "viewAll",
@@ -81,43 +81,40 @@ export default {
     // if (firebase.auth().currentUser) {
     // this.isLoggedIn = true;
     if (this.isLoggedIn) {
-      db
-        .collection(firebase.auth().currentUser.uid)
-        .orderBy("t_isActive", "desc")
-        //.onSnapshot(querySnapshot => {
-        .get()
-        .then(querySnapshot => {
-          this.tasks = [];
-          querySnapshot.forEach(doc => {
+      var vueObj = this;
+      RTDB.ref("/USERS/" + firebase.auth().currentUser.uid + "/TASKS/").on(
+        "value",
+        querySnapshot => {
+          vueObj.tasks = [];
+          const queryOBJ = querySnapshot.val();
+
+          function sortTasks(a, b) {
+            if (a.task_isActive < b.task_isActive) return -1;
+            if (a.task_isActive > b.task_isActive) return 1;
+            return 0;
+          }
+
+          for (var prop in queryOBJ) {
             const data = {
-              id: doc.id,
-              task_name: doc.data().tName,
-              task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
-              task_deadline: doc.data().tDeadline,
-              task_FTE: doc.data().tFTE ? doc.data().tFTE : "none",
-              task_status: doc.data().tStatus,
-              task_projectCategory: doc.data().tProjCateg,
-              task_project: doc.data().tProject,
-              task_attachement: doc.data().tAttach,
-              task_isActive: !doc.data().t_isActive
+              id: prop,
+              task_name: queryOBJ[prop].tName,
+              task_description: queryOBJ[prop].tDescription.replace(
+                /\n/g,
+                "<br/>"
+              ),
+              task_deadline: queryOBJ[prop].tDeadline,
+              task_FTE: queryOBJ[prop].tFTE ? queryOBJ[prop].tFTE : "none",
+              task_status: queryOBJ[prop].tStatus,
+              task_projectCategory: queryOBJ[prop].tProjCateg,
+              task_project: queryOBJ[prop].tProject,
+              task_attachement: queryOBJ[prop].tAttach,
+              task_isActive: !queryOBJ[prop].t_isActive
             };
-            this.tasks.push(data);
-          });
-        });
-    }
-  },
-  methods: {
-    CloseTask(task) {
-      db
-        .collection(firebase.auth().currentUser.uid)
-        .doc(task.id)
-        .set({ t_isActive: false }, { merge: true })
-        .then(docRef => {
-          $(".material-tooltip").removeAttr("style");
-        })
-        .catch(function(error) {
-          console.log("Error getting documents: ", error);
-        });
+            vueObj.tasks.push(data);
+          }
+          vueObj.tasks.sort(sortTasks);
+        }
+      );
     }
   }
 };

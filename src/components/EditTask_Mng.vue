@@ -176,8 +176,10 @@
 
 <script>
 import firebase from "firebase";
-import db from "./firebaseInit";
+// import db from "./firebaseInit";
 import fireList from "./fireLists";
+import RTDB from "./firebaseInitRTDB";
+
 var moment = require("moment");
 
 export default {
@@ -190,11 +192,11 @@ export default {
       showProject: true,
       showNewProj: false,
       showNewProjCat: false,
-      showUsers:false,
+      showUsers: false,
 
-      detail_link:"",
-      detail_title:"",
-      task_attachement:[],
+      detail_link: "",
+      detail_title: "",
+      task_attachement: [],
 
       task_name: null,
       task_details: "",
@@ -204,11 +206,11 @@ export default {
       task_project: null,
       task_env: null,
       task_isActive: null,
-      task_createdBy:null,
+      task_createdBy: null,
       Statuses: fireList.statusesList,
 
-      ManagersArray:[],
-      SelectedManager:null,
+      ManagersArray: [],
+      SelectedManager: null,
 
       ProjectsCat: [],
       AddNewProjCat: null,
@@ -232,20 +234,11 @@ export default {
         .weekday(5)
         .format("YYYY-MM-DD");
     },
-    moveTask(){
-      var objVue = this;
-
-      db
-        .collection(this.$route.query.uid)
-        .doc(this.$route.params.task_id)
-
-    },
     updateTask(Action) {
-      var CloneT= Action=='Clone';
-      
+      var CloneT = Action == "Clone";
 
-      var vueObj=this
-      var original
+      var vueObj = this;
+      var original;
       //validate end start times
       if (new Date($("#DeadLine").val()) < new Date($("#StartDate").val())) {
         M.toast({ html: `Start date should be sooner than Deadline` });
@@ -257,7 +250,7 @@ export default {
       var msg = "Please select ";
       var delimit;
 
-        //project
+      //project
       if (
         this.SelectedProj == null &&
         !(
@@ -273,7 +266,7 @@ export default {
           message.push("Owner");
         }
       }
-         //validate mandatory fields
+      //validate mandatory fields
       // console.log(message);
       if (message.length > 0) {
         message.forEach(function(i, x) {
@@ -284,337 +277,437 @@ export default {
         M.toast({ html: msg });
         return false;
       }
-      
-      if (CloneT){
-        vueObj.nSelectedStatus="Completed"
-      }
-      
-      if (vueObj.SelectedOwner.UID!= vueObj.initialOwner.UID) {
-        // move existing task
-        console.log("reasignare")
-          db
-          .collection(vueObj.$route.query.uid)
-          .doc(vueObj.$route.params.task_id)
-          .get()
-          .then(doc => {
-            // save on new user
-            db
-            .collection(vueObj.SelectedOwner.UID)
-            .doc(vueObj.$route.params.task_id)
-            .set(doc.data())
-            .then( updt =>{
-              // update new task
-                db
-                .collection(vueObj.SelectedOwner.UID)
-                .doc(vueObj.$route.params.task_id)
-                .update({
-                    tName: vueObj.task_name,
-                    tDescription: vueObj.task_details,
-                    tStart: vueObj.task_start,
-                    tDeadline: vueObj.task_deadline,
-                    tFTE: vueObj.task_FTE?vueObj.task_FTE:"TBD",
-                    tProject: vueObj.SelectedProj,
-                    tProjCateg: vueObj.SelectedProjCat,
-                    tStatus: vueObj.nSelectedStatus,
-                    tAttach:vueObj.task_attachement,
-                    tClosedDate: vueObj.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",
-                    tOwner:vueObj.SelectedOwner,
-                    // tEnvironment:vueObj.task_env?vueObj.task_env:"",
-                    ModifiedBy:firebase.auth().currentUser.uid,
-                    ModifiedDate:moment().format("YYYY-MM-DD HH:MM"),                    
-                    t_isActive: vueObj.task_isActive == "No"
-                })
-                .then( final=>{
-                    db
-                    .collection(vueObj.$route.query.uid)
-                    .doc(vueObj.$route.params.task_id)
-                    .delete()
-                    .then( navig=>{      
-                      if (!CloneT){
-                        vueObj.$router.push({name:vueObj.$route.query.mnext})
-                        console.log("task removed from old user")
-                      }
-                    })
 
+      if (CloneT) {
+        vueObj.nSelectedStatus = "Completed";
+      }
+
+      if (vueObj.SelectedOwner.UID != vueObj.initialOwner.UID) {
+        // move existing task
+        console.log("reasignare");
+        RTDB.ref(
+          "/USERS/" +
+            vueObj.$route.query.uid +
+            "/TASKS/" +
+            vueObj.$route.params.task_id +
+            "/"
+        ).once("value", querySnapshot => {
+          // save on new user
+          RTDB.ref(
+            "/USERS/" +
+              vueObj.SelectedOwner.UID +
+              "/TASKS/" +
+              vueObj.$route.params.task_id +
+              "/"
+          )
+            .set(querySnapshot.val())
+            .then(updt => {
+              // update new task
+              RTDB.ref(
+                "/USERS/" +
+                  vueObj.SelectedOwner.UID +
+                  "/TASKS/" +
+                  vueObj.$route.params.task_id +
+                  "/"
+              )
+                .update({
+                  tName: vueObj.task_name,
+                  tDescription: vueObj.task_details,
+                  tStart: vueObj.task_start,
+                  tDeadline: vueObj.task_deadline,
+                  tFTE: vueObj.task_FTE ? vueObj.task_FTE : "TBD",
+                  tProject: vueObj.SelectedProj,
+                  tProjCateg: vueObj.SelectedProjCat,
+                  tStatus: vueObj.nSelectedStatus,
+                  tAttach: vueObj.task_attachement,
+                  tClosedDate:
+                    vueObj.nSelectedStatus == "Completed"
+                      ? moment().format("YYYY-MM-DD")
+                      : "",
+                  tOwner: vueObj.SelectedOwner,
+                  // tEnvironment:vueObj.task_env?vueObj.task_env:"",
+                  ModifiedBy: firebase.auth().currentUser.uid,
+                  ModifiedDate: moment().format("YYYY-MM-DD HH:MM"),
+                  t_isActive: vueObj.task_isActive == "No"
                 })
-                 .catch(function(error) {
+                .then(final => {
+                  RTDB.ref(
+                    "/USERS/" +
+                      vueObj.$route.query.uid +
+                      "/TASKS/" +
+                      vueObj.$route.params.task_id +
+                      "/"
+                  )
+                    .remove()
+                    // db.colldection(vueObj.$route.query.uid)
+                    //   .doc(vueObj.$route.params.task_id)
+                    //   .delete()
+                    .then(navig => {
+                      if (!CloneT) {
+                        vueObj.$router.push({
+                          name: vueObj.$route.query.mnext
+                        });
+                        console.log("task removed from old user");
+                      }
+                    });
+                })
+                .catch(function(error) {
                   console.error("Error writing document: ", error);
                 });
-                // console.log("done")
+            });
+        });
 
-            }
-
-            )
-            
-          })
-       
-        
-      }else{
+        // db.collectdion(vueObj.$route.query.uid)
+        //   .doc(vueObj.$route.params.task_id)
+        //   .get()
+        //   .then(doc => {
+        //     // save on new user
+        //     db.colldection(vueObj.SelectedOwner.UID)
+        //       .doc(vueObj.$route.params.task_id)
+        //       .set(doc.data())
+        //       .then(updt => {
+        //         // update new task
+        //         db.colledction(vueObj.SelectedOwner.UID)
+        //           .doc(vueObj.$route.params.task_id)
+        //           .update({
+        //             tName: vueObj.task_name,
+        //             tDescription: vueObj.task_details,
+        //             tStart: vueObj.task_start,
+        //             tDeadline: vueObj.task_deadline,
+        //             tFTE: vueObj.task_FTE ? vueObj.task_FTE : "TBD",
+        //             tProject: vueObj.SelectedProj,
+        //             tProjCateg: vueObj.SelectedProjCat,
+        //             tStatus: vueObj.nSelectedStatus,
+        //             tAttach: vueObj.task_attachement,
+        //             tClosedDate:
+        //               vueObj.nSelectedStatus == "Completed"
+        //                 ? moment().format("YYYY-MM-DD")
+        //                 : "",
+        //             tOwner: vueObj.SelectedOwner,
+        //             // tEnvironment:vueObj.task_env?vueObj.task_env:"",
+        //             ModifiedBy: firebase.auth().currentUser.uid,
+        //             ModifiedDate: moment().format("YYYY-MM-DD HH:MM"),
+        //             t_isActive: vueObj.task_isActive == "No"
+        //           })
+        //           .then(final => {
+        //             db.collectdion(vueObj.$route.query.uid)
+        //               .doc(vueObj.$route.params.task_id)
+        //               .delete()
+        //               .then(navig => {
+        //                 if (!CloneT) {
+        //                   vueObj.$router.push({
+        //                     name: vueObj.$route.query.mnext
+        //                   });
+        //                   console.log("task removed from old user");
+        //                 }
+        //               });
+        //           })
+        //           .catch(function(error) {
+        //             console.error("Error writing document: ", error);
+        //           });
+        //         // console.log("done")
+        //       });
+        //   });
+      } else {
         // save the update
-        db
-          .collection(this.$route.query.uid)
-          .doc(this.$route.params.task_id)
+        RTDB.ref(
+          "/USERS/" +
+            this.$route.query.uid +
+            "/TASKS/" +
+            this.$route.params.task_id +
+            "/"
+        )
           .update({
             tName: this.task_name,
             tDescription: this.task_details,
             tStart: this.task_start,
             tDeadline: this.task_deadline,
-            tFTE: this.task_FTE?this.task_FTE:"TBD",
+            tFTE: this.task_FTE ? this.task_FTE : "TBD",
             tProject: this.SelectedProj,
             tProjCateg: this.SelectedProjCat,
             tStatus: this.nSelectedStatus,
-            tClosedDate: this.nSelectedStatus=="Completed" ? moment().format("YYYY-MM-DD"):"",  tAttach:this.task_attachement,
+            tClosedDate:
+              this.nSelectedStatus == "Completed"
+                ? moment().format("YYYY-MM-DD")
+                : "",
+            tAttach: this.task_attachement,
             // tOwner:this.SelectedOwner,
-            // tEnvironment:this.task_env?this.task_env:"",
-            CreatedBy:this.SelectedManager.OBJ.UID,
-            ModifiedBy:firebase.auth().currentUser.uid,
-            ModifiedDate:moment().format("YYYY-MM-DD"),
+
+            CreatedBy: this.SelectedManager.OBJ.UID,
+            ModifiedBy: firebase.auth().currentUser.uid,
+            ModifiedDate: moment().format("YYYY-MM-DD"),
             t_isActive: this.task_isActive == "No"
           })
-         // .set({tAttach:JSON.stringify(vueObj.task_attachement)},{ merge: true })
-          .then(docRef => {       
+          .then(docRef => {
             // console.log("task update done")
-            if (!CloneT){
-              vueObj.$router.push({name:vueObj.$route.query.mnext})
+            if (!CloneT) {
+              vueObj.$router.push({ name: vueObj.$route.query.mnext });
             }
           })
           .catch(function(error) {
             console.error("Error writing document: ", error);
           });
-      }  
-      if (CloneT){
-        vueObj.CloneTask()
       }
-    
+      if (CloneT) {
+        vueObj.CloneTask();
+      }
     },
     addProjCategory() {
       var vueObj = this;
-      db
-        .collection("DropDowns/InnoPipeline/Projects")
-        .doc(vueObj.AddNewProjCat)
-        .set({
-          Projects: []
-        })
+      RTDB.ref("/LISTS/Projects/")
+        .update({ [vueObj.AddNewProjCat]: { 0: "" } })
         .then(function() {
           vueObj.showNewProjCat = false;
+        })
+        .catch(err => {
+          console.log(err);
         });
+      // db
+      //   .colledction("DropDowns/InnoPipeline/Projects")
+      //   .doc(vueObj.AddNewProjCat)
+      //   .set({
+      //     Projects: []
+      //   })
+      //   .then(function() {
+      //     vueObj.showNewProjCat = false;
+      //   });
     },
     DelProjCategory(opt) {
       var vueObj = this;
       if (vueObj.AddNewProjCat != null) {
-        db
-          .collection("DropDowns/InnoPipeline/Projects")
-          .doc(vueObj.AddNewProjCat)
-          .delete()
+        RTDB.ref("/LISTS/Projects/" + vueObj.AddNewProjCat + "/")
+          .remove()
           .then(function() {
             vueObj.AddNewProjCat = null;
             vueObj.showNewProjCat = false;
           });
+        // db
+        //   .collectdion("DropDowns/InnoPipeline/Projects")
+        //   .doc(vueObj.AddNewProjCat)
+        //   .delete()
+        //   .then(function() {
+        //     vueObj.AddNewProjCat = null;
+        //     vueObj.showNewProjCat = false;
+        //   });
       } else {
         vueObj.showNewProjCat = false;
       }
     },
-    DeleteTask(){
+    DeleteTask() {
       var vueObj = this;
-      if (window.confirm("This task will be permanently deleted, are you sure?")){
-          db
-            .collection(this.$route.query.uid)
-            .doc(this.$route.params.task_id)
-            .delete()
-            .then(function() {
-                // vueObj.$router.push("/view/projcat");
-                vueObj.$router.push({name:vueObj.$route.query.mnext})
-            });
+      if (
+        window.confirm("This task will be permanently deleted, are you sure?")
+      ) {
+        RTDB.ref(
+          "/USERS/" +
+            this.$route.query.uid +
+            "/TASKS/" +
+            this.$route.params.task_id
+        )
+          .remove()
+          .then(function() {
+            // vueObj.$router.push("/view/projcat");
+            vueObj.$router.push({ name: vueObj.$route.query.mnext });
+          });
       }
     },
-    CloneTask(){
-        var vueObj = this;
-
-        // create clone
-         db
-          // .collection(vueObj.$route.query.uid)
-          .collection(vueObj.SelectedOwner.UID)
-          .doc(vueObj.$route.params.task_id)
-          .get()
-          .then(doc => {
-            //extend timings with one week
-            var TaskObj=doc.data()
-            TaskObj.tStart=moment(TaskObj.tDeadline,"YYYY-MM-DD HH:MM").weekday(8).format("YYYY-MM-DD")
-            TaskObj.tDeadline=moment(TaskObj.tDeadline,"YYYY-MM-DD HH:MM").weekday(12).format("YYYY-MM-DD")
-            TaskObj.tStatus='In progress'
-            
-
-            // add new task on same user
-            
-            db
-            .collection(vueObj.$route.query.uid)
-            .add(TaskObj)
-            .then( updt =>{
-              vueObj.nSelectedStatus='Completed'
-              M.toast({ html: 'Clone succesfully created !' });
-              vueObj.$router.push({name:vueObj.$route.query.mnext})
-             })
-            .catch(function(error) {
-              console.error("Error writing document: ", error);
-            });
-            
+    CloneTask() {
+      var vueObj = this;
+      // create clone
+      RTDB.ref(
+        "/USERS/" +
+          vueObj.SelectedOwner.UID +
+          "/TASKS/" +
+          vueObj.$route.params.task_id +
+          "/"
+      ).once("value", querySnapshot => {
+        //extend timings with one week
+        var TaskObj = querySnapshot.val();
+        TaskObj.tStart = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
+          .weekday(8)
+          .format("YYYY-MM-DD");
+        TaskObj.tDeadline = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
+          .weekday(12)
+          .format("YYYY-MM-DD");
+        TaskObj.tStatus = "In progress";
+        // add new task on same user
+        RTDB.ref("/USERS/" + vueObj.$route.query.uid + "/TASKS/")
+          .push(TaskObj)
+          .then(updt => {
+            vueObj.nSelectedStatus = "Completed";
+            M.toast({ html: "Clone succesfully created !" });
+            vueObj.$router.push({ name: vueObj.$route.query.mnext });
           })
-
-
-
-
-
+          .catch(function(error) {
+            console.error("Error writing document: ", error);
+          });
+      });
     },
     getProjects(remProj) {
       var vueObj = this;
-      if (vueObj.SelectedProjCat!='xBacklog' && remProj){
-        vueObj.SelectedProj=null
+      if (vueObj.SelectedProjCat != "xBacklog" && remProj) {
+        vueObj.SelectedProj = null;
       }
-
-      db
-        .collection(
-          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
-        )
-        .onSnapshot(querySnapshot => {
+      RTDB.ref("/LISTS/Projects/" + vueObj.SelectedProjCat + "/").on(
+        "value",
+        querySnapshot => {
           vueObj.ProjectsList = [];
-
           querySnapshot.forEach(doc => {
-            vueObj.ProjectsList.push(doc.id);
+            if (doc.val() != "") {
+              vueObj.ProjectsList.push(doc.val());
+            }
           });
           vueObj.showProject = true;
-        });
+        }
+      );
     },
     addProj() {
       var vueObj = this;
-      db
-        .collection(
-          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
-        )
-        .doc(vueObj.AddNewProj)
-        .set({
-          Projects: null
-        })
+      RTDB.ref("/LISTS/Projects/" + vueObj.SelectedProjCat + "/")
+        .push(vueObj.AddNewProj)
         .then(function() {
           vueObj.showNewProj = false;
+        })
+        .catch(err => {
+          console.log(err);
         });
     },
     DelProj() {
       var vueObj = this;
-      db
-        .collection(
-          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
-        )
-        .doc(vueObj.AddNewProj)
-        .delete()
-        .then(function() {
-          vueObj.showNewProj = false;
-        });
-    },
-    AddHyperlink(){
-      if (this.detail_link!=""){
-        var title=this.detail_title?this.detail_title:"Click here"
-        //add https
-        if (this.detail_link.indexOf("http")==-1){
-          this.detail_link="https://"+this.detail_link
+      var TasksArr;
+      RTDB.ref("/LISTS/Projects/" + vueObj.SelectedProjCat + "/").once(
+        "value",
+        querySnapshot => {
+          TasksArr = querySnapshot.val();
+          // remove proj from db obj
+          delete TasksArr[
+            Object.keys(TasksArr).find(
+              key => TasksArr[key] === vueObj.AddNewProj
+            )
+          ];
+          //make the update
+          RTDB.ref("/LISTS/Projects/" + vueObj.SelectedProjCat + "/")
+            .set(TasksArr)
+            .then(ceva => {
+              vueObj.showNewProj = false;
+              console.log("done");
+            });
         }
-        this.task_attachement.push("<a href='"+this.detail_link+"' target='_blank'>"+title+"</a>")
+      );
+    },
+    AddHyperlink() {
+      if (this.detail_link != "") {
+        var title = this.detail_title ? this.detail_title : "Click here";
+        //add https
+        if (this.detail_link.indexOf("http") == -1) {
+          this.detail_link = "https://" + this.detail_link;
+        }
+        this.task_attachement.push(
+          "<a href='" + this.detail_link + "' target='_blank'>" + title + "</a>"
+        );
 
         // this.task_attachement=this.task_attachement+"\n\n"+"Attachement: <a href='"+this.detail_link+"' target='_blank'>"+title+"</a>"
-        this.detail_link=""
-        this.detail_title=""
-
-      }else{
+        this.detail_link = "";
+        this.detail_title = "";
+      } else {
         M.toast({ html: "URL field should not be empty" });
       }
     },
-    RemoveHyperlink(attch){
-      var index=this.task_attachement.indexOf(attch)
-        this.task_attachement.splice(index,1)
+    RemoveHyperlink(attch) {
+      var index = this.task_attachement.indexOf(attch);
+      this.task_attachement.splice(index, 1);
     }
   },
   created() {
-    var objVue=this
-    
-    db
-      .collection(this.$route.query.uid)
-      .doc(this.$route.params.task_id)
-      .get()
-      .then(doc => {
-        
-        this.task_name = doc.data().tName;
-        this.task_details = doc.data().tDescription;
-        this.task_start = doc.data().tStart;
-        this.task_deadline = doc.data().tDeadline;
-        this.task_FTE = doc.data().tFTE?doc.data().tFTE:"";
-        this.nSelectedStatus = doc.data().tStatus;
-        this.SelectedProjCat = doc.data().tProjCateg;
-        this.SelectedProj = doc.data().tProject;
-        this.SelectedOwner=doc.data().tOwner?doc.data().tOwner:{ Label: null, UID: null };
-        this.initialOwner=this.SelectedOwner;
-        this.task_attachement=doc.data().tAttach?doc.data().tAttach:[];
-        this.task_createdBy=doc.data().CreatedBy;
-        
-        this.task_isActive = doc.data().t_isActive ? "No" : "Yes";
+    var objVue = this;
+    RTDB.ref(
+      "/USERS/" +
+        this.$route.query.uid +
+        "/TASKS/" +
+        this.$route.params.task_id +
+        "/"
+    ).once("value", querySnapshot => {
+      objVue.ProjectsCat = [];
+      const queryOBJ = querySnapshot.val();
 
-        // this.orig_task_name = this.task_name;
-        // this.orig_task_details = this.task_details;
-        // this.orig_task_start=this.task_start;
-        // this.orig_task_deadline = this.task_deadline;
-        // this.orig_task_status = this.task_status;
-        if (this.SelectedProjCat=='xBacklog'){
-          this.task_start= moment().weekday(1).format("YYYY-MM-DD");
-          this.task_deadline= moment().weekday(5).format("YYYY-MM-DD");
-          // this.showUsers=true
+      objVue.task_name = queryOBJ.tName;
+      objVue.task_details = queryOBJ.tDescription;
+      objVue.task_start = queryOBJ.tStart;
+      objVue.task_deadline = queryOBJ.tDeadline;
+      objVue.task_FTE = queryOBJ.tFTE ? queryOBJ.tFTE : "";
+      objVue.nSelectedStatus = queryOBJ.tStatus;
+      objVue.SelectedProjCat = queryOBJ.tProjCateg;
+      objVue.SelectedProj = queryOBJ.tProject;
+      objVue.SelectedOwner = queryOBJ.tOwner
+        ? queryOBJ.tOwner
+        : { Label: null, UID: null };
+      objVue.initialOwner = objVue.SelectedOwner;
+      objVue.task_attachement = queryOBJ.tAttach ? queryOBJ.tAttach : [];
+      objVue.task_createdBy = queryOBJ.CreatedBy;
+
+      objVue.task_isActive = queryOBJ.t_isActive ? "No" : "Yes";
+
+      // this.orig_task_name = this.task_name;
+      // this.orig_task_details = this.task_details;
+      // this.orig_task_start=this.task_start;
+      // this.orig_task_deadline = this.task_deadline;
+      // this.orig_task_status = this.task_status;
+      if (objVue.SelectedProjCat == "xBacklog") {
+        objVue.task_start = moment()
+          .weekday(1)
+          .format("YYYY-MM-DD");
+        objVue.task_deadline = moment()
+          .weekday(5)
+          .format("YYYY-MM-DD");
+        // this.showUsers=true
+      }
+      objVue.getProjects();
+      objVue.ProjectsCat.sort();
+    });
+
+    //set managers
+    RTDB.ref("/USERS/")
+      .orderByChild("isManager")
+      .equalTo(true)
+      .once("value", querySnapshot => {
+        const queryOBJ = querySnapshot.val();
+        for (var prop in queryOBJ) {
+          const data = {
+            OBJ: {
+              name: queryOBJ[prop].Label,
+              UID: prop
+            }
+          };
+          objVue.ManagersArray.push(data);
         }
-        this.getProjects();
-      });
+        function sortMNG(a, b) {
+          if (b.OBJ.name == "All") return 1;
+          if (a.OBJ.name < b.OBJ.name) return -1;
+          if (a.OBJ.name > b.OBJ.name) return 1;
+          return 0;
+        }
 
-      //set managers
-        db
-        .collection("Users")
-        .where("isManager", "==", true)
-        .get()
-        .then(doc => {
-          doc.forEach(LstItem => {
-            const data = {
-              OBJ: {
-                name: LstItem.data().Label,
-                UID: LstItem.id
-              }
-            };
+        objVue.ManagersArray.sort(sortMNG);
 
-            objVue.ManagersArray.push(data);
-          });
-          function sortMNG(a, b) {
-            if(b.OBJ.name=="All") return 1;
-            if (a.OBJ.name < b.OBJ.name) return -1;
-            if (a.OBJ.name > b.OBJ.name) return 1;
-            return 0;
+        objVue.ManagersArray.forEach(owner => {
+          if (owner.OBJ.UID == objVue.task_createdBy) {
+            objVue.SelectedManager = owner;
+            return true;
           }
-
-          //  objVue.ManagersArray.push({OBJ:{UID:"All",name:"All"}})
-           objVue.ManagersArray.sort(sortMNG);
-
-           objVue.ManagersArray.forEach(owner => {              
-              if (owner.OBJ.UID ==  objVue.task_createdBy) {
-                objVue.SelectedManager = owner;
-                return true;
-              }
-            });
-        }) 
-       $(".material-tooltip").remove()
+        });
+      });
+    $(".material-tooltip").remove();
   },
   mounted() {
     var objVue = this;
-    db
-      .collection("DropDowns/InnoPipeline/Projects")
-      .onSnapshot(querySnapshot => {
-        objVue.ProjectsCat = [];
-        querySnapshot.forEach(doc => {
-          objVue.ProjectsCat.push(doc.id);
-        });
-        objVue.ProjectsCat.sort();
-      });
+    RTDB.ref("/LISTS/Projects/").on("value", querySnapshot => {
+      objVue.ProjectsCat = [];
+      const queryOBJ = querySnapshot.val();
+      for (var prop in queryOBJ) {
+        objVue.ProjectsCat.push(prop);
+      }
+      objVue.ProjectsCat.sort();
+    });
   }
 };
 </script>
@@ -634,27 +727,27 @@ input[type="date"] {
   background: teal;
   color: white;
 }
-.info{
+.info {
   color: darkgray;
   font-style: italic;
   border-left: solid 5px darkgray;
   padding-left: 5px;
 }
-label{
-  margin-bottom: 5px
+label {
+  margin-bottom: 5px;
 }
-.MyFixed{
+.MyFixed {
   position: fixed;
   bottom: -17px;
   left: 13px;
   width: 100%;
   padding: 10px;
-      background: #424242b5;
-      z-index: 999;
+  background: #424242b5;
+  z-index: 999;
 }
-.MyContainer{
+.MyContainer {
   background-color: white;
-  padding: 10px
+  padding: 10px;
 }
 </style>
 

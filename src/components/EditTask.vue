@@ -35,29 +35,7 @@
               </select> 
               <span>FTE</span>
         </div>        
-        <!-- projects category -->
-          <!-- <div class="row">
-              <label class="active">Category:</label>
-              <div class="input-field col s12">
-                  <span @click="SelectedProjCat=opt,getProjects()" v-for="opt in ProjectsCat" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProjCat==opt}" class="mySingle chip">
-                    {{opt}}
-                  </span>
-                  <a @click="showNewProjCat=true" v-if="!showNewProjCat" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>
-                  <input v-if="showNewProjCat" v-model="AddNewProjCat" v-on:keydown.enter.prevent="addProjCategory" v-on:keydown.esc.prevent="DelProjCategory" placeholder="Add a new value and then 'pres Enter' or 'Esc' to remove it" type="text">
-              </div>
-          </div> -->
-
-          <!-- project list -->
-          <!-- <div class="row">
-              <label class="active">Project:</label>
-              <div v-if="showProject" class="input-field col s12">
-                  <span @click="SelectedProj=opt" v-for="opt in ProjectsList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProj==opt}" class="mySingle chip">
-                {{opt}}
-              </span>
-                  <a @click="showNewProj=true" v-if="!showNewProj" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>                  
-                   <input v-if="showNewProj" v-model="AddNewProj" v-on:keydown.enter.prevent="addProj" v-on:keydown.esc.prevent="DelProj" placeholder="Add a new value and then 'pres Enter' or 'Esc' to remove it" type="text">
-              </div>
-          </div> -->
+        
           <!-- status -->
           <div class="row">
               <div class="input-field col s12">
@@ -68,16 +46,8 @@
                   </span>
                 </div>
               </div>
-          </div>
-          <!-- Owners -->
-          <!-- <div class="row">
-              <label class="active">Owner:</label>
-              <div class="input-field col s12">
-                  <span @click="SelectedOwner=opt" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.Label==opt.Label}" class="mySingle chip">
-                    {{opt.Label}}
-                  </span>
-              </div>
-          </div> -->
+          </div>         
+         
         <div class="row">
           <div class="input-field col s12">
             <select required style="display:block;width:70px;margin-top: 10px;" v-model="task_isActive">
@@ -139,8 +109,10 @@
 
 <script>
 import firebase from "firebase";
-import db from "./firebaseInit";
+// import db from "./firebaseInit";
 import fireList from "./fireLists";
+import RTDB from "./firebaseInitRTDB";
+
 var moment = require("moment");
 
 export default {
@@ -153,9 +125,9 @@ export default {
       showProject: true,
       showNewProj: false,
       showNewProjCat: false,
-      detail_link:"",
-      detail_title:"",
-      task_attachement:[],
+      detail_link: "",
+      detail_title: "",
+      task_attachement: [],
 
       task_name: null,
       task_details: "",
@@ -165,8 +137,8 @@ export default {
       task_project: null,
       task_env: null,
       task_isActive: null,
-      task_createdBy:null,
-      SelectedProjCat:null,
+      task_createdBy: null,
+      SelectedProjCat: null,
       // SelectedProj:null,
 
       // Statuses: fireList.statusesList,
@@ -194,10 +166,14 @@ export default {
         $("#StartDate,#DeadLine").css("border", "solid red 1px");
         return false;
       }
+      RTDB.ref(
+        "/USERS/" +
+          firebase.auth().currentUser.uid +
+          "/TASKS/" +
+          this.$route.params.task_id +
+          "/"
+      )
 
-      db
-        .collection(firebase.auth().currentUser.uid)
-        .doc(this.$route.params.task_id)
         .update({
           tName: this.task_name,
           tDescription: this.task_details,
@@ -206,168 +182,114 @@ export default {
           tFTE: this.task_FTE,
           // tProject: this.SelectedProj,
           // tProjCateg: this.SelectedProjCat,
-          tAttach:this.task_attachement,
-          tStatus: this.nSelectedStatus,          
+          tAttach: this.task_attachement,
+          tStatus: this.nSelectedStatus,
           // tOwner:this.SelectedOwner,
           // tEnvironment:this.task_env?this.task_env:"",
-          ModifiedBy:firebase.auth().currentUser.uid,
-          ModifiedDate:moment().format("YYYY-MM-DD HH:MM"),
+          ModifiedBy: firebase.auth().currentUser.uid,
+          ModifiedDate: moment().format("YYYY-MM-DD HH:MM"),
           t_isActive: this.task_isActive == "No"
         })
-        .then(docRef => {       
-          console.log("task update done")
+        .then(docRef => {
+          console.log("task update done");
           this.$router.push("/view/cols");
         })
         .catch(function(error) {
           console.error("Error writing document: ", error);
         });
     },
-    addProjCategory() {
-      var vueObj = this;
-      db
-        .collection("DropDowns/InnoPipeline/Projects")
-        .doc(vueObj.AddNewProjCat)
-        .set({
-          Projects: []
-        })
-        .then(function() {
-          vueObj.showNewProjCat = false;
-        });
-    },
-    DelProjCategory(opt) {
-      var vueObj = this;
-      if (vueObj.AddNewProjCat != null) {
-        db
-          .collection("DropDowns/InnoPipeline/Projects")
-          .doc(vueObj.AddNewProjCat)
-          .delete()
-          .then(function() {
-            vueObj.AddNewProjCat = null;
-            vueObj.showNewProjCat = false;
-          });
-      } else {
-        vueObj.showNewProjCat = false;
-      }
-    },
     getProjects() {
       var vueObj = this;
-      db
-        .collection(
-          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
-        )
-        .onSnapshot(querySnapshot => {
+      RTDB.ref("/LISTS/Projects/" + vueObj.SelectedProjCat + "/").on(
+        "value",
+        querySnapshot => {
           vueObj.ProjectsList = [];
-
           querySnapshot.forEach(doc => {
-            vueObj.ProjectsList.push(doc.id);
+            if (doc.val() != "") {
+              vueObj.ProjectsList.push(doc.val());
+            }
           });
           vueObj.showProject = true;
-        });
-    },
-    addProj() {
-      var vueObj = this;
-      db
-        .collection(
-          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
-        )
-        .doc(vueObj.AddNewProj)
-        .set({
-          Projects: null
-        })
-        .then(function() {
-          vueObj.showNewProj = false;
-        });
-    },
-    DelProj() {
-      var vueObj = this;
-      db
-        .collection(
-          "DropDowns/InnoPipeline/Projects/" + vueObj.SelectedProjCat + "/Proj"
-        )
-        .doc(vueObj.AddNewProj)
-        .delete()
-        .then(function() {
-          vueObj.showNewProj = false;
-        });
-    },
- AddHyperlink(){
-      if (this.detail_link!=""){
-        var title=this.detail_title?this.detail_title:"Click here"
-        //add https
-        if (this.detail_link.indexOf("http")==-1){
-          this.detail_link="https://"+this.detail_link
         }
-        this.task_attachement.push("<a href='"+this.detail_link+"' target='_blank'>"+title+"</a>")
+      );
+    },
+    AddHyperlink() {
+      if (this.detail_link != "") {
+        var title = this.detail_title ? this.detail_title : "Click here";
+        //add https
+        if (this.detail_link.indexOf("http") == -1) {
+          this.detail_link = "https://" + this.detail_link;
+        }
+        this.task_attachement.push(
+          "<a href='" + this.detail_link + "' target='_blank'>" + title + "</a>"
+        );
 
         // this.task_attachement=this.task_attachement+"\n\n"+"Attachement: <a href='"+this.detail_link+"' target='_blank'>"+title+"</a>"
-        this.detail_link=""
-        this.detail_title=""
-
-      }else{
+        this.detail_link = "";
+        this.detail_title = "";
+      } else {
         M.toast({ html: "URL field should not be empty" });
       }
     },
-    RemoveHyperlink(attch){
-      var index=this.task_attachement.indexOf(attch)
-        this.task_attachement.splice(index,1)
+    RemoveHyperlink(attch) {
+      var index = this.task_attachement.indexOf(attch);
+      this.task_attachement.splice(index, 1);
     },
-    getCreatorLabel(UID){
-      
-      var objVue=this
-
-        db.collection("Users") 
-       // .where("isManager", "==", true)
-        .get()
-        .then(doc => {
-          doc.forEach(LstItem => {
-            // console.log(LstItem.data())
-            // Owners.push(LstItem.data().Label)
-            if (LstItem.id==UID){              
-              objVue.task_createdBy= LstItem.data().Label
-            }
-          })          
+    getCreatorLabel(UID) {
+      var objVue = this;
+      RTDB.ref("/USERS/")
+        .orderByKey()
+        .equalTo(UID)
+        .once("value", querySnapshot => {
+          // console.log(querySnapshot.val());
+          // debugger;
+          objVue.task_createdBy = querySnapshot.val()[UID].Label;
         });
     }
-  },  
+  },
   created() {
-    db
-      .collection(firebase.auth().currentUser.uid)
-      .doc(this.$route.params.task_id)
-      .get()
-      .then(doc => {
-        this.task_name = doc.data().tName;
-        this.task_details = doc.data().tDescription;
-        this.task_start = doc.data().tStart;
-        this.task_deadline = doc.data().tDeadline;
-        this.task_FTE = doc.data().tFTE?doc.data().tFTE:"TBD";
-        this.nSelectedStatus = doc.data().tStatus;
-        this.SelectedProjCat = doc.data().tProjCateg;
-        this.SelectedProj = doc.data().tProject;
-        this.task_attachement=doc.data().tAttach?doc.data().tAttach:[];
-        
-        // this.SelectedOwner=doc.data().tOwner?doc.data().tOwner:{ Label: null, UID: null };
-        this.task_env = doc.data().tEnvironment;
-        this.task_isActive = doc.data().t_isActive ? "No" : "Yes";
+    var objVue = this;
 
-        this.getCreatorLabel(doc.data().CreatedBy);
+    RTDB.ref(
+      "/USERS/" +
+        firebase.auth().currentUser.uid +
+        "/TASKS/" +
+        this.$route.params.task_id +
+        "/"
+    ).once("value", querySnapshot => {
+      const queryOBJ = querySnapshot.val();
 
-        
-        this.getProjects();
-      });
+      objVue.task_name = queryOBJ.tName;
+      objVue.task_details = queryOBJ.tDescription;
+      objVue.task_start = queryOBJ.tStart;
+      objVue.task_deadline = queryOBJ.tDeadline;
+      objVue.task_FTE = queryOBJ.tFTE ? queryOBJ.tFTE : "TBD";
+      objVue.nSelectedStatus = queryOBJ.tStatus;
+      objVue.SelectedProjCat = queryOBJ.tProjCateg;
+      objVue.SelectedProj = queryOBJ.tProject;
+      objVue.task_attachement = queryOBJ.tAttach ? queryOBJ.tAttach : [];
 
-    $(".material-tooltip").css("opacity",0)
+      // objVue.SelectedOwner=queryOBJ.tOwner?queryOBJ.tOwner:{ Label: null, UID: null };
+      objVue.task_env = queryOBJ.tEnvironment;
+      objVue.task_isActive = queryOBJ.t_isActive ? "No" : "Yes";
+
+      objVue.getCreatorLabel(queryOBJ.CreatedBy);
+
+      objVue.getProjects();
+    });
+
+    $(".material-tooltip").css("opacity", 0);
   },
   mounted() {
     var objVue = this;
-    db
-      .collection("DropDowns/InnoPipeline/Projects")
-      .onSnapshot(querySnapshot => {
-        objVue.ProjectsCat = [];
-        querySnapshot.forEach(doc => {
-          objVue.ProjectsCat.push(doc.id);
-        });
-        objVue.ProjectsCat.sort();
-      });
+    RTDB.ref("/LISTS/Projects/").on("value", querySnapshot => {
+      objVue.ProjectsCat = [];
+      const queryOBJ = querySnapshot.val();
+      for (var prop in queryOBJ) {
+        objVue.ProjectsCat.push(prop);
+      }
+      objVue.ProjectsCat.sort();
+    });
   }
 };
 </script>
@@ -387,27 +309,27 @@ input[type="date"] {
   background: teal;
   color: white;
 }
-.info{
+.info {
   color: darkgray;
   font-style: italic;
   border-left: solid 5px darkgray;
   padding-left: 5px;
 }
-label{
-  margin-bottom: 5px
+label {
+  margin-bottom: 5px;
 }
-.MyContainer{
+.MyContainer {
   background-color: white;
-  padding: 10px
+  padding: 10px;
 }
-.MyFixed{
+.MyFixed {
   position: fixed;
   bottom: -17px;
   left: 13px;
   width: 100%;
   padding: 10px;
-      background: #424242b5;
-      z-index: 999;
+  background: #424242b5;
+  z-index: 999;
 }
 </style>
 

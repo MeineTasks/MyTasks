@@ -77,6 +77,7 @@
 import db from "./firebaseInit";
 import fireList from "./fireLists";
 import firebase from "firebase";
+import RTDB from "./firebaseInitRTDB";
 
 var moment = require("moment");
 
@@ -122,9 +123,9 @@ export default {
         M.toast({ html: "Attachment URL should be empty" });
         return false;
       }
-
-      db.collection(firebase.auth().currentUser.uid)
-        .add({
+      var vueObj = this;
+      RTDB.ref("/USERS/" + firebase.auth().currentUser.uid + "/TASKS/").push(
+        {
           tName: this.task_name,
           tDescription: this.task_details, //(this.task_details) ? this.task_details : '',
           tStart: this.task_start,
@@ -138,9 +139,35 @@ export default {
           CreatedDate: moment().format("YYYY-MM-DD"),
           t_isActive: true,
           isPrivate: true
-        })
-        .then(docRef => this.$router.push("/"))
-        .catch(error => console.log(err));
+        },
+        function(error) {
+          if (error) {
+            console.log(error);
+          } else {
+            vueObj.$router.push("/");
+            console.log("task added");
+          }
+        }
+      );
+
+      // db.collection(firebase.auth().currentUser.uid)
+      //   .add({
+      //     tName: this.task_name,
+      //     tDescription: this.task_details, //(this.task_details) ? this.task_details : '',
+      //     tStart: this.task_start,
+      //     tDeadline: this.task_deadline,
+      //     tProjCateg: "Personal",
+
+      //     tStatus: this.nSelectedStatus,
+      //     tAttach: this.task_attachement,
+      //     CreatedBy: firebase.auth().currentUser.uid,
+      //     // tOwner:this.SelectedOwner,
+      //     CreatedDate: moment().format("YYYY-MM-DD"),
+      //     t_isActive: true,
+      //     isPrivate: true
+      //   })
+      //   .then(docRef => this.$router.push("/"))
+      //   .catch(error => console.log(err));
     },
     AddHyperlink() {
       if (this.detail_link != "") {

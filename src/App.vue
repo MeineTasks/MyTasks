@@ -1,6 +1,6 @@
 <template>
   <div id="app">   
-    <Navbar/>
+    <Navbar :isManager="isManager" :isLoggedIn="isLoggedIn" />
     <div style="margin-top:10px">
       <router-view
       :tasksDashboard="tasksDashboard"      
@@ -8,6 +8,7 @@
       
       :chartData="chartData"
       :isLoggedIn="isLoggedIn"
+      :isManager="isManager"
       />
     </div>    
   </div>
@@ -25,6 +26,8 @@ export default {
   data() {
     return {
       isLoggedIn: false,
+      isManager: false,
+      userEmail: "",
       hasDone: false,
       viewDone: null,
       tasksDashboard: [],
@@ -38,7 +41,18 @@ export default {
     if (firebase.auth().currentUser) {
       this.isLoggedIn = true;
       var vueObj = this;
-      RTDB.ref("/USERS/" + firebase.auth().currentUser.uid + "/TASKS/")
+      var UID = firebase.auth().currentUser.uid;
+      // SET manager
+      RTDB.ref("/USERS/")
+        .orderByKey()
+        .equalTo(UID)
+        .once("value", querySnapshot => {
+          if (querySnapshot.val()[UID].isManager) {
+            vueObj.isManager = true;
+          }
+        });
+
+      RTDB.ref("/USERS/" + UID + "/TASKS/")
         .orderByChild("t_isActive")
         .equalTo(true)
         .on("value", querySnapshot => {
@@ -99,35 +113,6 @@ export default {
 
             vueObj.tasksDashboard.push(data);
           }
-
-          // querySnapshot.val().forEach(doc => {
-          //   var tskCalculated = taskCalculated(doc.data().tDeadline);
-          //   const data = {
-          //     id: doc.id,
-          //     task_name: doc.data().tName,
-          //     task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
-          //     task_projectCategory: doc.data().tProjCateg,
-          //     task_project: doc.data().tProject,
-          //     task_attachement: doc.data().tAttach,
-          //     task_deadline: doc.data().tDeadline,
-          //     task_FTE: doc.data().tFTE ? doc.data().tFTE : "none",
-          //     task_status: doc.data().tStatus,
-          //     task_completed: doc.data().tStatus == "Completed",
-          //     task_canceled: doc.data().tStatus == "Canceled",
-          //     task_inProgress: doc.data().tStatus == "In progress",
-          //     task_onHold: doc.data().tStatus == "On hold",
-          //     t_isPrivate: doc.data().tProjCateg == "Personal",
-          //     task_isActive: doc.data().t_isActive,
-          //     task_Category: tskCalculated.tCategory,
-          //     task_Delayed: tskCalculated.tDelayed
-          //   };
-          //   this.tasksDashboard.push(data);
-          // });
-          // filter data
-
-          // this.tasksDashboard = this.tasksAllview.filter(function(task) {
-          //   return task.task_isActive == true;
-          // });
 
           this.tasksMyActive = this.tasksDashboard.filter(function(task) {
             return (

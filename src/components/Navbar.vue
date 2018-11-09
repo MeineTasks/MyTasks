@@ -18,7 +18,7 @@
           
           <li v-if="isLoggedIn"><router-link class="link" to="/view/users">View Users </router-link></li>  
           <li v-if="isLoggedIn"><router-link class="link" to="/view/projcat">View Projects </router-link></li>
-          <li v-if="isLoggedIn && isMng"><router-link class="link" to="/admn">Admin</router-link></li>
+          <li v-if="isLoggedIn && isManager"><router-link class="link" to="/admn">Admin</router-link></li>
 
           <li v-if="!isLoggedIn"><router-link to="/login">Login</router-link></li>
           <!-- <li v-if="!isLoggedIn"><router-link to="/register">Register</router-link></li>         -->
@@ -42,30 +42,19 @@
 
 <script>
 import firebase from "firebase";
-import db from "./firebaseInit";
+import RTDB from "./firebaseInitRTDB";
 
 export default {
   name: "navbar",
+  props: { isManager: Boolean, isLoggedIn: Boolean },
   data() {
     return {
-      isLoggedIn: false,
-      currentUser: false,
-      isMng: false
+      currentUser: ""
     };
   },
   created() {
     if (firebase.auth().currentUser) {
-      this.isLoggedIn = true;
       this.currentUser = firebase.auth().currentUser.email;
-      db
-        .collection("Users")
-        .doc(firebase.auth().currentUser.uid)
-        .get()
-        .then(doc => {
-          if (doc.data().isManager) {
-            this.isMng = true;
-          }
-        });
     }
   },
   mounted() {

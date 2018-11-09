@@ -20,7 +20,7 @@
         <hr>
         <H3>Cip custom export</H3>
         <div class="row">
-          <b>Step1:</b> <button type="button" @click="runCipF1" class="btn">Get data</button>
+          <b>Step1:</b> <button type="button" @click="runCipF1" class="btn">Cip run function 1</button>
         </div>
         <div class="row" >        
           <b>Step2:</b> <button type="button" @click="runCipF2" class="btn blue">Get file</button>
@@ -254,13 +254,48 @@ export default {
 
     runCipF1() {
       // this.Cip_GetFire_users();
-      this.GetRTDB_users();
+      this.Cip_MoveFire_usersTasks();
     },
-    Cip_GetFire_users() {
+    Cip_MoveFire_lists() {
+      var objVue = this;
+      db.collection("DropDowns/InnoPipeline/Projects/")
+        .get()
+        .then(doc => {
+          doc.forEach(LstItem => {
+            // console.log(LstItem.data());
+            var UID = LstItem.id;
+            var prjArr = [];
+            var updates = {};
+
+            db.collection("DropDowns/InnoPipeline/Projects/" + UID + "/Proj")
+              .get()
+              .then(prjDoc => {
+                prjDoc.forEach(itm => {
+                  prjArr.push(itm.id);
+                });
+                updates["/LISTS/Projects/" + UID + "/"] = prjArr;
+
+                RTDB.ref()
+                  .update(updates)
+                  .then(stat => {
+                    console.log("listsDone");
+                  });
+              });
+
+            // updates["/LISTS/Projects/" + UID + "/"] = LstItem.data();
+            // RTDB.ref()
+            //   .update(updates)
+            //   .then(stat => {
+            //     console.log("listsDone");
+            //   });
+          });
+        });
+    },
+    Cip_MoveFire_usersTasks() {
       var objVue = this;
       db.collection("Users")
-        //.where("Label", "==", "Cip Cir")
-        .where("Label", "==", "Stefania Domnisoru")
+        // .where("Label", "==", "Cip Cir")
+        .where("Label", "==", "Bogdan Trandafir")
         .get()
         .then(doc => {
           doc.forEach(LstItem => {
@@ -269,10 +304,10 @@ export default {
             var UID = LstItem.id;
             var updates = {};
 
-            updates["/USERS/" + UID + "/"] = LstItem.data();
-            RTDB.ref().update(updates);
+            // updates["/USERS/" + UID + "/"] = LstItem.data();
+            // RTDB.ref().update(updates);
 
-            // read all tasks
+            // // read all tasks
             db.collection(UID)
               .get()
               .then(docTask => {
@@ -286,6 +321,7 @@ export default {
                 });
               });
           });
+          console.log("cip move user tasks Done");
         });
     },
     GetRTDB_users() {

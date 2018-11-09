@@ -150,8 +150,8 @@
 </template>
 
 <script>
-import db from "./firebaseInit";
 import firebase from "firebase";
+import RTDB from "./firebaseInitRTDB";
 
 export default {
   name: "dashboard",
@@ -220,15 +220,15 @@ export default {
       this.chartData.push(["Completed", C_Complete]);
     },
     CloseTask(task) {
-      db
-        .collection(firebase.auth().currentUser.uid)
-        .doc(task.id)
-        .set({ t_isActive: false }, { merge: true })
-        .then(docRef => {
-          $(".material-tooltip").removeAttr("style");
+      RTDB.ref(
+        "/USERS/" + firebase.auth().currentUser.uid + "/TASKS/" + task.id + "/"
+      )
+        .update({
+          t_isActive: false
         })
-        .catch(function(error) {
-          console.log("Error getting documents: ", error);
+        .then(stat => {
+          $(".material-tooltip").removeAttr("style");
+          console.log("update done");
         });
     },
     DeleteTask(task) {
@@ -239,11 +239,15 @@ export default {
             " ***\nwill be permanently deleted, are you sure?"
         )
       ) {
-        db
-          .collection(firebase.auth().currentUser.uid)
-          .doc(task.id)
-          .delete()
-          .then(function() {
+        RTDB.ref(
+          "/USERS/" +
+            firebase.auth().currentUser.uid +
+            "/TASKS/" +
+            task.id +
+            "/"
+        )
+          .remove()
+          .then(stat => {
             $(".material-tooltip").removeAttr("style");
           });
       }

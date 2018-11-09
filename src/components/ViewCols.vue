@@ -176,7 +176,7 @@
 
 <script>
 import firebase from "firebase";
-import db from "./firebaseInit";
+import RTDB from "./firebaseInitRTDB";
 
 var moment = require("moment");
 
@@ -212,49 +212,36 @@ export default {
   methods: {
     CompleteTask(task) {
       if (!task.task_completed) {
-        db
-          .collection(firebase.auth().currentUser.uid)
-          .doc(task.id)
-          .update({
+        RTDB.ref(
+          "/USERS/" +
+            firebase.auth().currentUser.uid +
+            "/TASKS/" +
+            task.id +
+            "/"
+        ).update(
+          {
             tStatus: "Completed",
             tClosedDate: moment().format("YYYY-MM-DD")
-          })
-          .then(function() {
-            $(".material-tooltip").removeAttr("style");
-          })
-          .catch(function(error) {
-            console.error("Error writing document CompleteTask: ", error);
-          });
+          },
+          function(error) {
+            if (error) {
+              console.log(error);
+            } else {
+              $(".material-tooltip").removeAttr("style");
+              console.log("update done");
+            }
+          }
+        );
       }
     },
     StartStop(task) {
       var newStatus =
         task.task_status == "In progress" ? "On hold" : "In progress";
-      db
-        .collection(firebase.auth().currentUser.uid)
-        .doc(task.id)
-        .update({
-          tStatus: newStatus
-        })
-        .then(docRef => {
-          db
-            .collection("Log")
-            .add({
-              date:
-                new Date().toString().slice(0, 9) +
-                " " +
-                new Date(new Date()).toString().split(" ")[4],
-              tName: task.task_name,
-              updated: "Status:" + task.task_status + "##" + newStatus,
-              user: firebase.auth().currentUser.email
-            })
-            .catch(function(error) {
-              console.error("Error adding document ChangedInfo: ", error);
-            });
-        })
-        .catch(function(error) {
-          console.error("Error writing document CompleteTask: ", error);
-        });
+      RTDB.ref(
+        "/USERS/" + firebase.auth().currentUser.uid + "/TASKS/" + task.id + "/"
+      ).update({
+        tStatus: newStatus
+      });
     }
   }
 };
