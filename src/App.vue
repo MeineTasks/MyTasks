@@ -16,7 +16,7 @@
 
 <script>
 import Navbar from "./components/Navbar";
-import db from "./components/firebaseInit";
+// import db from "./components/firebaseInit";
 import firebase from "firebase";
 import RTDB from "./components/firebaseInitRTDB";
 

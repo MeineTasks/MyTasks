@@ -143,7 +143,7 @@
 </template>
 
 <script>
-import db from "./firebaseInit";
+// import db from "./firebaseInit";
 import firebase from "firebase";
 import RTDB from "./firebaseInitRTDB";
 
@@ -188,27 +188,12 @@ export default {
     };
   },
   updated() {
-    // $(".sidenav").sidenav();
+    
     $(".tooltipped").tooltip();
   },
-  // created() {
-  //   // this.ADDTasksIncat();
-  //   db.collection("Users")
-  //     .doc(firebase.auth().currentUser.uid)
-  //     .get()
-  //     .then(doc => {
-  //       this.isManager = doc.data().isManager;
-  //     });
-  // },
+  
   mounted() {
-    this.GetFire_users();
-    //   db.collection("Users")
-    //       .doc(firebase.auth().currentUser.uid)
-    //       .get()
-    //       .then(doc => {
-    //         this.isManager=doc.data().isManager
-    //       });
-  },
+    this.GetFire_users();},
   methods: {
     MultiStatus(opt) {
       var objVue = this;
@@ -286,6 +271,7 @@ export default {
         .orderByChild("isOwner")
         .equalTo(true)
         .on("value", querySnapshot => {
+          objVue.FireUsersArray=[]
           const queryOBJ = querySnapshot.val();
           for (var prop in queryOBJ) {
             // console.log(queryOBJ[prop].tName);
@@ -351,40 +337,6 @@ export default {
           objVue.FireUsersArray.sort(sortTasks);
           objVue.ADDTasksIncat();
         });
-      // .then(res => {
-      //   function sortTasks(a, b) {
-      //     if (a.OBJ.name < b.OBJ.name) return -1;
-      //     if (a.OBJ.name > b.OBJ.name) return 1;
-      //     return 0;
-      //   }
-      //   objVue.FireUsersArray.sort(sortTasks);
-      //   objVue.ADDTasksIncat();
-      // });
-      // tbr
-      // db.collection("Users")
-      //   .where("isOwner", "==", true)
-      //   .get()
-      //   .then(doc => {
-      //     doc.forEach(LstItem => {
-      //       const data = {
-      //         OBJ: {
-      //           name: LstItem.data().Label,
-      //           tasks: [],
-      //           UID: LstItem.id
-      //         }
-      //       };
-
-      //       objVue.FireUsersArray.push(data);
-      //     });
-      //     function sortTasks(a, b) {
-      //       if (a.OBJ.name < b.OBJ.name) return -1;
-      //       if (a.OBJ.name > b.OBJ.name) return 1;
-      //       return 0;
-      //     }
-      //     objVue.FireUsersArray.sort(sortTasks);
-
-      //     objVue.GetFire_ForTasks();
-      //   });
       //set managers
       RTDB.ref("/USERS/")
         .orderByChild("isManager")
@@ -409,99 +361,7 @@ export default {
           }
           objVue.FireManagersArray.sort(sortMNG);
         });
-
-      // db.collection("Users")
-      //   .where("isManager", "==", true)
-      //   .get()
-      //   .then(doc => {
-      //     doc.forEach(LstItem => {
-      //       const data = {
-      //         OBJ: {
-      //           name: LstItem.data().Label,
-      //           UID: LstItem.id
-      //         }
-      //       };
-
-      //       objVue.FireManagersArray.push(data);
-      //     });
-      //     function sortMNG(a, b) {
-      //       if (b.OBJ.name == "All") return 1;
-      //       if (a.OBJ.name < b.OBJ.name) return -1;
-      //       if (a.OBJ.name > b.OBJ.name) return 1;
-      //       return 0;
-      //     }
-
-      //     // objVue.ManagersArray.push({ OBJ: { UID: "All", name: "All" } });
-      //     //  objVue.ManagersArray.push({OBJ:{UID:"None",name:"None"}})
-      //     objVue.FireManagersArray.sort(sortMNG);
-
-      //     // objVue.GetFire_ForTasks("All active");
-      //   });
     },
-    // GetFire_ForTasks() {
-    //   var objVue = this;
-
-    //   //reset number of users
-    //   objVue.GotUsers = 0;
-
-    //   // populate user tasks
-    //   objVue.FireUsersArray.forEach(itm => {
-    //     objVue.GetFire_userTasks(itm.OBJ);
-    //   });
-    // },
-    // GetFire_userTasks(OBJ) {
-    //   // console.log("GetFire_user:" + OBJ.UID);
-    //   var objVue = this;
-    //   // get tasks for each user
-    //   db.collection(OBJ.UID)
-    //     .where("t_isActive", "==", true)
-    //     .onSnapshot(querySnapshot => {
-    //       console.log("onSnapshot");
-    //       objVue.AddTasksInFireUsrsArr(OBJ, querySnapshot);
-    //     });
-    // },
-    // AddTasksInFireUsrsArr(OBJ, querySnapshot) {
-    //   var objVue = this;
-    //   // reset
-    //   OBJ.tasks = [];
-
-    //   querySnapshot.forEach(doc => {
-    //     // if (eval(queryString)) {
-    //     const data = {
-    //       id: doc.id,
-    //       task_name: doc.data().tName,
-    //       task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
-    //       task_start: moment(doc.data().tStart, "YYYY-MM-DD"),
-    //       task_deadline: moment(doc.data().tDeadline, "YYYY-MM-DD"),
-    //       task_start_short: moment(doc.data().tStart, "YYYY-MM-DD").format(
-    //         "DD-MMM"
-    //       ),
-    //       task_deadline_short: moment(
-    //         doc.data().tDeadline,
-    //         "YYYY-MM-DD"
-    //       ).format("DD-MMM"),
-    //       task_FTE: doc.data().tFTE,
-    //       task_wkNo: moment(doc.data().tDeadline, "YYYY-MM-DD").week(),
-    //       task_project: doc.data().tProject,
-    //       task_ProjCat: doc.data().tProjCateg,
-    //       task_status: doc.data().tStatus,
-    //       task_owner: OBJ.UID,
-    //       task_owner_label: OBJ.name,
-    //       task_isPrivate: doc.data().isPrivate,
-    //       task_Createdby: doc.data().CreatedBy
-    //     };
-    //     OBJ.tasks.push(data);
-    //     // }
-    //   });
-    //   // call next function if task got for all users
-    //   objVue.GotUsers++;
-    //   if (
-    //     objVue.GotUsers >= objVue.FireUsersArray.length &&
-    //     objVue.GotUsers > 0
-    //   ) {
-    //     objVue.ADDTasksIncat();
-    //   }
-    // },
     // aici se poate filtra
     ADDTasksIncat() {
       var objVue = this;
@@ -618,19 +478,7 @@ export default {
             }
           }
         );
-
-        //   db.collection(task.task_owner)
-        //     .doc(task.id)
-        //     .update({
-        //       tStatus: "Completed",
-        //       tClosedDate: moment().format("YYYY-MM-DD")
-        //     })
-        //     .then(function() {
-        //       $(".material-tooltip").removeAttr("style");
-        //     })
-        //     .catch(function(error) {
-        //       console.error("Error writing document CompleteTask: ", error);
-        //     });
+     
       }
     },
     CancelTask(task) {
@@ -651,17 +499,6 @@ export default {
           }
         );
 
-        // db.collection(task.task_owner)
-        //   .doc(task.id)
-        //   .update({
-        //     tStatus: "Canceled"
-        //   })
-        //   .then(function() {
-        //     $(".material-tooltip").removeAttr("style");
-        //   })
-        //   .catch(function(error) {
-        //     console.error("Error writing document CompleteTask: ", error);
-        //   });
       }
     },
     StartStop(task) {

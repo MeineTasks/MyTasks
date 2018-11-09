@@ -19,7 +19,8 @@ import Login from "@/components/Login";
 import AdminDash from "@/components/admn";
 
 import firebase from "firebase";
-import db from "../components/firebaseInit";
+// import db from "../components/firebaseInit";
+import RTDB from "../components/firebaseInitRTDB";
 Vue.use(Router);
 
 let router = new Router({
@@ -157,18 +158,33 @@ router.beforeEach((to, from, next) => {
       //console.log("#1.2")
       // only for managers
       if (to.matched.some(record => record.meta.requiresMng)) {
-        db.collection("Users")
-          .doc(firebase.auth().currentUser.uid)
-          .get()
-          .then(doc => {
-            if (doc.data().isManager) {
-              next();
-            } else {
-              next({
-                path: "/"
-              });
-            }
-          });
+        var UID = firebase.auth().currentUser.uid;
+
+        RTDB.ref("/USERS/")
+        .orderByKey()
+        .equalTo(UID)
+        .once("value", querySnapshot => {
+          if (querySnapshot.val()[UID].isManager) {            
+            next();
+          } else {
+            next({
+              path: "/"
+            });
+          }
+        });
+
+        // db.collection("Users")
+        //   .doc(firebase.auth().currentUser.uid)
+        //   .get()
+        //   .then(doc => {
+        //     if (doc.data().isManager) {
+        //       next();
+        //     } else {
+        //       next({
+        //         path: "/"
+        //       });
+        //     }
+        //   });
       } else {
         next();
       }

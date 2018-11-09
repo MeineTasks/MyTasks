@@ -4,7 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import firebase from 'firebase';
-import './components/firebaseInit';
+// import './components/firebaseInit';
 
 import Chartkick from 'chartkick'
 import VueChartkick from 'vue-chartkick'

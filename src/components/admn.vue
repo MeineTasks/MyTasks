@@ -36,7 +36,7 @@
     </template>
       
     <script>
-import db from "./firebaseInit";
+// import db from "./firebaseInit";
 import firebase from "firebase";
 import RTDB from "./firebaseInitRTDB";
 

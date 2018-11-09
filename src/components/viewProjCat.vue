@@ -152,13 +152,15 @@
 </template>
 
 <script>
-import db from "./firebaseInit";
+// import db from "./firebaseInit";
 import firebase from "firebase";
+import RTDB from "./firebaseInitRTDB";
 
 var moment = require("moment");
 
 export default {
   name: "viewProjcat",
+  props: { isManager: Boolean },
   data() {
     return {
       //   users: fireList.OwnersList,
@@ -185,7 +187,7 @@ export default {
         ? JSON.parse(localStorage.getItem("viewProj_SelectedUsersFilterObj"))
         : [],
       FireManagersArray: [],
-      isManager: false,
+      // isManager: false,
       GotUsers: 0,
       FireProjCatArray: [],
       SelectedManager: localStorage.getItem("viewProj_CreatorsFilterObj")
@@ -194,39 +196,48 @@ export default {
       //
     };
   },
-  updated() {
-    // $(".sidenav").sidenav();
+  updated() {    
     $(".tooltipped").tooltip();
   },
-  created() {
-    // this.ADDTasksIncat();
-    db
-      .collection("Users")
-      .doc(firebase.auth().currentUser.uid)
-      .get()
-      .then(doc => {
-        this.isManager = doc.data().isManager;
-      });
-  },
+  
   mounted() {
     var objVue = this;
-    db
-      .collection("DropDowns/InnoPipeline/Projects")
-      .get()
-      .then(querySnapshot => {
-        objVue.FireProjCatArray = [];
-
-        querySnapshot.forEach(doc => {
-          const data = {
-            name: doc.id,
+     RTDB.ref("/LISTS/Projects/").once("value", querySnapshot => {
+      objVue.FireProjCatArray = [];
+      const queryOBJ = querySnapshot.val();
+      for (var prop in queryOBJ) {
+        
+        const data = {
+            name: prop,
             tasks: []
           };
 
-          objVue.FireProjCatArray.push(data);
-        });
-        objVue.FireProjCatArray.push({ name: "Old", tasks: [] });
-        objVue.FireProjCatArray.sort();
-      });
+         objVue.FireProjCatArray.push(data);
+
+      }
+      objVue.FireProjCatArray.push({ name: "Old", tasks: [] });
+      objVue.FireProjCatArray.sort();
+    });
+
+
+
+    // db
+    //   .collection("DropDowns/InnoPipeline/Projects")
+    //   .get()
+    //   .then(querySnapshot => {
+    //     objVue.FireProjCatArray = [];
+
+    //     querySnapshot.forEach(doc => {
+    //       const data = {
+    //         name: doc.id,
+    //         tasks: []
+    //       };
+
+    //       objVue.FireProjCatArray.push(data);
+    //     });
+    //     objVue.FireProjCatArray.push({ name: "Old", tasks: [] });
+    //     objVue.FireProjCatArray.sort();
+    //   });
 
     this.GetFire_users();
   },
@@ -305,130 +316,232 @@ export default {
     GetFire_users() {
       var objVue = this;
       // set users array
+      
       // console.log("GetFire_users");
+      RTDB.ref("/USERS/")
+        .orderByChild("isOwner")
+        .equalTo(true)
+        .on("value", querySnapshot => {
+          objVue.FireUsersArray=[]
 
-      db
-        .collection("Users")
-        .where("isOwner", "==", true)
-        .get()
-        .then(doc => {
-          doc.forEach(LstItem => {
+          const queryOBJ = querySnapshot.val();
+          for (var prop in queryOBJ) {
+            // console.log(queryOBJ[prop].tName);
             const data = {
               OBJ: {
-                name: LstItem.data().Label,
+                name: queryOBJ[prop].Label,
                 tasks: [],
-                UID: LstItem.id
+                UID: prop
               }
             };
+            const queryTaskOBJ = queryOBJ[prop].TASKS;
+            // add user tasks if active
+            for (var propTsk in queryTaskOBJ) {
+              if (queryTaskOBJ[propTsk].t_isActive) {
+                // queryTaskOBJ[propTsk].id = propTsk;
+                // data.OBJ.tasks.push(queryTaskOBJ[propTsk]);
 
-            // objVue.xFilteredUsersArr.push(data);
+                const TskData = {
+                  id: propTsk,
+                  task_name: queryTaskOBJ[propTsk].tName,
+                  task_description: queryTaskOBJ[propTsk].tDescription.replace(
+                    /\n/g,
+                    "<br/>"
+                  ),
+                  task_start: moment(queryTaskOBJ[propTsk].tStart, "YYYY-MM-DD"),
+                  task_deadline: moment(
+                    queryTaskOBJ[propTsk].tDeadline,
+                    "YYYY-MM-DD"
+                  ),
+                  task_start_short: moment(
+                    queryTaskOBJ[propTsk].tStart,
+                    "YYYY-MM-DD"
+                  ).format("DD-MMM"),
+                  task_deadline_short: moment(
+                    queryTaskOBJ[propTsk].tDeadline,
+                    "YYYY-MM-DD"
+                  ).format("DD-MMM"),
+                  task_FTE: queryTaskOBJ[propTsk].tFTE,
+                  task_wkNo: moment(
+                    queryTaskOBJ[propTsk].tDeadline,
+                    "YYYY-MM-DD"
+                  ).week(),
+                  task_project: queryTaskOBJ[propTsk].tProject,
+                  task_ProjCat: queryTaskOBJ[propTsk].tProjCateg,
+                  task_status: queryTaskOBJ[propTsk].tStatus,
+                  task_owner: queryTaskOBJ[propTsk].tOwner.UID,
+                  task_owner_label: queryTaskOBJ[propTsk].tOwner.Label,
+                  task_isPrivate: queryTaskOBJ[propTsk].isPrivate,
+                  task_Createdby: queryTaskOBJ[propTsk].CreatedBy
+                };
+
+                data.OBJ.tasks.push(TskData);
+                // console.log(TskData)
+              }
+            }
+
             objVue.FireUsersArray.push(data);
-          });
+          }
           function sortTasks(a, b) {
             if (a.OBJ.name < b.OBJ.name) return -1;
             if (a.OBJ.name > b.OBJ.name) return 1;
             return 0;
           }
           objVue.FireUsersArray.sort(sortTasks);
-
-          objVue.GetFire_ForTasks();
+          objVue.ADDTasksIncat();
+          // debugger
         });
 
-      //set managers
-      db
-        .collection("Users")
-        .where("isManager", "==", true)
-        .get()
-        .then(doc => {
-          doc.forEach(LstItem => {
+
+       //set managers
+      RTDB.ref("/USERS/")
+        .orderByChild("isManager")
+        .equalTo(true)
+        .once("value", querySnapshot => {
+          const queryOBJ = querySnapshot.val();
+          for (var prop in queryOBJ) {
+            // console.log(queryOBJ[prop].tName);
             const data = {
               OBJ: {
-                name: LstItem.data().Label,
-                UID: LstItem.id
+                name: queryOBJ[prop].Label,
+                UID: prop
               }
             };
-
             objVue.FireManagersArray.push(data);
-          });
+          }
           function sortMNG(a, b) {
-            // if (b.OBJ.name == "All") return 1;
+            if (b.OBJ.name == "All") return 1;
             if (a.OBJ.name < b.OBJ.name) return -1;
             if (a.OBJ.name > b.OBJ.name) return 1;
             return 0;
           }
-
-          // objVue.FireManagersArray.push({ OBJ: { UID: "All", name: "All" } });
-          //  objVue.FireManagersArray.push({OBJ:{UID:"None",name:"None"}})
           objVue.FireManagersArray.sort(sortMNG);
-
-          // objVue.GetFire_ForTasks("All active");
         });
-    },
-    GetFire_ForTasks() {
-      var objVue = this;
 
-      //reset number of users
-      objVue.GotUsers = 0;
 
-      // populate user tasks
-      objVue.FireUsersArray.forEach(itm => {
-        objVue.GetFire_userTasks(itm.OBJ);
-      });
-    },
-    GetFire_userTasks(OBJ) {
-      // console.log("GetFire_user:" + OBJ.UID);
-      var objVue = this;
-      // get tasks for each user
-      db
-        .collection(OBJ.UID)
-        .where("t_isActive", "==", true)
-        .onSnapshot(querySnapshot => {
-          console.log("onSnapshot");
-          objVue.AddTasksInFireUsrsArr(OBJ, querySnapshot);
-        });
-    },
-    AddTasksInFireUsrsArr(OBJ, querySnapshot) {
-      var objVue = this;
-      // reset
-      OBJ.tasks = [];
 
-      querySnapshot.forEach(doc => {
-        // if (eval(queryString)) {
-        const data = {
-          id: doc.id,
-          task_name: doc.data().tName,
-          task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
-          task_start: moment(doc.data().tStart, "YYYY-MM-DD"),
-          task_deadline: moment(doc.data().tDeadline, "YYYY-MM-DD"),
-          task_start_short: moment(doc.data().tStart, "YYYY-MM-DD").format(
-            "DD-MMM"
-          ),
-          task_deadline_short: moment(
-            doc.data().tDeadline,
-            "YYYY-MM-DD"
-          ).format("DD-MMM"),
-          task_FTE: doc.data().tFTE,
-          task_wkNo: moment(doc.data().tDeadline, "YYYY-MM-DD").week(),
-          task_project: doc.data().tProject,
-          task_ProjCat: doc.data().tProjCateg,
-          task_status: doc.data().tStatus,
-          task_owner: OBJ.UID,
-          task_owner_label: OBJ.name,
-          task_isPrivate: doc.data().isPrivate,
-          task_Createdby: doc.data().CreatedBy
-        };
-        OBJ.tasks.push(data);
-        // }
-      });
-      // call next function if task got for all users
-      objVue.GotUsers++;
-      if (
-        objVue.GotUsers >= objVue.FireUsersArray.length &&
-        objVue.GotUsers > 0
-      ) {
-        objVue.ADDTasksIncat();
-      }
+      // db
+      //   .collection("Users")
+      //   .where("isOwner", "==", true)
+      //   .get()
+      //   .then(doc => {
+      //     doc.forEach(LstItem => {
+      //       const data = {
+      //         OBJ: {
+      //           name: LstItem.data().Label,
+      //           tasks: [],
+      //           UID: LstItem.id
+      //         }
+      //       };
+
+      //       // objVue.xFilteredUsersArr.push(data);
+      //       objVue.FireUsersArray.push(data);
+      //     });
+      //     function sortTasks(a, b) {
+      //       if (a.OBJ.name < b.OBJ.name) return -1;
+      //       if (a.OBJ.name > b.OBJ.name) return 1;
+      //       return 0;
+      //     }
+      //     objVue.FireUsersArray.sort(sortTasks);
+
+      //     objVue.GetFire_ForTasks();
+      //   });
+
+      //set managers
+      // db
+      //   .collection("Users")
+      //   .where("isManager", "==", true)
+      //   .get()
+      //   .then(doc => {
+      //     doc.forEach(LstItem => {
+      //       const data = {
+      //         OBJ: {
+      //           name: LstItem.data().Label,
+      //           UID: LstItem.id
+      //         }
+      //       };
+
+      //       objVue.FireManagersArray.push(data);
+      //     });
+      //     function sortMNG(a, b) {
+      //       // if (b.OBJ.name == "All") return 1;
+      //       if (a.OBJ.name < b.OBJ.name) return -1;
+      //       if (a.OBJ.name > b.OBJ.name) return 1;
+      //       return 0;
+      //     }
+
+      //     // objVue.FireManagersArray.push({ OBJ: { UID: "All", name: "All" } });
+      //     //  objVue.FireManagersArray.push({OBJ:{UID:"None",name:"None"}})
+      //     objVue.FireManagersArray.sort(sortMNG);
+
+      //     // objVue.GetFire_ForTasks("All active");
+      //   });
     },
+    // GetFire_ForTasks() {
+    //   var objVue = this;
+
+    //   //reset number of users
+    //   objVue.GotUsers = 0;
+
+    //   // populate user tasks
+    //   objVue.FireUsersArray.forEach(itm => {
+    //     objVue.GetFire_userTasks(itm.OBJ);
+    //   });
+    // },
+    // GetFire_userTasks(OBJ) {
+    //   // console.log("GetFire_user:" + OBJ.UID);
+    //   var objVue = this;
+    //   // get tasks for each user
+    //   db
+    //     .collection(OBJ.UID)
+    //     .where("t_isActive", "==", true)
+    //     .onSnapshot(querySnapshot => {
+    //       console.log("onSnapshot");
+    //       objVue.AddTasksInFireUsrsArr(OBJ, querySnapshot);
+    //     });
+    // },
+    // AddTasksInFireUsrsArr(OBJ, querySnapshot) {
+    //   var objVue = this;
+    //   // reset
+    //   OBJ.tasks = [];
+
+    //   querySnapshot.forEach(doc => {
+    //     // if (eval(queryString)) {
+    //     const data = {
+    //       id: doc.id,
+    //       task_name: doc.data().tName,
+    //       task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
+    //       task_start: moment(doc.data().tStart, "YYYY-MM-DD"),
+    //       task_deadline: moment(doc.data().tDeadline, "YYYY-MM-DD"),
+    //       task_start_short: moment(doc.data().tStart, "YYYY-MM-DD").format(
+    //         "DD-MMM"
+    //       ),
+    //       task_deadline_short: moment(
+    //         doc.data().tDeadline,
+    //         "YYYY-MM-DD"
+    //       ).format("DD-MMM"),
+    //       task_FTE: doc.data().tFTE,
+    //       task_wkNo: moment(doc.data().tDeadline, "YYYY-MM-DD").week(),
+    //       task_project: doc.data().tProject,
+    //       task_ProjCat: doc.data().tProjCateg,
+    //       task_status: doc.data().tStatus,
+    //       task_owner: OBJ.UID,
+    //       task_owner_label: OBJ.name,
+    //       task_isPrivate: doc.data().isPrivate,
+    //       task_Createdby: doc.data().CreatedBy
+    //     };
+    //     OBJ.tasks.push(data);
+    //     // }
+    //   });
+    //   // call next function if task got for all users
+    //   objVue.GotUsers++;
+    //   if (
+    //     objVue.GotUsers >= objVue.FireUsersArray.length &&
+    //     objVue.GotUsers > 0
+    //   ) {
+    //     objVue.ADDTasksIncat();
+    //   }
+    // },
     // aici se poate filtra
     ADDTasksIncat() {
       var objVue = this;
@@ -516,8 +629,10 @@ export default {
           if (eval(queryString)) {
             // allocate in array
             var taskFound = false;
+            
             objVue.FireProjCatArray.forEach(cat => {
               if (cat.name == task.task_ProjCat) {
+                // debugger
                 cat.tasks.push(task);
                 taskFound = true;
               }
@@ -544,44 +659,50 @@ export default {
       });
     },
     CompleteTask(task) {
-      if (!task.task_completed) {
-        db
-          .collection(task.task_owner)
-          .doc(task.id)
-          .update({
+       if (!task.task_completed) {
+        RTDB.ref(
+          "/USERS/" + task.task_owner + "/TASKS/" + task.id + "/"
+        ).update(
+          {
             tStatus: "Completed",
             tClosedDate: moment().format("YYYY-MM-DD")
-          })
-          .then(function() {
-            $(".material-tooltip").removeAttr("style");
-          })
-          .catch(function(error) {
-            console.error("Error writing document CompleteTask: ", error);
-          });
+          },
+          function(error) {
+            if (error) {
+              console.log(error);
+            } else {
+              $(".material-tooltip").removeAttr("style");
+              console.log("update done");
+            }
+          }
+        );
+     
       }
     },
     CancelTask(task) {
-      if (!task.task_completed) {
-        db
-          .collection(task.task_owner)
-          .doc(task.id)
-          .update({
+       if (!task.task_completed) {
+        RTDB.ref(
+          "/USERS/" + task.task_owner + "/TASKS/" + task.id + "/"
+        ).update(
+          {
             tStatus: "Canceled"
-          })
-          .then(function() {
-            $(".material-tooltip").removeAttr("style");
-          })
-          .catch(function(error) {
-            console.error("Error writing document CompleteTask: ", error);
-          });
+          },
+          function(error) {
+            if (error) {
+              console.log(error);
+            } else {
+              $(".material-tooltip").removeAttr("style");
+              console.log("update done");
+            }
+          }
+        );
+
       }
     },
     StartStop(task) {
       var newStatus =
         task.task_status == "In progress" ? "On hold" : "In progress";
-      db
-        .collection(task.task_owner)
-        .doc(task.id)
+      RTDB.ref("/USERS/" + task.task_owner + "/TASKS/" + task.id + "/")
         .update({
           tStatus: newStatus
         })

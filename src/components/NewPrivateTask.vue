@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import db from "./firebaseInit";
+// import db from "./firebaseInit";
 import fireList from "./fireLists";
 import firebase from "firebase";
 import RTDB from "./firebaseInitRTDB";
