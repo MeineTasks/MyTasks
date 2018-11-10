@@ -337,7 +337,7 @@ export default {
             const queryTaskOBJ = queryOBJ[prop].TASKS;
             // add user tasks if active
             for (var propTsk in queryTaskOBJ) {
-              if (queryTaskOBJ[propTsk].t_isActive) {
+              if (queryTaskOBJ[propTsk].t_isActive && !queryTaskOBJ[propTsk].isPrivate) {
                 // queryTaskOBJ[propTsk].id = propTsk;
                 // data.OBJ.tasks.push(queryTaskOBJ[propTsk]);
 

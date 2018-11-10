@@ -36,7 +36,7 @@
     </template>
       
     <script>
-// import db from "./firebaseInit";
+import db from "./old_firebaseInit";
 import firebase from "firebase";
 import RTDB from "./firebaseInitRTDB";
 
@@ -295,7 +295,7 @@ export default {
       var objVue = this;
       db.collection("Users")
         // .where("Label", "==", "Cip Cir")
-        .where("Label", "==", "Bogdan Trandafir")
+        // .where("Label", "==", "Bogdan Trandafir")
         .get()
         .then(doc => {
           doc.forEach(LstItem => {
@@ -304,8 +304,8 @@ export default {
             var UID = LstItem.id;
             var updates = {};
 
-            // updates["/USERS/" + UID + "/"] = LstItem.data();
-            // RTDB.ref().update(updates);
+            updates["/USERS/" + UID + "/"] = LstItem.data();
+            RTDB.ref().update(updates);
 
             // // read all tasks
             db.collection(UID)

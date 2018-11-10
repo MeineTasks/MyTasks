@@ -284,10 +284,15 @@ export default {
             };
             const queryTaskOBJ = queryOBJ[prop].TASKS;
             // add user tasks if active
+            
             for (var prop in queryTaskOBJ) {
-              if (queryTaskOBJ[prop].t_isActive) {
+              if (queryTaskOBJ[prop].t_isActive && !queryTaskOBJ[prop].isPrivate) {
                 // queryTaskOBJ[prop].id = prop;
-                // data.OBJ.tasks.push(queryTaskOBJ[prop]);
+                // data.OBJ.tasks.push(queryTaskOBJ[prop]);            
+            
+                if (queryTaskOBJ[prop].tOwner.UID=='undefined'){
+                  debugger
+                }
 
                 const TskData = {
                   id: prop,
