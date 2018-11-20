@@ -4,11 +4,11 @@
       <div class="row">
         <b>Step1:</b> <button type="button" @click="runF1" class="btn">Get data</button>
       </div>
-      <div class="row" v-if="GotUsers >= tasks.length && tasks.length>0">        
+      <!-- <div class="row" v-if="GotUsers >= tasks.length && tasks.length>0">        
         <b>Step2:</b> <button type="button" @click="runF2" class="btn blue">Get file</button>
-      </div>    
-      <div class="row" v-if="GotUsers >= tasks.length && tasks.length>0">            
-         <b>Step3:</b> Go to a <a href="https://json-csv.com/" target="_blank">online converter</a> and paste the json file content to obtain a CSV
+      </div>     -->
+      <div class="row" v-if="GotUsers">            
+         <b>Step2:</b> Go to a <a href="https://json-csv.com/" target="_blank">online converter</a> and paste the json file content to obtain a CSV
       </div>      
     
       <div class="row" v-if="forCip">
@@ -48,7 +48,7 @@ export default {
     return {
       tasks: [],
       UsersAndArrays: [],
-      GotUsers: 0,
+      GotUsers: false,
       forCip: true,
       testArr: []
     };
@@ -56,134 +56,113 @@ export default {
   methods: {
     DoArchive() {
       var objVue = this;
-      db.collection("Users")
-        // .where("isManager","==",true)
-        .get()
-        .then(doc => {
-          doc.forEach(LstItem => {
-            const data = {
-              OBJ: {
-                name: LstItem.data().Label,
-                // tasks: [],
-                // isOwner: LstItem.data().isOwner,
-                // isManager: LstItem.data().isManager,
-                UID: LstItem.id
-              }
-            };
+      
+      // this.SetArchiveFlag("YPPNyRXLbXZhfgZ6i4ITY68kqY02", "3UZAOB32TW0HAu9DcTbj") 
 
-            objVue.UsersAndArrays.push(data);
-          });
-          function sortTasks(a, b) {
-            if (a.OBJ.name < b.OBJ.name) return -1;
-            if (a.OBJ.name > b.OBJ.name) return 1;
-            return 0;
-          }
-          // objVue.UsersAndArrays.sort(sortTasks);
 
-          // this.exportDB(this.UsersAndArrays)
-          objVue.GotUsers = 0;
-          //objVue.arhiveTasksForUser("YqRVNtuUu3aAHt6g2YW05OxIsj42");
+      RTDB.ref("USERS")        
+        .once("value", querySnapshot => {
+          const queryOBJ = querySnapshot.val();
+          var ActiveDate = moment("10/1/2018", "MM/DD/YYYY");
 
-          this.UsersAndArrays.forEach(user => {
-            objVue.arhiveTasksForUser(user.OBJ.UID);
-          });
-        });
-    },
-    arhiveTasksForUser(userID) {
-      var objVue = this;
-
-      db.collection(userID)
-        .get()
-        .then(querySnapshot => {
-          var ActiveDate = moment("9/1/2018", "MM/DD/YYYY");
-          querySnapshot.forEach(task => {
-            if (
-              moment(task.data().tDeadline, "YYYY-MM-DD").isBefore(
+          for (var prop in queryOBJ) {
+            const queryTskOBJ= queryOBJ[prop].TASKS
+            for (var Tprop in queryTskOBJ) {              
+                if (
+              moment(queryTskOBJ[Tprop].tDeadline, "YYYY-MM-DD").isBefore(
                 ActiveDate
               ) &&
-              task.data().t_isActive &&
-              (task.data().tStatus == "Completed" ||
-                task.data().tStatus == "Canceled")
+              queryTskOBJ[Tprop].t_isActive &&
+              (queryTskOBJ[Tprop].tStatus == "Completed" ||
+                queryTskOBJ[Tprop].tStatus == "Canceled")
             ) {
-              console.log(task.data());
-              objVue.SetArchiveFlag(userID, task.id);
+              console.log(prop,Tprop)
+              // console.log( queryTskOBJ[Tprop]);
+              objVue.SetArchiveFlag(prop,Tprop);
             }
-          });
+            }
+          }
+        }).then(succ=>{
+          console.log("arhivation complete")
+        })
+        ;
 
-          // objVue.tasks.push(data);
 
-          objVue.GotUsers++;
-          // if (objVue.GotUsers >= objVue.tasks.length) {
-          //  // objVue.exportDB(objVue.tasks);
-          //  alert("done")
-          // }
-        });
     },
-    SetArchiveFlag(UID, TaskID) {
-      db.collection(UID)
-        .doc(TaskID)
-        .set({ t_isActive: false }, { merge: true });
+    SetArchiveFlag(UID, TaskID) {      
+        RTDB.ref("/USERS/" + UID + "/TASKS/" + TaskID + "/")
+        .update({ t_isActive: false });
     },
     runF1() {
-      this.GetFire_users();
+      this.GetRTDB_users();
     },
 
     GetFire_users() {
-      var objVue = this;
-      db.collection("Users")
-        // .where("isManager","==",true)
-        .get()
-        .then(doc => {
-          doc.forEach(LstItem => {
-            const data = {
-              OBJ: {
-                name: LstItem.data().Label,
-                // tasks: [],
-                isOwner: LstItem.data().isOwner,
-                isManager: LstItem.data().isManager,
-                UID: LstItem.id
-              }
-            };
+      // var objVue = this;
+      // db.collection("Users")
+      //   // .where("isManager","==",true)
+      //   .get()
+      //   .then(doc => {
+      //     doc.forEach(LstItem => {
+      //       const data = {
+      //         OBJ: {
+      //           name: LstItem.data().Label,
+      //           // tasks: [],
+      //           isOwner: LstItem.data().isOwner,
+      //           isManager: LstItem.data().isManager,
+      //           UID: LstItem.id
+      //         }
+      //       };
 
-            objVue.UsersAndArrays.push(data);
-          });
-          function sortTasks(a, b) {
-            if (a.OBJ.name < b.OBJ.name) return -1;
-            if (a.OBJ.name > b.OBJ.name) return 1;
-            return 0;
-          }
-          // objVue.UsersAndArrays.sort(sortTasks);
+      //       objVue.UsersAndArrays.push(data);
+      //     });
+      //     function sortTasks(a, b) {
+      //       if (a.OBJ.name < b.OBJ.name) return -1;
+      //       if (a.OBJ.name > b.OBJ.name) return 1;
+      //       return 0;
+      //     }
+      //     // objVue.UsersAndArrays.sort(sortTasks);
 
-          // this.exportDB(this.UsersAndArrays)
-          objVue.GotUsers = 0;
+      //     // this.exportDB(this.UsersAndArrays)
+      //     objVue.GotUsers = 0;
 
-          this.UsersAndArrays.forEach(user => {
-            objVue.getTasksForUsers(user.OBJ.UID);
-          });
-        });
+      //     this.UsersAndArrays.forEach(user => {
+      //       objVue.getTasksForUsers(user.OBJ.UID);
+      //     });
+      //   });
     },
     getTasksForUsers(userID) {
+      // var objVue = this;
+
+      // db.collection(userID)
+      //   .get()
+      //   .then(querySnapshot => {
+      //     const data = {
+      //       UID: userID,
+      //       tasks: []
+      //     };
+      //     querySnapshot.forEach(task => {
+      //       data.tasks.push(task.data());
+      //     });
+
+      //     objVue.tasks.push(data);
+
+      //     // objVue.GotUsers++;
+      //     // if (objVue.GotUsers >= objVue.tasks.length) {
+      //     //  // objVue.exportDB(objVue.tasks);
+      //     //  alert("done")
+      //     // }
+      //   });
+    },
+      GetRTDB_users() {
       var objVue = this;
-
-      db.collection(userID)
-        .get()
-        .then(querySnapshot => {
-          const data = {
-            UID: userID,
-            tasks: []
-          };
-          querySnapshot.forEach(task => {
-            data.tasks.push(task.data());
-          });
-
-          objVue.tasks.push(data);
-
-          objVue.GotUsers++;
-          // if (objVue.GotUsers >= objVue.tasks.length) {
-          //  // objVue.exportDB(objVue.tasks);
-          //  alert("done")
-          // }
-        });
+      RTDB.ref("USERS")        
+        .once("value", querySnapshot => {
+          objVue.testArr = querySnapshot.val();          
+        }).then(succ=>{
+          objVue.exportDB(objVue.testArr)
+        })
+        ;
     },
     exportDB(myObject) {
       function downloadTextFile(text, name) {
@@ -198,63 +177,40 @@ export default {
         JSON.stringify(myObject),
         "dbBKP_" + moment().format("YYYY_MM_DD_HH-SS") + ".json"
       );
+      this.GotUsers=true
     },
     GetFire_ForTasks(opt) {
-      var objVue = this;
-      // objVue.nSelectedStatus = opt;
+      // var objVue = this;
+      // // objVue.nSelectedStatus = opt;
 
-      objVue.UsersAndArrays.forEach(itm => {
-        objVue.GetFire_userTasks(itm.OBJ);
-      });
-      // "YPPNyRXLbXZhfgZ6i4ITY68kqY02" - test
+      // objVue.UsersAndArrays.forEach(itm => {
+      //   objVue.GetFire_userTasks(itm.OBJ);
+      // });
+      // // "YPPNyRXLbXZhfgZ6i4ITY68kqY02" - test
     },
     GetFire_userTasks(OBJ) {
-      var objVue = this;
-      db.collection(OBJ.UID)
-        .get()
-        .then(querySnapshot => {
-          // reset
-          OBJ.tasks = [];
+      // var objVue = this;
+      // db.collection(OBJ.UID)
+      //   .get()
+      //   .then(querySnapshot => {
+      //     // reset
+      //     OBJ.tasks = [];
 
-          querySnapshot.forEach(doc => {
-            db.collection(OBJ.UID)
-              .doc(doc.id)
-              .update({ isPrivate: false });
-            //  OBJ.tasks.push(doc.data());
-            //update
-          });
-          // call next function
-          // console.log(OBJ.UID+" done")
-        });
+      //     querySnapshot.forEach(doc => {
+      //       db.collection(OBJ.UID)
+      //         .doc(doc.id)
+      //         .update({ isPrivate: false });
+      //       //  OBJ.tasks.push(doc.data());
+      //       //update
+      //     });
+      //     // call next function
+      //     // console.log(OBJ.UID+" done")
+      //   });
     },
-    runF1s() {
-      var vueobj = this.tasks;
-      db.collection("YqRVNtuUu3aAHt6g2YW05OxIsj42")
-        .get()
-        .then(function(querySnapshot) {
-          querySnapshot.forEach(function(doc) {
-            //console.log(docs)
-            // doc.data() is never undefined for query doc snapshots
-            // doc.set({t_isActive: true},{ merge: true })
-            vueobj.push(doc.data());
-          });
-        })
-        .then(function() {
-          console.log("runF1 done");
-        })
-        .catch(function(error) {
-          console.log("Error getting documents: ", error);
-        });
-    },
-    runF2() {
-      // var objVue=this.tasks
-
-      this.exportDB(this.tasks);
-    },
-
+    
     runCipF1() {
-      // this.Cip_GetFire_users();
-      this.Cip_MoveFire_usersTasks();
+      this.GetRTDB_users();
+      // this.Cip_MoveFire_usersTasks();
     },
     Cip_MoveFire_lists() {
       var objVue = this;
@@ -324,37 +280,7 @@ export default {
           console.log("cip move user tasks Done");
         });
     },
-    GetRTDB_users() {
-      var objVue = this;
-      RTDB.ref("USERS")
-        // .orderByChild("isManager")
-        // .equalTo(true)
-        // .once("value")
-        .on("value", querySnapshot => {
-          objVue.testArr = querySnapshot.val();
-          console.log(querySnapshot.val());
-          // querySnapshot.forEach(snapshot => {
-          //   const data = {
-          //     id: snapshot.key,
-          //     isOwner: snapshot.val().isOwner,
-          //     name: snapshot.val().name
-          //   };
-          //   objVue.testArr.push(data);
-          //   // console.log(snapshot.val());
-          //   // console.log(snapshot.key);
-          // });
-        });
-      db.collection("UserTasks")
-        .get()
-        .then(doc => {
-          // console.log(doc)
-
-          doc.forEach(LstItem => {
-            debugger;
-            console.log(LstItem);
-          });
-        });
-    },
+  
 
     GetFire_Cip_users() {
       var objVue = this;
@@ -391,7 +317,7 @@ export default {
         });
     },
     runCipF2() {
-      this.exportDB(this.UsersAndArrays);
+      this.exportDB(this.testArr);
     }
   }
 };

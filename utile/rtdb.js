@@ -22,11 +22,12 @@ RTDB.ref("/USERS/" + UID + "/TASKS/" + TAKSID + "/")
     console.log("got data");
   });
 // UPDATE DATA
+// ovveride
 REF.set(TasksArr).then(ceva => {
   vueObj.showNewProj = false;
   console.log("done");
 });
-
+// merge update
 REF.update({ [vueObj.AddNewProjCat]: { 0: "" } })
   .then(function() {
     vueObj.showNewProjCat = false;
