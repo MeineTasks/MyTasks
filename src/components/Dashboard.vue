@@ -121,7 +121,7 @@
            <div v-if="task.t_isPrivate" class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Delete</span>">
             <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
           </div>
-          <div class="col ">
+          <div  class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Archive</span>">
             <i @click="CloseTask(task)" class="fas fa-eye-slash"></i>
           </div>
           <div class="col ">
@@ -182,20 +182,21 @@ export default {
       });
     },
     ViewCanceled: function() {
+      // $(".tooltipped").tooltip();
       return this.tasksDashboard.filter(function(task) {
         return task.task_canceled == true;
       });
     }
   },
-  // updated() {
-  //   // $(".sidenav").sidenav();
-  //   console.log("updated");
-  //   $(".tooltipped").tooltip();
-  //   // this.SetGraphic();
-  // },
+  updated() {
+    //   // $(".sidenav").sidenav();
+    // console.log("updated");
+    $(".tooltipped").tooltip();
+    //   // this.SetGraphic();
+  },
   created() {},
   mounted() {
-    $(".tooltipped").tooltip();
+    // $(".tooltipped").tooltip();
   },
   methods: {
     SetGraphic() {
