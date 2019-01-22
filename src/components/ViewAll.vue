@@ -1,57 +1,111 @@
 <template>
-  <div id="dashboard" style="margin: 0px 50px;">    
+  <div id="dashboard" style="margin: 0px 50px;">
     <div class="row hide-on-small-only myHeader">
-        <h6 class="col m2 s12">Task name</h6>
-        <h6 class="col m3 s12">Description</h6>   
-        <h6 class="col m1 s12">Category</h6>     
-        <h6 class="col m1 s12">Attachments</h6>
-        <h6 class="col m1 s12">Status</h6>
-        <h6 class="col m1 s12">Deadline</h6>  
-        <h6 class="col m1 s12 truncate">FTE</h6>      
-        <h6 class="col m1 s12">Is archived</h6>
-        <h6 class="col iconContainer">
-          <!-- <span class="red-text">Close</span> -->
-          <span >Edit</span>
-        </h6>
+      <h6 class="col m2 s12">Task name</h6>
+      <h6 class="col m3 s12">Description</h6>
+      <h6 class="col m1 s12">Category</h6>
+      <h6 class="col m1 s12">Attachments</h6>
+      <h6 class="col m1 s12">Status</h6>
+      <h6 class="col m1 s12">Deadline</h6>
+      <h6 class="col m1 s12 truncate">FTE</h6>
+      <h6 class="col m1 s12">Is archived</h6>
+      <h6 class="col iconContainer">
+        <!-- <span class="red-text">Close</span> -->
+        <span>Edit</span>
+      </h6>
     </div>
     <!-- view in progress -->
-    <div 
-      v-bind:class="[{'notActive':tasks.task_isActive},task.task_status.replace(' ','')]" 
-      v-for="task in tasks" 
-      v-bind:key="task.id" 
-      class="row">
-        <div class="col m2 s12"><span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name"><b>{{task.task_name}}</b></span></div>
-        <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>     
-        <div class="col m1 s12 truncate"><i>{{task.task_projectCategory}}</i></div>
-        <div class="col m1 s12">
-              <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
-              <span id="Attachment_span" v-html="attach" >                
-              </span>
-            </div>
+    <div
+      v-bind:class="[{'notActive':tasks.task_isActive},task.task_status.replace(' ','')]"
+      v-for="task in activeTasks"
+      v-bind:key="task.id"
+      class="row"
+    >
+      <div class="col m2 s12">
+        <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name">
+          <b>{{task.task_name}}</b>
+        </span>
+      </div>
+      <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
+      <div class="col m1 s12 truncate">
+        <i>{{task.task_projectCategory}}</i>
+      </div>
+      <div class="col m1 s12">
+        <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
+          <span id="Attachment_span" v-html="attach"></span>
         </div>
-        <div class="col m1 s12"><i>{{task.task_status}}</i></div>
-        <div class="col m1 s12">{{task.task_deadline}}</div>
-        <div class="col m1 s12">{{task.task_FTE}}</div> 
-        <div class="col m1 s12">{{task.task_isActive}}</div>     
-        <div v-if="isLoggedIn" class="col iconContainer" >
-          <!-- <div class="col ">
+      </div>
+      <div class="col m1 s12">
+        <i>{{task.task_status}}</i>
+      </div>
+      <div class="col m1 s12">{{task.task_deadline}}</div>
+      <div class="col m1 s12">{{task.task_FTE}}</div>
+      <div class="col m1 s12">{{task.task_isActive}}</div>
+      <div v-if="isLoggedIn" class="col iconContainer">
+        <!-- <div class="col ">
             <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
-          </div> -->
-          <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Edit</span>">
-            <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
-              <i class="fas fa-edit"></i>
-            </router-link>  
-          </div>
-        </div> 
-    </div>
-    <!-- add new -->
-        <div class="fixed-action-btn">
-          <router-link to ="/AddNew" class="btn-floating btn-large blue">
-            <i class="fa fa-plus-square"></i>
+        </div>-->
+        <div
+          class="col tooltipped"
+          data-position="top"
+          data-tooltip="<span style='font-size:small'>Edit</span>"
+        >
+          <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+            <i class="fas fa-edit"></i>
           </router-link>
         </div>
+      </div>
+    </div>
+    <hr>
+    <!-- view archived -->
+    <div
+      v-bind:class="[{'notActive':tasks.task_isActive},task.task_status.replace(' ','')]"
+      v-for="task in archivedTasks"
+      v-bind:key="task.id"
+      class="row archived"
+    >
+      <div class="col m2 s12">
+        <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name">
+          <b>{{task.task_name}}</b>
+        </span>
+      </div>
+      <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
+      <div class="col m1 s12 truncate">
+        <i>{{task.task_projectCategory}}</i>
+      </div>
+      <div class="col m1 s12">
+        <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
+          <span id="Attachment_span" v-html="attach"></span>
+        </div>
+      </div>
+      <div class="col m1 s12">
+        <i>{{task.task_status}}</i>
+      </div>
+      <div class="col m1 s12">{{task.task_deadline}}</div>
+      <div class="col m1 s12">{{task.task_FTE}}</div>
+      <div class="col m1 s12">{{task.task_isActive}}</div>
+      <div v-if="isLoggedIn" class="col iconContainer">
+        <!-- <div class="col ">
+            <i @click="CloseTask(task)" class="fas fa-trash-alt"></i>
+        </div>-->
+        <div
+          class="col tooltipped"
+          data-position="top"
+          data-tooltip="<span style='font-size:small'>Edit</span>"
+        >
+          <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+            <i class="fas fa-edit"></i>
+          </router-link>
+        </div>
+      </div>
+    </div>
+    <!-- add new -->
+    <div class="fixed-action-btn">
+      <router-link to="/AddNew" class="btn-floating btn-large blue">
+        <i class="fa fa-plus-square"></i>
+      </router-link>
+    </div>
   </div>
-  
 </template>
 
 <script>
@@ -69,7 +123,8 @@ export default {
       // isLoggedIn: false,
       hasDone: false,
       viewDone: null,
-      tasks: [],
+      activeTasks: [],
+      archivedTasks: [],
       logData: []
     };
   },
@@ -89,8 +144,8 @@ export default {
           const queryOBJ = querySnapshot.val();
 
           function sortTasks(a, b) {
-            if (a.task_isActive < b.task_isActive) return -1;
-            if (a.task_isActive > b.task_isActive) return 1;
+            if (a.task_deadline < b.task_deadline) return 1;
+            if (a.task_deadline > b.task_deadline) return -1;
             return 0;
           }
 
@@ -110,9 +165,16 @@ export default {
               task_attachement: queryOBJ[prop].tAttach,
               task_isActive: !queryOBJ[prop].t_isActive
             };
-            vueObj.tasks.push(data);
+            if (data.task_isActive) {
+              vueObj.archivedTasks.push(data);
+            } else {
+              vueObj.activeTasks.push(data);
+            }
+            // vueObj.tasks.push(data);
           }
-          vueObj.tasks.sort(sortTasks);
+          // vueObj.tasks.sort(sortTasks);
+          vueObj.archivedTasks.sort(sortTasks);
+          vueObj.activeTasks.sort(sortTasks);
         }
       );
     }
@@ -156,8 +218,9 @@ h6 {
 }
 .row {
   margin-bottom: 5px !important;
-  background-color: white !important;
+  background-color: white; /*!important;*/
 }
+
 .logTigle {
   color: teal;
 }
@@ -199,5 +262,8 @@ h6 {
 .GraphContainer {
   margin-top: 30px;
   padding: 5px;
+}
+.archived {
+  background-color: lightgrey !important;
 }
 </style>

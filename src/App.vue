@@ -1,16 +1,15 @@
 <template>
-  <div id="app">   
-    <Navbar :isManager="isManager" :isLoggedIn="isLoggedIn" />
+  <div id="app">
+    <Navbar :isManager="isManager" :isLoggedIn="isLoggedIn"/>
     <div style="margin-top:10px">
       <router-view
-      :tasksDashboard="tasksDashboard"      
-      :tasksMyActive="tasksMyActive"
-      
-      :chartData="chartData"
-      :isLoggedIn="isLoggedIn"
-      :isManager="isManager"
+        :tasksDashboard="tasksDashboard"
+        :tasksMyActive="tasksMyActive"
+        :chartData="chartData"
+        :isLoggedIn="isLoggedIn"
+        :isManager="isManager"
       />
-    </div>    
+    </div>
   </div>
 </template>
 
@@ -47,7 +46,10 @@ export default {
         .orderByKey()
         .equalTo(UID)
         .once("value", querySnapshot => {
-          if (querySnapshot.val()[UID].isManager) {
+          if (
+            querySnapshot.val()[UID].isManager ||
+            firebase.auth().currentUser.email == "ciprian.ciresaru@ipsos.com"
+          ) {
             vueObj.isManager = true;
           }
         });
