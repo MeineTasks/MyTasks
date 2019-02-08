@@ -3,7 +3,7 @@
     <div class="row hide-on-small-only myHeader">
       <h6 class="col m2 s12">Task name</h6>
       <h6 class="col m3 s12">Description</h6>
-      <h6 class="col m1 s12 truncate">Category</h6>
+      <h6 class="col m1 s12 truncate">Project</h6>
       <h6 class="col m2 s12 truncate">Attachments</h6>
       <h6 class="col m1 s12 truncate">Status</h6>
       <h6 class="col m1 s12 truncate">Deadline</h6>
@@ -21,7 +21,7 @@
       </div>
       <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
       <div class="col m1 s12 truncate">
-        <i>{{task.task_projectCategory}}</i>
+        <i>{{task.task_project}}</i>
       </div>
       <div class="col m2 s12">
         <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
@@ -67,7 +67,7 @@
       </div>
       <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
       <div class="col m1 s12 truncate">
-        <i>{{task.task_projectCategory}}</i>
+        <i>{{task.task_project}}</i>
       </div>
       <div class="col m2 s12">
         <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
@@ -117,7 +117,7 @@
       </div>
       <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
       <div class="col m1 s12 truncate">
-        <i>{{task.task_projectCategory}}</i>
+        <i>{{task.task_project}}</i>
       </div>
       <div class="col m2 s12">
         <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
