@@ -124,7 +124,7 @@ import RTDB from "./firebaseInitRTDB";
 var moment = require("moment");
 
 export default {
-  name: "new-task",
+  name: "new-task-mng",
   data() {
     return {
       FTAarray: fireList.FTEList,
@@ -173,9 +173,11 @@ export default {
   methods: {
     updateDeadline() {
       console.log("update");
-      this.task_deadline = moment(this.task_start, "YYYY-MM-DD")
-        .weekday(5)
-        .format("YYYY-MM-DD");
+      if (this.task_start!=""){
+        this.task_deadline = moment(this.task_start, "YYYY-MM-DD")
+          .weekday(5)
+          .format("YYYY-MM-DD");
+      }
     },
 
     GetUserFTE() {
@@ -232,8 +234,8 @@ export default {
           return false;
         }
       } else {
-        this.task_start = null;
-        this.task_deadline = null;
+        this.task_start = "";
+        this.task_deadline = "";
         this.task_fte = "TBD";
       }
 
@@ -273,6 +275,7 @@ export default {
         M.toast({ html: "Attachment URL should be empty" });
         return false;
       }
+      
       // return true;
       RTDB.ref("/USERS/" + this.SelectedOwner.UID + "/TASKS/")
         .push({

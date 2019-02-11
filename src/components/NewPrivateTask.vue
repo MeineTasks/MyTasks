@@ -25,7 +25,7 @@
           <div class="row">
               <label class="active">Status:</label>
               <div class="input-field col s12">
-                  <span @click="nSelectedStatus=opt" v-if="opt!='Not allocated'" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
+                  <span @click="nSelectedStatus=opt" v-for="opt in nStatusesList.filter(opt=>opt!='Not allocated')" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
               </div>
