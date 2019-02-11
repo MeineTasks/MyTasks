@@ -521,6 +521,8 @@ export default {
           vueObj.$route.params.task_id +
           "/"
       ).once("value", querySnapshot => {
+        // Changes to the clone
+
         //extend timings with one week
         var TaskObj = querySnapshot.val();
         TaskObj.tStart = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
@@ -530,6 +532,9 @@ export default {
           .weekday(12)
           .format("YYYY-MM-DD");
         TaskObj.tStatus = "In progress";
+        //AlexP
+        TaskObj.tFTE="TBD"
+        
         // add new task on same user
         RTDB.ref("/USERS/" + vueObj.$route.query.uid + "/TASKS/")
           .push(TaskObj)
