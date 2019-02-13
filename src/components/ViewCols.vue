@@ -1,181 +1,381 @@
 <template>
-  <div id="dashboard">    
+  <div id="dashboard">
     <div class="row">
-       <div class="col m2 s12">
-        <center><h3>No date</h3></center>
+      <div class="col m2 s12">
+        <center>
+          <h3>No date</h3>
+        </center>
         <!-- vue component structure 1 -->
-        <div v-for="task in ViewCat1" v-bind:key="task.id" class="col s12">
-          <div class="card" v-bind:class="task.task_status=='In progress' ? 'inProgressBar' : 'onHoldBar'">
-            <div class="card-content">                
-              <span class="MyTitle"> 
+        <div
+          v-for="task in ViewCat1"
+          v-bind:key="task.id"
+          class="col s12"
+        >
+          <div
+            class="card"
+            v-bind:class="task.task_status.replace(' ','')+'Bar'"
+          >
+            <div class="card-content">
+              <span class="MyTitle">
                 <span>
                   {{task.task_name}}
-                </span>                
+                </span>
               </span>
-              <span class="tskDetails" v-html="task.task_description"></span>
+              <span
+                class="tskDetails"
+                v-html="task.task_description"
+              ></span>
               <div v-if="task.task_attachement.length!=0">
-                <hr/>
+                <hr />
                 <span class="cyan-text">Attachments:</span>
-                  <div class="Attachment_spans" v-for="attach in task.task_attachement" v-bind:key="attach.id">                   
-                  <span class="attSpan" v-html="attach"></span>
+                <div
+                  class="Attachment_spans"
+                  v-for="attach in task.task_attachement"
+                  v-bind:key="attach.id"
+                >
+                  <span
+                    class="attSpan"
+                    v-html="attach"
+                  ></span>
                 </div>
               </div>
               <!-- status and deadline -->
-              <hr/>
-               <div class="row valign-wrapper" style="margin-left:0px"> 
-                <div class="chip col truncate" v-bind:class="task.task_status=='In progress' ? 'inProgress' : 'onHold'">{{task.task_status}}</div>
+              <hr />
+              <div
+                class="row valign-wrapper"
+                style="margin-left:0px"
+              >
+                <div
+                  class="chip col truncate"
+                  v-bind:class="task.task_status.replace(' ','')"
+                >{{task.task_status}}</div>
                 <span class="col myDates valign-wrapper">
                   <span class="col">{{task.task_deadline}}</span>
-                  <span v-if="task.task_FTE!='TBD' && task.task_FTE!='none'" class="col red-text">{{task.task_FTE}} FTE</span> 
+                  <span
+                    v-if="task.task_FTE!='TBD' && task.task_FTE!='none'"
+                    class="col red-text"
+                  >{{task.task_FTE}} FTE</span>
                 </span>
               </div>
-              <hr/>
-             <!-- START icon container -->
+              <hr />
+              <!-- START icon container -->
               <div class="row iconContainer">
-                <div class="col m4 s4">                  
-                  <router-link class="tooltipped" data-position="top" data-tooltip="Edit" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+                <div class="col m4 s4">
+                  <router-link
+                    class="tooltipped"
+                    data-position="top"
+                    data-tooltip="Edit"
+                    v-bind:to="{name:'edit-task',params:{task_id:task.id}}"
+                  >
                     <i class="fas fa-edit"></i>
-                  </router-link>    
+                  </router-link>
                 </div>
-                <div class="col m4 s4">                  
-                  <span class="myBtn tooltipped" data-position="top" data-tooltip="Complete">                    
-                    <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
+                <div class="col m4 s4">
+                  <span
+                    class="myBtn tooltipped"
+                    data-position="top"
+                    data-tooltip="Complete"
+                  >
+                    <i
+                      @click="CompleteTask(task)"
+                      v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'"
+                      class="fas"
+                    ></i>
                   </span>
                 </div>
-                 <div class="col m4 s4">                  
-                  <span class="myBtn tooltipped" data-position="top" data-tooltip="Start/Stop" >                    
-                    <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"  class="far"></i>
+                <div class="col m4 s4">
+                  <span
+                    class="myBtn tooltipped"
+                    data-position="top"
+                    data-tooltip="Start/Stop"
+                  >
+                    <i
+                      @click="StartStop(task)"
+                      v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"
+                      class="far"
+                    ></i>
                   </span>
-                </div>                
+                </div>
               </div>
               <!-- END icon container -->
-            </div>           
+            </div>
           </div>
         </div>
       </div>
       <div class="col m5 s12">
-        <center><h3>Today</h3></center>
+        <center>
+          <h3>Today</h3>
+        </center>
         <!-- vue component structure 2-->
-        <div 
-          v-for="task in ViewCat2" 
-          v-bind:key="task.id"           
-          class="col m6 s12" >
-          <div class="card" v-bind:class="task.task_status=='In progress' ? 'inProgressBar' : 'onHoldBar'">
+        <div
+          v-for="task in ViewCat2"
+          v-bind:key="task.id"
+          class="col m6 s12"
+        >
+          <div
+            class="card"
+            v-bind:class="task.task_status.replace(' ','')+'Bar'"
+          >
             <div class="card-content">
-              <span class="MyTitle"> 
+              <span class="MyTitle">
                 <span>
                   {{task.task_name}}
                 </span>
               </span>
-              <span class="tskDetails" v-html="task.task_description"></span>
+              <span
+                class="tskDetails"
+                v-html="task.task_description"
+              ></span>
               <div v-if="task.task_attachement.length!=0">
-                <hr/>
+                <hr />
                 <span class="cyan-text">Attachments:</span>
-                  <div class="Attachment_spans" v-for="attach in task.task_attachement" v-bind:key="attach.id">                   
-                  <span class="attSpan" v-html="attach"></span>
+                <div
+                  class="Attachment_spans"
+                  v-for="attach in task.task_attachement"
+                  v-bind:key="attach.id"
+                >
+                  <span
+                    class="attSpan"
+                    v-html="attach"
+                  ></span>
                 </div>
               </div>
-              <hr/>
+              <hr />
               <!-- status and deadilne -->
-              <div class="row valign-wrapper" style="margin-left:0px">                          
-                <div class="chip col truncate" v-bind:class="task.task_status=='In progress' ? 'inProgress' : 'onHold'">{{task.task_status}}</div>
+              <div
+                class="row valign-wrapper"
+                style="margin-left:0px"
+              >
+                <div
+                  class="chip col truncate"
+                  v-bind:class="task.task_status.replace(' ','')"
+                >{{task.task_status}}</div>
                 <span class="col myDates valign-wrapper">
                   <span class="col">{{task.task_deadline}}</span>
-                  <span v-if="task.task_FTE!='TBD' && task.task_FTE!='none'" class="col red-text">{{task.task_FTE}} FTE</span> 
+                  <span
+                    v-if="task.task_FTE!='TBD' && task.task_FTE!='none'"
+                    class="col red-text"
+                  >{{task.task_FTE}} FTE</span>
                 </span>
-              </div>              
-              <hr/>
-             <!-- START icon container -->
+              </div>
+              <hr />
+              <!-- START icon container -->
               <div class="row iconContainer">
-                <div class="col m4 s4">                  
-                  <router-link class="tooltipped" data-position="top" data-tooltip="Edit" v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+                <div class="col m4 s4">
+                  <router-link
+                    class="tooltipped"
+                    data-position="top"
+                    data-tooltip="Edit"
+                    v-bind:to="{name:'edit-task',params:{task_id:task.id}}"
+                  >
                     <i class="fas fa-edit"></i>
-                  </router-link>    
+                  </router-link>
                 </div>
-                <div class="col m4 s4">                  
-                  <span class="myBtn tooltipped" data-position="top" data-tooltip="Complete">                    
-                    <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
+                <div class="col m4 s4">
+                  <span
+                    class="myBtn tooltipped"
+                    data-position="top"
+                    data-tooltip="Complete"
+                  >
+                    <i
+                      @click="CompleteTask(task)"
+                      v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'"
+                      class="fas"
+                    ></i>
                   </span>
                 </div>
-                 <div class="col m4 s4">                  
-                  <span class="myBtn tooltipped" data-position="top" data-tooltip="Start/Stop" >                    
-                    <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"  class="far"></i>
+                <div class="col m4 s4">
+                  <span
+                    class="myBtn tooltipped"
+                    data-position="top"
+                    data-tooltip="Start/Stop"
+                  >
+                    <i
+                      @click="StartStop(task)"
+                      v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"
+                      class="far"
+                    ></i>
                   </span>
-                </div>                
+                </div>
               </div>
               <!-- END icon container -->
-            </div>           
+            </div>
           </div>
         </div>
       </div>
-      <div  class="col m5 s12">
-        <center><h3>Future</h3></center>
+      <div class="col m5 s12">
+        <center>
+          <h3>Future</h3>
+        </center>
         <!-- vue component structure 3 -->
-        <div  v-for="task in ViewCat3" v-bind:key="task.id" class="col m6 s12">
-          <div class="card" v-bind:class="task.task_status=='In progress' ? 'inProgressBar' : 'onHoldBar'">
-            <div class="card-content">                
-              <span class="MyTitle"> 
+        <div
+          v-for="task in ViewCat3"
+          v-bind:key="task.id"
+          class="col m6 s12"
+        >
+          <div
+            class="card"
+            v-bind:class="task.task_status.replace(' ','')+'Bar'"
+          >
+            <div class="card-content">
+              <span class="MyTitle">
                 <span>
                   {{task.task_name}}
-                </span>                
+                </span>
               </span>
-              <span class="tskDetails" v-html="task.task_description"></span>
+              <span
+                class="tskDetails"
+                v-html="task.task_description"
+              ></span>
               <div v-if="task.task_attachement.length!=0">
-                <hr/>
+                <hr />
                 <span class="cyan-text">Attachments:</span>
-                  <div class="Attachment_spans" v-for="attach in task.task_attachement" v-bind:key="attach.id">                   
-                  <span class="attSpan" v-html="attach"></span>
+                <div
+                  class="Attachment_spans"
+                  v-for="attach in task.task_attachement"
+                  v-bind:key="attach.id"
+                >
+                  <span
+                    class="attSpan"
+                    v-html="attach"
+                  ></span>
                 </div>
               </div>
-              <hr/>
-             <!-- status and deadilne -->
-            <div class="row valign-wrapper" style="margin-left:0px">                          
-                <div class="chip col truncate" v-bind:class="task.task_status=='In progress' ? 'inProgress' : 'onHold'">{{task.task_status}}</div>
+              <hr />
+              <!-- status and deadilne -->
+              <div
+                class="row valign-wrapper"
+                style="margin-left:0px"
+              >
+                <div
+                  class="chip col truncate"
+                  v-bind:class="task.task_status.replace(' ','')"
+                >{{task.task_status}}</div>
                 <span class="col myDates valign-wrapper">
                   <span class="col">{{task.task_deadline}}</span>
-                  <span v-if="task.task_FTE!='TBD' && task.task_FTE!='none'" class="col red-text">{{task.task_FTE}} FTE</span> 
+                  <span
+                    v-if="task.task_FTE!='TBD' && task.task_FTE!='none'"
+                    class="col red-text"
+                  >{{task.task_FTE}} FTE</span>
                 </span>
-              </div>              
-              <hr/>
-             <!-- START icon container -->
+              </div>
+              <hr />
+              <!-- START icon container -->
               <div class="row iconContainer">
-                <div class="col m4 s4">                  
-                  <router-link class="tooltipped" 
-                    data-position="top" 
-                    data-tooltip="Edit" 
-                    v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+                <div class="col m4 s4">
+                  <router-link
+                    class="tooltipped"
+                    data-position="top"
+                    data-tooltip="Edit"
+                    v-bind:to="{name:'edit-task',params:{task_id:task.id}}"
+                  >
                     <i class="fas fa-edit"></i>
-                  </router-link>    
+                  </router-link>
                 </div>
-                <div class="col m4 s4">                  
-                  <span class="myBtn tooltipped" data-position="top" data-tooltip="Complete">                    
-                    <i @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" class="fas"></i>
+                <div class="col m4 s4">
+                  <span
+                    class="myBtn tooltipped"
+                    data-position="top"
+                    data-tooltip="Complete"
+                  >
+                    <i
+                      @click="CompleteTask(task)"
+                      v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'"
+                      class="fas"
+                    ></i>
                   </span>
                 </div>
-                 <div class="col m4 s4">                  
-                  <span class="myBtn tooltipped" data-position="top" data-tooltip="Start/Stop" >                    
-                    <i @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"  class="far"></i>
+                <div class="col m4 s4">
+                  <span
+                    class="myBtn tooltipped"
+                    data-position="top"
+                    data-tooltip="Start/Stop"
+                  >
+                    <i
+                      @click="StartStop(task)"
+                      v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"
+                      class="far"
+                    ></i>
                   </span>
-                </div>                
+                </div>
               </div>
               <!-- END icon container -->
-            </div>           
+            </div>
           </div>
         </div>
-      </div>            
       </div>
+    </div>
 
-        <!-- add new -->
-        <div class="fixed-action-btn">
-          <router-link to ="/AddNew" class="btn-floating btn-large blue">
-            <i class="fa fa-plus-square"></i>
-          </router-link>
+    <!-- add new -->
+    <div class="fixed-action-btn">
+      <router-link
+        to="/AddNew"
+        class="btn-floating btn-large blue"
+      >
+        <i class="fa fa-plus-square"></i>
+      </router-link>
+    </div>
+    <!-- Modal Structure -->
+    <div
+      id="modal1"
+      class="modal"
+    >
+      <div class="modal-content" v-if="GotTarget">
+        <h4>Required info</h4>
+        <p>Please set the used FTE</p>
+        <span v-if="displayFTA" class="FTEcont">
+          <select
+            v-model="targetTask.task_usedFTE"
+            style="display:inline;width:70px"
+            @change="updateFTE('fte')"
+          >
+            <option
+              v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
+              v-bind:key="fta.id"
+              v-bind:value="fta"
+            >{{fta}}</option>
+          </select>
+          <span>FTE</span>
+        </span>
+        <span v-else>
+          <select
+            v-model="hours"
+            style="display:inline;width:70px"
+            @change="updateFTE('hours')"
+          >
+            <option
+              v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
+              v-bind:key="fta.id"
+              v-bind:value="fta*40"
+            >{{fta*40}}</option>
+          </select>
+          <span>Hours</span>
+        </span>
+        <div class="switch">
+          <label>
+            Hours
+            <input
+             @change="updateFTE('fte')"
+              v-model="displayFTA"
+              type="checkbox"
+            >
+            <span class="lever"></span>
+            FTE
+          </label>
+
         </div>
-  </div>
+        <div class="modal-footer">
+          <button type="button" class="btn black" @click="AddInfo('close')">Close</button>
+          <button type="button" class="btn" @click="AddInfo('save')">Save</button>
+        </div>
+      </div>
+      </div>
+    </div>
 </template>
 
 <script>
 import firebase from "firebase";
+import fireList from "./fireLists";
 import RTDB from "./firebaseInitRTDB";
 
 var moment = require("moment");
@@ -183,47 +383,83 @@ var moment = require("moment");
 export default {
   name: "MyActive",
   props: { tasksMyActive: Array },
-  data() {
+  data () {
     return {
       // tasks: []
+      FTAarray: fireList.FTEList,
+      GotTarget:false,
+      displayFTA: true,
+      hours: null,
+      targetTask:null,
     };
   },
-  mounted() {
+  mounted () {
     $(".tooltipped").tooltip();
+    $('.modal').modal();
   },
 
   computed: {
-    ViewCat1: function() {
-      return this.tasksMyActive.filter(function(task) {
+    ViewCat1: function () {
+      return this.tasksMyActive.filter(function (task) {
         return task.task_Category == "1";
       });
     },
-    ViewCat2: function() {
-      return this.tasksMyActive.filter(function(task) {
+    ViewCat2: function () {
+      return this.tasksMyActive.filter(function (task) {
         return task.task_Category == "2";
       });
     },
-    ViewCat3: function() {
-      return this.tasksMyActive.filter(function(task) {
+    ViewCat3: function () {
+      return this.tasksMyActive.filter(function (task) {
         return task.task_Category == "3";
       });
     }
   },
   methods: {
-    CompleteTask(task) {
+    AddInfo(typ){
+      if (typ=='save'){
+        if (this.targetTask.task_usedFTE == null){
+          M.toast({ html: `Please set used FTE` });
+          return false
+        }
+         var newStatus =
+            this.targetTask.task_status == "In progress" ? "On hold" : "In progress";          
+          
+          RTDB.ref(
+            "/USERS/" + firebase.auth().currentUser.uid + "/TASKS/" + this.targetTask.id + "/"
+          ).update({
+            tStatus: newStatus,
+            tFTEused:this.targetTask.task_usedFTE
+          });        
+
+      }
+        M.Modal.getInstance($("#modal1")).close()
+        this.task_FTE= null
+        this.hours= null
+      
+    },
+    updateFTE (type) {
+      if (type == 'fte') {
+
+        this.hours = 40 * this.targetTask.task_usedFTE
+      } else {
+         this.targetTask.task_usedFTE = (this.hours / 40).toFixed(2)
+      }
+    },
+    CompleteTask (task) {
       if (!task.task_completed) {
         RTDB.ref(
           "/USERS/" +
-            firebase.auth().currentUser.uid +
-            "/TASKS/" +
-            task.id +
-            "/"
+          firebase.auth().currentUser.uid +
+          "/TASKS/" +
+          task.id +
+          "/"
         ).update(
           {
             tStatus: "Completed",
             tClosedDate: moment().format("YYYY-MM-DD")
           },
-          function(error) {
+          function (error) {
             if (error) {
               console.log(error);
             } else {
@@ -234,14 +470,24 @@ export default {
         );
       }
     },
-    StartStop(task) {
-      var newStatus =
-        task.task_status == "In progress" ? "On hold" : "In progress";
-      RTDB.ref(
-        "/USERS/" + firebase.auth().currentUser.uid + "/TASKS/" + task.id + "/"
-      ).update({
-        tStatus: newStatus
-      });
+    StartStop (task) {
+      this.targetTask=task
+      this.hours=40 * this.targetTask.task_usedFTE
+      this.GotTarget=true
+
+      if (task.task_status=="In progress"){
+        M.Modal.getInstance($("#modal1")).open()
+      }else{
+        var newStatus =
+            task.task_status == "In progress" ? "On hold" : "In progress";          
+          
+          RTDB.ref(
+            "/USERS/" + firebase.auth().currentUser.uid + "/TASKS/" + task.id + "/"
+          ).update({
+            tStatus: newStatus            
+          });  
+      }
+      
     }
   }
 };
@@ -324,17 +570,23 @@ h3 {
   text-align: center;
 }
 
-.inProgress {
+.Inprogress {
   background-color: #a0cfff;
 }
-.onHold {
+.Onhold {
   background-color: #ffc107;
 }
-.inProgressBar {
+.Notstarted {
+  background-color: #bcaaa4;
+}
+.InprogressBar {
   border-left: 5px solid #a0cfff;
 }
-.onHoldBar {
+.OnholdBar {
   border-left: 5px solid #ffc107;
+}
+.NotstartedBar {
+  border-left: 5px solid #bcaaa4;
 }
 .MyTitle {
   font-weight: 500;

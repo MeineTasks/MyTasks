@@ -196,6 +196,11 @@ h6 {
   border-left: solid 7px #ffc107;
   border-bottom: solid 1px lightgrey;
 }
+.Notstarted {
+  /* background: #d6e9fd !important; */
+  border-left: solid 7px #bcaaa4;
+  border-bottom: solid 1px lightgrey;
+}
 .Completed {
   opacity: 0.7;
   /* background: #cff1d0 !important; */

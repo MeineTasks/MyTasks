@@ -12,6 +12,49 @@
         <span class="truncate">Quick actions</span>
       </h6>
     </div>
+    <!-- view not started  -->
+    <div v-for="task in ViewNotStarted" v-bind:key="task.id" class="row NotStarted">
+      <div class="col m2 s12">
+        <span>
+          <b>{{task.task_name}}</b>
+        </span>
+      </div>
+      <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
+      <div class="col m1 s12 truncate">
+        <i>{{task.task_project}}</i>
+      </div>
+      <div class="col m2 s12">
+        <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
+          <span id="Attachment_span" v-html="attach"></span>
+        </div>
+      </div>
+      <div class="col m1 s12">
+        <i>{{task.task_status}}</i>
+      </div>
+      <div class="col m1 s12">{{task.task_deadline}}</div>
+      <div class="col m1 s12">{{task.task_FTE}}</div>
+      <!-- icons   -->
+      <div v-if="isLoggedIn" class="col iconContainer">
+        <div
+          v-if="task.t_isPrivate"
+          class="col tooltipped"
+          data-position="top"
+          data-tooltip="<span style='font-size:small'>Delete</span>"
+        >
+          <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
+        </div>
+        
+        <div
+          class="col tooltipped"
+          data-position="top"
+          data-tooltip="<span style='font-size:small'>Edit</span>"
+        >
+          <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+            <i class="fas fa-edit"></i>
+          </router-link>
+        </div>
+      </div>
+    </div>
     <!-- view in progress -->
     <div v-for="task in ViewInProgress" v-bind:key="task.id" class="row inProgress">
       <div class="col m2 s12">
@@ -58,6 +101,7 @@
         </div>
       </div>
     </div>
+    
     <!-- view on hold  -->
     <div v-for="task in ViewOnHold" v-bind:key="task.id" class="row OnHold">
       <div class="col m2 s12">
@@ -213,7 +257,7 @@
         <center>
           <pie-chart
             :data="chartData"
-            :colors="['#a0cfff', '#FFC107', '#69c56c']"
+            :colors="['#bcaaa4','#a0cfff', '#FFC107', '#69c56c']"
             :download="true"
             :donut="true"
             height="200px"
@@ -246,6 +290,17 @@ export default {
       return this.tasksDashboard
         .filter(function(task) {
           return task.task_onHold == true;
+        })
+        .sort(function(a, b) {
+          if (a.task_deadline < b.task_deadline) return 1;
+          if (a.task_deadline > b.task_deadline) return -1;
+          return 0;
+        });
+    },
+    ViewNotStarted(){
+       return this.tasksDashboard
+        .filter(function(task) {
+          return task.task_notStarted == true;
         })
         .sort(function(a, b) {
           if (a.task_deadline < b.task_deadline) return 1;
@@ -299,27 +354,7 @@ export default {
     // $(".tooltipped").tooltip();
   },
   methods: {
-    SetGraphic() {
-      this.chartData = [];
-
-      var C_inProgress = 0;
-      var C_OnHold = 0;
-      var C_Complete = 0;
-      this.tasksDashboard.forEach(task => {
-        if (task.task_inProgress) {
-          C_inProgress++;
-        }
-        if (task.task_onHold) {
-          C_OnHold++;
-        }
-        if (task.task_completed) {
-          C_Complete++;
-        }
-      });
-      this.chartData.push(["In progress", C_inProgress]);
-      this.chartData.push(["On hold", C_OnHold]);
-      this.chartData.push(["Completed", C_Complete]);
-    },
+   
     CloseTask(task) {
       RTDB.ref(
         "/USERS/" + firebase.auth().currentUser.uid + "/TASKS/" + task.id + "/"
@@ -364,6 +399,11 @@ h6 {
 .inProgress {
   /* background: #d6e9fd !important; */
   border-left: solid 7px #a0cfff;
+  border-bottom: solid 1px lightgrey;
+}
+.NotStarted {
+  /* background: #d6e9fd !important; */
+  border-left: solid 7px #bcaaa4;
   border-bottom: solid 1px lightgrey;
 }
 .OnHold {

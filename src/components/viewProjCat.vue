@@ -79,9 +79,10 @@
                 </span>
                     <div class="row"><b>{{cat.tasks.length}}</b> tasks</div>
                     <blockquote>
-                      <span class="blue-text">Allocated FTE: <b>{{sumFTA(cat.tasks)}}</b></span>
+                      <span class="blue-text">Estimated FTE: <b>{{sumFTA(cat.tasks)}}</b></span>
                       <br/>
-                      <span v-if="DiFsumFTA(sumFTA(cat.tasks),cat.name)" class="brown-text">Unallocated FTE: <b>{{DiFsumFTA(sumFTA(cat.tasks),cat.name)}}</b></span>
+                      <span class="green-text"><b>Used</b> FTE <b>{{sumFTAused(cat.tasks)}}</b></span>
+                      <!-- <span v-if="DiFsumFTA(sumFTA(cat.tasks),cat.name)" class="brown-text">Unallocated FTE: <b>{{DiFsumFTA(sumFTA(cat.tasks),cat.name)}}</b></span> -->
                     </blockquote>
                 </div>
                 <!-- second coll -->
@@ -104,7 +105,10 @@
                                     <div class="chip col">{{task.task_status}}</div>
                                     <span class="col">{{task.task_deadline_short}}</span>
                                     <br/>
-                                    <div v-if="task.task_FTE!=undefined && task.task_FTE!=''" class="red-text col">{{task.task_FTE}} FTE</div>
+                                    <div v-if="task.task_FTE!=undefined && task.task_FTE!='' && ['In progress','Not started','Not allocated'].indexOf(task.task_status)>=0" class="blue-text col"
+                                      v-bind:class="task.task_status=='In progress'?'cyan-text text-lighten-2':'text-darken-4'"
+                                      >{{task.task_FTE}} FTE</div>
+                                    <div v-if="task.task_usedFTE!=undefined && task.task_usedFTE!='' && ['In progress','Not started','Not allocated'].indexOf(task.task_status)==-1" class="green-text col text-darken-4">{{task.task_usedFTE}} FTE</div>
                                 </div>
                                  <div class="row">
                                   {{task.task_owner_label}}
@@ -148,12 +152,68 @@
             <i class="fa fa-plus"></i>
           </router-link>
         </div>
+        <!-- Modal Structure -->
+    <div
+      id="modal1"
+      class="modal"
+    >
+      <div class="modal-content" v-if="GotTarget">
+        <h4>Required info</h4>
+        <p>Please set the used FTE</p>
+        <span v-if="displayFTA" class="FTEcont">
+          <select
+            v-model="targetTask.task_usedFTE"
+            style="display:inline;width:70px"
+            @change="updateFTE('fte')"
+          >
+            <option
+              v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
+              v-bind:key="fta.id"
+              v-bind:value="fta"
+            >{{fta}}</option>
+          </select>
+          <span>FTE</span>
+        </span>
+        <span v-else>
+          <select
+            v-model="hours"
+            style="display:inline;width:70px"
+            @change="updateFTE('hours')"
+          >
+            <option
+              v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
+              v-bind:key="fta.id"
+              v-bind:value="fta*40"
+            >{{fta*40}}</option>
+          </select>
+          <span>Hours</span>
+        </span>
+        <div class="switch">
+          <label>
+            Hours
+            <input
+             @change="updateFTE('fte')"
+              v-model="displayFTA"
+              type="checkbox"
+            >
+            <span class="lever"></span>
+            FTE
+          </label>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn black" @click="AddInfo('close')">Close</button>
+          <button type="button" class="btn" @click="AddInfo('save')">Save</button>
+        </div>
+      </div>
+      </div>
     </div>
 </template>
 
 <script>
 // import db from "./firebaseInit";
 import firebase from "firebase";
+import fireList from "./fireLists";
 import RTDB from "./firebaseInitRTDB";
 
 var moment = require("moment");
@@ -164,20 +224,14 @@ export default {
   data() {
     return {
       //   users: fireList.OwnersList,
-      showDateFilter: false,
-      Datefilter_start: moment()
+      showDateFilter: true,
+     Datefilter_start:localStorage.getItem("viewProj_FilterStart")?JSON.parse(localStorage.getItem("viewProj_FilterStart")):moment()
         .weekday(1)
         .format("YYYY-MM-DD"),
-      Datefilter_end: moment()
+      Datefilter_end:localStorage.getItem("viewProj_FilterEnd")?JSON.parse(localStorage.getItem("viewProj_FilterEnd")): moment()
         .weekday(5)
         .format("YYYY-MM-DD"),
-      StatusesList: [
-        "In progress",
-        "On hold",
-        "Completed",
-        "Canceled",
-        "Not allocated"
-      ],
+      StatusesList: fireList.statusesList,
       SelectedStatus: localStorage.getItem("viewProj_StatusFilterObj")
         ? JSON.parse(localStorage.getItem("viewProj_StatusFilterObj"))
         : ["In progress", "On hold", "Not allocated"],
@@ -192,8 +246,13 @@ export default {
       FireProjCatArray: [],
       SelectedManager: localStorage.getItem("viewProj_CreatorsFilterObj")
         ? JSON.parse(localStorage.getItem("viewProj_CreatorsFilterObj"))
-        : [] //[{ OBJ: { UID: "All", name: "All" } }]
-      //
+        : [], //[{ OBJ: { UID: "All", name: "All" } }]
+        FTAarray: fireList.FTEList,
+      GotTarget:false,
+      displayFTA: true,
+      hours: null,
+      targetTask:null,
+      QActStat:"",
     };
   },
   updated() {    
@@ -240,8 +299,39 @@ export default {
     //   });
 
     this.GetFire_users();
+    $('.modal').modal();
   },
   methods: {
+     AddInfo(typ){
+      if (typ=='save'){
+        if (this.targetTask.task_usedFTE == null){
+          M.toast({ html: `Please set used FTE` });
+          return false
+        }
+        //  var newStatus =
+        //     this.targetTask.task_status == "In progress" ? "On hold" : "In progress";          
+          
+          RTDB.ref(
+            "/USERS/" + firebase.auth().currentUser.uid + "/TASKS/" + this.targetTask.id + "/"
+          ).update({
+            tStatus: this.QActStat,
+            tFTEused:this.targetTask.task_usedFTE
+          });        
+
+      }
+        M.Modal.getInstance($("#modal1")).close()
+        this.task_FTE= null
+        this.hours= null
+      
+    },
+    updateFTE (type) {
+      if (type == 'fte') {
+
+        this.hours = 40 * this.targetTask.task_usedFTE
+      } else {
+         this.targetTask.task_usedFTE = (this.hours / 40).toFixed(2)
+      }
+    },
     MultiStatus(opt) {
       var objVue = this;
       var index = objVue.SelectedStatus.indexOf(opt);
@@ -362,6 +452,7 @@ export default {
                     "YYYY-MM-DD"
                   ).format("DD-MMM"),
                   task_FTE: queryTaskOBJ[propTsk].tFTE,
+                  task_usedFTE: queryTaskOBJ[propTsk].tFTEused,
                   task_wkNo: moment(
                     queryTaskOBJ[propTsk].tDeadline,
                     "YYYY-MM-DD"
@@ -562,6 +653,14 @@ export default {
         "viewProj_SelectedUsersFilterObj",
         JSON.stringify(objVue.SelectedUsers)
       );
+       localStorage.setItem(
+        "viewProj_FilterStart",
+        JSON.stringify(objVue.Datefilter_start)
+      );
+       localStorage.setItem(
+        "viewProj_FilterEnd",
+        JSON.stringify(objVue.Datefilter_end)
+      );
       // filter displayed information
 
       // FILTER USERS
@@ -658,53 +757,82 @@ export default {
         itm.tasks.sort(sortMYTasks);
       });
     },
-    CompleteTask(task) {
-       if (!task.task_completed) {
-        RTDB.ref(
-          "/USERS/" + task.task_owner + "/TASKS/" + task.id + "/"
-        ).update(
-          {
-            tStatus: "Completed",
-            tClosedDate: moment().format("YYYY-MM-DD")
-          },
-          function(error) {
-            if (error) {
-              console.log(error);
-            } else {
-              $(".material-tooltip").removeAttr("style");
-              console.log("update done");
+     CompleteTask(task) {
+      this.targetTask=task
+      this.hours=40 * this.targetTask.task_usedFTE
+      this.GotTarget=true
+
+      this.QActStat="Completed"
+       if (task.task_status=="In progress"){
+        M.Modal.getInstance($("#modal1")).open()
+      }else{
+
+        if (!task.task_completed) {
+          RTDB.ref(
+            "/USERS/" + task.task_owner + "/TASKS/" + task.id + "/"
+          ).update(
+            {
+              tStatus: "Completed",
+              tClosedDate: moment().format("YYYY-MM-DD")
+            },
+            function(error) {
+              if (error) {
+                console.log(error);
+              } else {
+                $(".material-tooltip").removeAttr("style");
+                console.log("update done");
+              }
             }
-          }
-        );
-     
+          );
+       
+        }
       }
     },
     CancelTask(task) {
-       if (!task.task_completed) {
-        RTDB.ref(
-          "/USERS/" + task.task_owner + "/TASKS/" + task.id + "/"
-        ).update(
-          {
-            tStatus: "Canceled"
-          },
-          function(error) {
-            if (error) {
-              console.log(error);
-            } else {
-              $(".material-tooltip").removeAttr("style");
-              console.log("update done");
-            }
-          }
-        );
+      this.targetTask=task
+      this.hours=40 * this.targetTask.task_usedFTE
+      this.GotTarget=true
 
+      this.QActStat="Canceled"
+       if (task.task_status=="In progress"){
+        M.Modal.getInstance($("#modal1")).open()
+      }else{
+          if (!task.task_completed) {
+          RTDB.ref(
+            "/USERS/" + task.task_owner + "/TASKS/" + task.id + "/"
+          ).update(
+            {
+              tStatus: "Canceled"
+            },
+            function(error) {
+              if (error) {
+                console.log(error);
+              } else {
+                $(".material-tooltip").removeAttr("style");
+                console.log("update done");
+              }
+            }
+          );
+
+        }
       }
+
+      
     },
     StartStop(task) {
-      var newStatus =
-        task.task_status == "In progress" ? "On hold" : "In progress";
+      this.targetTask=task
+      this.hours=40 * this.targetTask.task_usedFTE
+      this.GotTarget=true
+
+      this.QActStat=task.task_status == "In progress" ? "On hold" : "In progress"
+      if (task.task_status=="In progress"){
+        M.Modal.getInstance($("#modal1")).open()
+      }else{
+      // var newStatus =
+      //   task.task_status == "In progress" ? "On hold" : "In progress";
       RTDB.ref("/USERS/" + task.task_owner + "/TASKS/" + task.id + "/")
         .update({
-          tStatus: newStatus
+          tStatus: this.QActStat
         })
         .then(docRef => {
           $(".material-tooltip").removeAttr("style");
@@ -712,6 +840,7 @@ export default {
         .catch(function(error) {
           console.error("Error writing document CompleteTask: ", error);
         });
+      }
     },
     sumFTA(TaskArray) {
       var sum = 0;
@@ -720,8 +849,8 @@ export default {
           task.task_FTE != undefined &&
           task.task_FTE != "TBD" &&
           task.task_FTE != null &&
-          task.task_FTE != ""
-          //&& task.task_status == "In progress"
+          task.task_FTE != "" && 
+          ['In progress','Not started','Not allocated'].indexOf(task.task_status)>=0
         ) {
           // console.log(task.task_FTE)
           sum += parseFloat(task.task_FTE);
@@ -740,6 +869,23 @@ export default {
         default:
           return false;
       }
+    },
+    sumFTAused(TaskArray) {
+      var sum = 0;
+      TaskArray.forEach(task => {
+        if (
+          task.task_usedFTE != undefined &&
+          task.task_usedFTE != null &&
+          task.task_usedFTE != "" 
+          && 
+          ['In progress','Not started','Not allocated'].indexOf(task.task_status)==-1
+          //task.task_status == "In progress"
+        ) {
+          // console.log(task.task_FTE)
+          sum += parseFloat(task.task_usedFTE);
+        }
+      });
+      return sum.toFixed(2);
     }
   }
 };

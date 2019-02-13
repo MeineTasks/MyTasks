@@ -1,6 +1,8 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Dashboard from "@/components/Dashboard";
+import Backlog from "@/components/BackLog";
+
 import ViewAll from "@/components/ViewAll";
 import ViewCols from "@/components/ViewCols";
 // import ViewGantt from "@/components/ViewGantt";
@@ -58,6 +60,14 @@ let router = new Router({
     //     requiresAuth: true
     //   }
     // },
+    {
+      path: "/backlog",
+      name: "backlog",
+      component: Backlog,
+      meta: {
+        requiresAuth: true
+      }
+    },
     {
       path: "/view/users",
       name: "viewusers",

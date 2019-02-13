@@ -19,11 +19,12 @@
                   <input id="DeadLine" type="date" placeholder="Task deadline" v-model="task_deadline">
                   <label class="active">Deadline:</label>
               </div>
+              <span>Estimated FTE </span>
               <select v-model="task_fte" style="display:inline;width:70px" >
                 <option v-for="fta in FTAarray" v-bind:key="fta.id"
                   v-bind:value="fta">{{fta}}</option>
               </select> 
-              <span>FTE</span>
+              
           </div>
           <!-- projects category -->
           <div class="row">
@@ -164,7 +165,7 @@ export default {
       AddNewProj: null,
 
       Statuses: fireList.statusesList,
-      SelectedStatus: "In progress",
+      SelectedStatus: "Not started",
 
       ownersList: fireList.OwnersList,
       SelectedOwner: { Label: null, UID: null }
@@ -361,7 +362,7 @@ export default {
       }
 
       vueObj.SelectedProj = null;
-      vueObj.SelectedStatus = "In progress";
+      // vueObj.SelectedStatus = "In progress";
       vueObj.showStatus = true;
       vueObj.showDates = true;
       // vueObj.task_start = moment()
@@ -505,6 +506,10 @@ export default {
 };
 </script>
 <style scoped>
+.container{
+  background-color: white;
+  padding: 5px;
+}
 textarea {
   margin-top: 10px;
   height: 107px;

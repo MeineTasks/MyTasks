@@ -102,11 +102,13 @@ export default {
                 : [],
               task_deadline: queryOBJ[prop].tDeadline,
               task_FTE: queryOBJ[prop].tFTE ? queryOBJ[prop].tFTE : "none",
+              task_usedFTE: queryOBJ[prop].tFTEused ? queryOBJ[prop].tFTEused : null,
               task_status: queryOBJ[prop].tStatus,
               task_completed: queryOBJ[prop].tStatus == "Completed",
               task_canceled: queryOBJ[prop].tStatus == "Canceled",
               task_inProgress: queryOBJ[prop].tStatus == "In progress",
               task_onHold: queryOBJ[prop].tStatus == "On hold",
+              task_notStarted: queryOBJ[prop].tStatus == "Not started",
               t_isPrivate: queryOBJ[prop].tProjCateg == "Personal",
               task_isActive: queryOBJ[prop].t_isActive,
               task_Category: tskCalculated.tCategory,
@@ -118,7 +120,7 @@ export default {
 
           this.tasksMyActive = this.tasksDashboard.filter(function(task) {
             return (
-              task.task_status == "In progress" || task.task_status == "On hold"
+              task.task_status == "In progress" || task.task_status == "On hold" ||task.task_status == "Not started" 
             );
           });
           this.SetGraphic();
@@ -172,6 +174,7 @@ export default {
               task_canceled: doc.data().tStatus == "Canceled",
               task_inProgress: doc.data().tStatus == "In progress",
               task_onHold: doc.data().tStatus == "On hold",
+              task_notStarted: doc.data().tStatus == "Not started",
               t_isPrivate: doc.data().tProjCateg == "Personal",
               task_isActive: doc.data().t_isActive,
               task_Category: tskCalculated.tCategory,
@@ -186,7 +189,7 @@ export default {
 
           this.tasksMyActive = this.tasksDashboard.filter(function(task) {
             return (
-              task.task_status == "In progress" || task.task_status == "On hold"
+              task.task_status == "In progress" || task.task_status == "On hold"|| task.task_status == "Not started"
             );
           });
 
@@ -200,10 +203,15 @@ export default {
 
       var C_inProgress = 0;
       var C_OnHold = 0;
+      var C_NotStarted = 0;
       var C_Complete = 0;
+
       this.tasksDashboard.forEach(task => {
         if (task.task_inProgress) {
           C_inProgress++;
+        }
+        if (task.task_notStarted) {
+          C_NotStarted++;
         }
         if (task.task_onHold) {
           C_OnHold++;
@@ -211,10 +219,13 @@ export default {
         if (task.task_completed) {
           C_Complete++;
         }
+
       });
+      this.chartData.push(["Not started", C_NotStarted]);
       this.chartData.push(["In progress", C_inProgress]);
       this.chartData.push(["On hold", C_OnHold]);
       this.chartData.push(["Completed", C_Complete]);
+
     }
   }
 };

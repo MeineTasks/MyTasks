@@ -1,21 +1,38 @@
 <template>
-  <div id="edit-task" class="container">
+  <div
+    id="edit-task"
+    class="container"
+  >
     <h3>Edit task</h3>
     <div class="row MyContainer">
-      <form @submit.prevent="updateTask" class="col s12">
+      <form
+        @submit.prevent="updateTask"
+        class="col s12"
+      >
         <div class="row">
           <div class="input-field col s12">
-            <input placeholder="Task name" type="text" v-model="task_name"
-              required>
+            <input
+              placeholder="Task name"
+              type="text"
+              v-model="task_name"
+              required
+            >
             <label class="active">Name:</label>
           </div>
         </div>
         <!-- details -->
         <div class="row">
-          <div class="input-field col s12" >
-            <label for="textarea1" class="active">Details:</label>
-            <textarea id="textarea1" placeholder="Task details" v-model="task_details"/>
-          </div>
+          <div class="input-field col s12">
+            <label
+              for="textarea1"
+              class="active"
+            >Details:</label>
+            <textarea
+              id="textarea1"
+              placeholder="Task details"
+              v-model="task_details"
+            />
+            </div>
         </div>
         <!-- timings -->
         <div class="row">
@@ -29,19 +46,57 @@
               v-model="task_deadline">
             <label class="active">Deadline:</label>
           </div>
-          <select v-model="task_FTE" style="display:inline;width:70px" >
-                <option v-for="fta in FTAarray" v-bind:key="fta.id"
-                  v-bind:value="fta">{{fta}}</option>
-              </select> 
-              <span>FTE</span>
-        </div>        
+          <!-- FTA estimated-->
+          <span v-if="ShowFTE=='estimated'">
+            <span v-if="displayFTA" class="FTEcont">
+              <select  v-model="task_FTE" style="display:inline;width:70px"  @change="updateFTE('fte')">
+                    <option v-for="fta in FTAarray" v-bind:key="fta.id"
+                      v-bind:value="fta">{{fta}}</option>
+                  </select> 
+                  <span>Estimated FTE</span>
+            </span>    
+            <span v-else>
+              <select v-model="hours" style="display:inline;width:70px" @change="updateFTE('hours')" >
+                      <option v-for="fta in FTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
+                        v-bind:value="fta*40">{{fta*40}}</option>
+                    </select> 
+                <span>Hours</span>   
+            </span>
+          </span>
+             <!-- FTA used-->
+          <span v-if="ShowFTE=='used'" class="FTEcont">
+            <span v-if="displayFTA">          
+              <select  v-model="task_usedFTE" style="display:inline;width:70px"  @change="updateUsedFTE('fte')">
+                    <option v-for="fta in FTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
+                      v-bind:value="fta">{{fta}}</option>
+                  </select> 
+                  <span>Used FTE</span>
+            </span>    
+            <span v-else>
+              <select v-model="UsedHours" style="display:inline;width:70px" @change="updateUsedFTE('hours')" >
+                      <option v-for="fta in FTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
+                        v-bind:value="fta*40">{{fta*40}}</option>
+                    </select> 
+                <span>Used Hours</span>   
+            </span>
+          </span>
+          <div class="switch">
+            <label>
+              Hours
+              <input v-model="displayFTA" type="checkbox">
+              <span class="lever"></span>
+              FTE
+            </label>
+          </div>
+        </div>
+
         
           <!-- status -->
           <div class="row">
               <div class="input-field col s12">
                 <label class="active">Status:</label>
                 <div class="input-field">
-                  <span @click="nSelectedStatus=opt" v-if="opt!='Not allocated'" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
+                  <span @click="StatusUpdateFTE(opt,true)" v-for="opt in nStatusesList.filter(opt=>opt!='Not allocated')" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
                 </div>
@@ -117,10 +172,14 @@ var moment = require("moment");
 
 export default {
   name: "edit-task",
-  data() {
+  data () {
     return {
-      FTAarray: fireList.FTEList,
+      FTAarray: fireList.FTEList,      
       task_FTE: null,
+      task_usedFTE: null,
+      ShowFTE:"estimated",
+      hours: this.task_FTE * 4,
+      UsedHours:this.task_usedFTE * 4,
       showDetails: false,
       showProject: true,
       showNewProj: false,
@@ -134,11 +193,11 @@ export default {
       task_start: null,
       task_deadline: null,
       task_status: null,
-      task_project: null,
-      task_env: null,
+      task_project: null,      
       task_isActive: null,
       task_createdBy: null,
       SelectedProjCat: null,
+      displayFTA: true,
       // SelectedProj:null,
 
       // Statuses: fireList.statusesList,
@@ -159,19 +218,54 @@ export default {
     };
   },
   methods: {
-    updateTask() {
+    
+        updateUsedFTE (type) {
+      if (type == 'fte') {
+
+        this.UsedHours = 40 * this.task_usedFTE
+      } else {
+        this.task_usedFTE = (this.UsedHours / 40).toFixed(2)
+      }
+    },
+    updateFTE (type) {
+      if (type == 'fte') {
+
+        this.hours = 40 * this.task_FTE
+      } else {
+        this.task_FTE = (this.hours / 40).toFixed(2)
+      }
+    },
+    StatusUpdateFTE(opt,anim){      
+      this.nSelectedStatus=opt
+      let initialShow=this.ShowFTE
+
+      if (opt=="Canceled" || opt=="Completed" || opt=="On hold"){
+        this.ShowFTE="used"
+      }else{
+        this.ShowFTE="estimated"
+      }      
+      if (initialShow!=this.ShowFTE && anim){
+        setTimeout(function(){ $(".FTEcont").effect( "pulsate", {times:3}, 3000 ) }, 500);
+      }
+    },
+    updateTask () {
       //validate end start times
       if (new Date($("#DeadLine").val()) < new Date($("#StartDate").val())) {
         M.toast({ html: `Start date should be sooner than Deadline` });
         $("#StartDate,#DeadLine").css("border", "solid red 1px");
         return false;
       }
+       if (this.ShowFTE=='used' && this.task_usedFTE==null) {
+        M.toast({ html: `Used FTE should not be null` });
+        $(".FTEcont select").css("border", "solid red 1px");
+        return false;
+      }
       RTDB.ref(
         "/USERS/" +
-          firebase.auth().currentUser.uid +
-          "/TASKS/" +
-          this.$route.params.task_id +
-          "/"
+        firebase.auth().currentUser.uid +
+        "/TASKS/" +
+        this.$route.params.task_id +
+        "/"
       )
 
         .update({
@@ -179,7 +273,8 @@ export default {
           tDescription: this.task_details,
           tStart: this.task_start,
           tDeadline: this.task_deadline,
-          tFTE: this.task_FTE,
+          tFTE: (this.task_FTE),
+          tFTEused:this.task_usedFTE?this.task_usedFTE:"",
           // tProject: this.SelectedProj,
           // tProjCateg: this.SelectedProjCat,
           tAttach: this.task_attachement,
@@ -194,11 +289,11 @@ export default {
           console.log("task update done");
           this.$router.push("/view/cols");
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.error("Error writing document: ", error);
         });
     },
-    getProjects() {
+    getProjects () {
       var vueObj = this;
       RTDB.ref("/LISTS/Projects/" + vueObj.SelectedProjCat + "/").on(
         "value",
@@ -213,7 +308,7 @@ export default {
         }
       );
     },
-    AddHyperlink() {
+    AddHyperlink () {
       if (this.detail_link != "") {
         var title = this.detail_title ? this.detail_title : "Click here";
         //add https
@@ -231,11 +326,11 @@ export default {
         M.toast({ html: "URL field should not be empty" });
       }
     },
-    RemoveHyperlink(attch) {
+    RemoveHyperlink (attch) {
       var index = this.task_attachement.indexOf(attch);
       this.task_attachement.splice(index, 1);
     },
-    getCreatorLabel(UID) {
+    getCreatorLabel (UID) {
       var objVue = this;
       RTDB.ref("/USERS/")
         .orderByKey()
@@ -247,15 +342,15 @@ export default {
         });
     }
   },
-  created() {
+  created () {
     var objVue = this;
 
     RTDB.ref(
       "/USERS/" +
-        firebase.auth().currentUser.uid +
-        "/TASKS/" +
-        this.$route.params.task_id +
-        "/"
+      firebase.auth().currentUser.uid +
+      "/TASKS/" +
+      this.$route.params.task_id +
+      "/"
     ).once("value", querySnapshot => {
       const queryOBJ = querySnapshot.val();
 
@@ -264,23 +359,32 @@ export default {
       objVue.task_start = queryOBJ.tStart;
       objVue.task_deadline = queryOBJ.tDeadline;
       objVue.task_FTE = queryOBJ.tFTE ? queryOBJ.tFTE : "TBD";
+      objVue.task_usedFTE = queryOBJ.tFTEused ? queryOBJ.tFTEused : null;
       objVue.nSelectedStatus = queryOBJ.tStatus;
       objVue.SelectedProjCat = queryOBJ.tProjCateg;
       objVue.SelectedProj = queryOBJ.tProject;
       objVue.task_attachement = queryOBJ.tAttach ? queryOBJ.tAttach : [];
 
       // objVue.SelectedOwner=queryOBJ.tOwner?queryOBJ.tOwner:{ Label: null, UID: null };
-      objVue.task_env = queryOBJ.tEnvironment;
+      
       objVue.task_isActive = queryOBJ.t_isActive ? "No" : "Yes";
 
       objVue.getCreatorLabel(queryOBJ.CreatedBy);
 
       objVue.getProjects();
+      // calculate inital FTE
+      if (objVue.task_FTE != "TBD") {
+        objVue.hours = objVue.task_FTE * 40
+      }
+      if (objVue.task_usedFTE != null) {
+        objVue.UsedHours = objVue.task_usedFTE * 40
+      }
+      this.StatusUpdateFTE(objVue.nSelectedStatus,false)
     });
 
     $(".material-tooltip").css("opacity", 0);
   },
-  mounted() {
+  mounted () {
     var objVue = this;
     RTDB.ref("/LISTS/Projects/").on("value", querySnapshot => {
       objVue.ProjectsCat = [];

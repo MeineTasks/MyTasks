@@ -32,11 +32,52 @@
               v-model="task_deadline">
             <label class="active">Deadline:</label>
           </div>
-          <select v-model="task_FTE" style="display:inline;width:70px" >
-                <option v-for="fta in FTAarray" v-bind:key="fta.id"
-                  v-bind:value="fta">{{fta}}</option>
-              </select> 
-              <span>FTE</span>
+          
+          <!-- FTA estimated-->
+          <span v-if="ShowFTE=='estimated'">
+            <span v-if="displayFTA" class="FTEcont">
+              <select  v-model="task_FTE" style="display:inline;width:70px"  @change="updateFTE('fte')">
+                    <option v-for="fta in FTAarray" v-bind:key="fta.id"
+                      v-bind:value="fta">{{fta}}</option>
+                  </select> 
+                  <span>Estimated FTE</span>
+            </span>    
+            <span v-else>
+              <select v-model="hours" style="display:inline;width:70px" @change="updateFTE('hours')" >
+                      <option v-for="fta in FTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
+                        v-bind:value="fta*40">{{fta*40}}</option>
+                    </select> 
+                <span>Hours</span>   
+            </span>
+          </span>
+          <!-- FTA used-->
+          <span v-if="ShowFTE=='used'" class="FTEcont">
+            <span v-if="displayFTA">          
+              <select  v-model="task_usedFTE" style="display:inline;width:70px"  @change="updateUsedFTE('fte')">
+                    <option v-for="fta in FTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
+                      v-bind:value="fta">{{fta}}</option>
+                  </select> 
+                  <span>Used FTE</span>
+            </span>    
+            <span v-else>
+              <select v-model="UsedHours" style="display:inline;width:70px" @change="updateUsedFTE('hours')" >
+                      <option v-for="fta in FTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
+                        v-bind:value="fta*40">{{fta*40}}</option>
+                    </select> 
+                <span>Used Hours</span>   
+            </span>
+          </span>
+          <div class="switch">
+            <label>
+              Hours
+              <input v-model="displayFTA" type="checkbox">
+              <span class="lever"></span>
+              FTE
+            </label>
+          </div>
+
+
+
         </div>        
         <!-- projects category -->
           <div class="row">
@@ -70,7 +111,18 @@
               <div class="input-field col s12">
               <label class="active">Status:</label>
                 <div class="input-field">
-                  <span @click="nSelectedStatus=opt" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
+                  <span @click="StatusUpdateFTE(opt,true)" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
+                    {{opt}}
+                  </span>
+                  </div>
+              </div>
+          </div>
+           <!-- priority -->
+          <div class="row" v-if="SelectedOwner.Label=='xBacklog'">
+              <div class="input-field col s12">
+              <label class="active">Priority:</label>
+                <div class="input-field">
+                  <span @click="nSelectedPriority=opt" v-for="opt in PiorityArr" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedPriority==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
                   </div>
@@ -118,7 +170,7 @@
               <div class="input-field col s12">
                 <label class="active">Created by:</label>
                 <div class="input-field">
-                 <span @click="SelectedManager=mng" v-for="mng in ManagersArray" v-bind:key="mng.id" v-bind:class="{'mySingleSelected':SelectedManager==mng}" class="mySingle chip">
+                 <span v-for="mng in ManagersArray" v-bind:key="mng.id" v-bind:class="{'mySingleSelected':SelectedManager==mng}" class="mySingle chip">
                     {{mng.OBJ.name}}
                   </span>
                 </div>  
@@ -187,7 +239,14 @@ export default {
   data() {
     return {
       FTAarray: fireList.FTEList,
-      task_FTE: "",
+      PiorityArr:["Low","Normal","High"],
+      task_FTE: null,
+      task_usedFTE: null,
+      ShowFTE:"estimated",
+      hours: this.task_FTE * 4,
+      UsedHours:this.task_usedFTE * 4,
+      displayFTA: true,
+
       showDetails: false,
       showProject: true,
       showNewProj: false,
@@ -202,9 +261,9 @@ export default {
       task_details: "",
       task_start: null,
       task_deadline: null,
+      task_priority:null,
       task_status: null,
-      task_project: null,
-      task_env: null,
+      task_project: null,      
       task_isActive: null,
       task_createdBy: null,
       Statuses: fireList.statusesList,
@@ -222,6 +281,7 @@ export default {
 
       nStatusesList: fireList.statusesList,
       nSelectedStatus: "In progress",
+      nSelectedPriority:"Normal",
 
       ownersList: fireList.OwnersList,
       SelectedOwner: { Label: null, UID: null },
@@ -229,6 +289,35 @@ export default {
     };
   },
   methods: {
+     updateUsedFTE (type) {
+      if (type == 'fte') {
+
+        this.UsedHours = 40 * this.task_usedFTE
+      } else {
+        this.task_usedFTE = (this.UsedHours / 40).toFixed(2)
+      }
+    },
+    updateFTE (type) {
+      if (type == 'fte') {
+
+        this.hours = 40 * this.task_FTE
+      } else {
+        this.task_FTE = (this.hours / 40).toFixed(2)
+      }
+    },
+    StatusUpdateFTE(opt,anim){      
+      this.nSelectedStatus=opt
+      let initialShow=this.ShowFTE
+
+      if (opt=="Canceled" || opt=="Completed" || opt=="On hold"){
+        this.ShowFTE="used"
+      }else{
+        this.ShowFTE="estimated"
+      }      
+      if (initialShow!=this.ShowFTE && anim){
+        setTimeout(function(){ $(".FTEcont").effect( "pulsate", {times:3}, 3000 ) }, 500);
+      }
+    },
     SetDeadline() {
       this.task_deadline = moment(this.task_start, "YYYY-MM-DD")
         .weekday(5)
@@ -243,6 +332,11 @@ export default {
       if (new Date($("#DeadLine").val()) < new Date($("#StartDate").val())) {
         M.toast({ html: `Start date should be sooner than Deadline` });
         $("#StartDate,#DeadLine").css("border", "solid red 1px");
+        return false;
+      }
+      if (this.ShowFTE=='used' && (this.task_usedFTE==null ||this.task_usedFTE=="") ) {
+        M.toast({ html: `Used FTE should not be null` });
+        $(".FTEcont select").css("border", "solid red 1px");
         return false;
       }
       //validari
@@ -316,6 +410,8 @@ export default {
                   tStart: vueObj.task_start,
                   tDeadline: vueObj.task_deadline,
                   tFTE: vueObj.task_FTE ? vueObj.task_FTE : "TBD",
+                  tFTEused:vueObj.task_usedFTE?vueObj.task_usedFTE:"",
+                  tPriority:vueObj.task_priority?vueObj.task_priority:"",
                   tProject: vueObj.SelectedProj,
                   tProjCateg: vueObj.SelectedProjCat,
                   tStatus: vueObj.nSelectedStatus,
@@ -357,57 +453,6 @@ export default {
             });
         });
 
-        // db.collectdion(vueObj.$route.query.uid)
-        //   .doc(vueObj.$route.params.task_id)
-        //   .get()
-        //   .then(doc => {
-        //     // save on new user
-        //     db.colldection(vueObj.SelectedOwner.UID)
-        //       .doc(vueObj.$route.params.task_id)
-        //       .set(doc.data())
-        //       .then(updt => {
-        //         // update new task
-        //         db.colledction(vueObj.SelectedOwner.UID)
-        //           .doc(vueObj.$route.params.task_id)
-        //           .update({
-        //             tName: vueObj.task_name,
-        //             tDescription: vueObj.task_details,
-        //             tStart: vueObj.task_start,
-        //             tDeadline: vueObj.task_deadline,
-        //             tFTE: vueObj.task_FTE ? vueObj.task_FTE : "TBD",
-        //             tProject: vueObj.SelectedProj,
-        //             tProjCateg: vueObj.SelectedProjCat,
-        //             tStatus: vueObj.nSelectedStatus,
-        //             tAttach: vueObj.task_attachement,
-        //             tClosedDate:
-        //               vueObj.nSelectedStatus == "Completed"
-        //                 ? moment().format("YYYY-MM-DD")
-        //                 : "",
-        //             tOwner: vueObj.SelectedOwner,
-        //             // tEnvironment:vueObj.task_env?vueObj.task_env:"",
-        //             ModifiedBy: firebase.auth().currentUser.uid,
-        //             ModifiedDate: moment().format("YYYY-MM-DD HH:MM"),
-        //             t_isActive: vueObj.task_isActive == "No"
-        //           })
-        //           .then(final => {
-        //             db.collectdion(vueObj.$route.query.uid)
-        //               .doc(vueObj.$route.params.task_id)
-        //               .delete()
-        //               .then(navig => {
-        //                 if (!CloneT) {
-        //                   vueObj.$router.push({
-        //                     name: vueObj.$route.query.mnext
-        //                   });
-        //                   console.log("task removed from old user");
-        //                 }
-        //               });
-        //           })
-        //           .catch(function(error) {
-        //             console.error("Error writing document: ", error);
-        //           });
-        //         // console.log("done")
-        //       });
-        //   });
       } else {
         // save the update
         RTDB.ref(
@@ -423,6 +468,8 @@ export default {
             tStart: this.task_start,
             tDeadline: this.task_deadline,
             tFTE: this.task_FTE ? this.task_FTE : "TBD",
+            tFTEused:this.task_usedFTE?this.task_usedFTE:"",
+            tPriority:this.nSelectedPriority?this.nSelectedPriority:"",
             tProject: this.SelectedProj,
             tProjCateg: this.SelectedProjCat,
             tStatus: this.nSelectedStatus,
@@ -433,7 +480,7 @@ export default {
             tAttach: this.task_attachement,
             // tOwner:this.SelectedOwner,
 
-            CreatedBy: this.SelectedManager.OBJ.UID,
+            CreatedBy: this.task_createdBy,
             ModifiedBy: firebase.auth().currentUser.uid,
             ModifiedDate: moment().format("YYYY-MM-DD"),
             t_isActive: this.task_isActive == "No"
@@ -461,16 +508,7 @@ export default {
         })
         .catch(err => {
           console.log(err);
-        });
-      // db
-      //   .colledction("DropDowns/InnoPipeline/Projects")
-      //   .doc(vueObj.AddNewProjCat)
-      //   .set({
-      //     Projects: []
-      //   })
-      //   .then(function() {
-      //     vueObj.showNewProjCat = false;
-      //   });
+        });      
     },
     DelProjCategory(opt) {
       var vueObj = this;
@@ -480,15 +518,7 @@ export default {
           .then(function() {
             vueObj.AddNewProjCat = null;
             vueObj.showNewProjCat = false;
-          });
-        // db
-        //   .collectdion("DropDowns/InnoPipeline/Projects")
-        //   .doc(vueObj.AddNewProjCat)
-        //   .delete()
-        //   .then(function() {
-        //     vueObj.AddNewProjCat = null;
-        //     vueObj.showNewProjCat = false;
-        //   });
+          });        
       } else {
         vueObj.showNewProjCat = false;
       }
@@ -632,14 +662,15 @@ export default {
         this.$route.params.task_id +
         "/"
     ).once("value", querySnapshot => {
-      objVue.ProjectsCat = [];
+      // objVue.ProjectsCat = [];
       const queryOBJ = querySnapshot.val();
 
       objVue.task_name = queryOBJ.tName;
       objVue.task_details = queryOBJ.tDescription;
-      objVue.task_start = queryOBJ.tStart;
-      objVue.task_deadline = queryOBJ.tDeadline;
+      objVue.task_start = queryOBJ.tStart?queryOBJ.tStart:"";
+      objVue.task_deadline = queryOBJ.tDeadline?queryOBJ.tDeadline:"";
       objVue.task_FTE = queryOBJ.tFTE ? queryOBJ.tFTE : "";
+      objVue.task_usedFTE = queryOBJ.tFTEused ? queryOBJ.tFTEused : "";
       objVue.nSelectedStatus = queryOBJ.tStatus;
       objVue.SelectedProjCat = queryOBJ.tProjCateg;
       objVue.SelectedProj = queryOBJ.tProject;
@@ -668,6 +699,14 @@ export default {
       }
       objVue.getProjects();
       objVue.ProjectsCat.sort();
+      // calculate inital FTE
+      if (objVue.task_FTE != "TBD") {
+        objVue.hours = objVue.task_FTE * 40
+      }
+      if (objVue.task_usedFTE != null) {
+        objVue.UsedHours = objVue.task_usedFTE * 40
+      }
+      this.StatusUpdateFTE(objVue.nSelectedStatus,false)
     });
 
     //set managers

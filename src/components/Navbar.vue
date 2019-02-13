@@ -13,7 +13,8 @@
         <ul class="hide-on-small-only right">
           <li v-if="isLoggedIn"><router-link class="link" to="/">My Dashboard</router-link></li>
           <li v-if="isLoggedIn"><router-link class="link" to="/view/all">My All</router-link></li>  
-          <li v-if="isLoggedIn"><router-link class="link" to="/view/cols">My Active</router-link></li>  
+          <li v-if="isLoggedIn"><router-link class="link" to="/view/cols">My Active</router-link></li>
+          <li v-if="isLoggedIn"><router-link class="link" to="/backlog">Backlog</router-link></li>  
           <!-- <li v-if="isLoggedIn"><router-link class="link" to="/view/gantt">My Gantt</router-link></li>   -->
           
           <li v-if="isLoggedIn"><router-link class="link" to="/view/users">View Users </router-link></li>  
@@ -29,6 +30,7 @@
         <li v-if="isLoggedIn"><router-link to="/">My Dashboard</router-link></li>
         <li v-if="isLoggedIn"><router-link to="/view/all">My All</router-link></li>  
         <li v-if="isLoggedIn"><router-link to="/view/cols">My Active</router-link></li>  
+        <li v-if="isLoggedIn"><router-link to="/backlog">Backlog</router-link></li>  
         
         
         <li v-if="isLoggedIn"><router-link to="/view/users">View Users </router-link></li>  

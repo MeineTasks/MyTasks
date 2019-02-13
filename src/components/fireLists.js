@@ -19,7 +19,7 @@ RTDB.ref("/LISTS/").once("value",querySnapshot => {
     //console.log(user)
     Statuses.push(LstItem);
   });
-  Statuses=Statuses.sort()
+  // Statuses=Statuses.sort()
   //FTE
   ListData.FTE.List.split("#").forEach(LstItem => {
     //console.log(user)
