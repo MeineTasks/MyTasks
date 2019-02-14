@@ -54,7 +54,7 @@ export default {
       currentUser: ""
     };
   },
-  created() {
+  created() {    
     if (firebase.auth().currentUser) {
       this.currentUser = firebase.auth().currentUser.email;
     }

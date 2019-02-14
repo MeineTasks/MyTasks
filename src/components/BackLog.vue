@@ -1,7 +1,9 @@
 <template>
   <div id="dashboard" style="margin: 0px 50px;">
-    <div class="row hide-on-small-only myHeader">
-      <h6 v-for="itm in Header" :key="itm.txt" class="col s12 clickable" :class="[itm.m,{'sorted':itm.txt==HSorted}]" @click="DoSort(itm.sby),HSorted=itm.txt">
+    <div class="row hide-on-small-only myHeader blue-grey lighten-4">
+      <h6 v-for="itm in Header" :key="itm.txt" class="col s12" 
+        :class="[itm.m,{'sorted':itm.txt==HSorted},{'clickable':itm.hasSort}]" 
+        @click="HeaderClick(itm)">
           {{itm.txt}}
       </h6>
       <!-- <h6 class="col m2 s12 clickable" @click="DoSort('task_name')">Task name</h6>
@@ -17,45 +19,41 @@
     </div>
     <!-- view not started  -->
     <div v-for="task in tasksBackLog" v-bind:key="task.id" class="row" :class="task.task_priority">
-      <div class="col m3 s12">
+      <div class="col m2 s12">
         <span>
           <b>{{task.task_name}}</b>
         </span>
       </div>
-      <div class="col m4 s12 tskDetails" v-html="task.task_description"></div>
-      <div class="col m1 s12 truncate">
-        <i>{{task.task_project}}</i>
-      </div>
-      <!-- <div class="col m2 s12">
+      <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
+      <div class="col m1 s12">
         <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
           <span id="Attachment_span" v-html="attach"></span>
         </div>
-      </div> -->
+      </div>
+      <div class="col m1 s12 truncate">
+        <i>{{task.task_project}}</i>
+      </div>
       <div class="col m1 s12">
         <span class="chip" :class="'ch_'+task.task_priority">{{task.task_priority}}</span>
       </div>
       <div class="col m1 s12">{{task.task_deadline}}</div>
       <div class="col m1 s12">{{task.task_FTE}}</div>
+      <div class="col m1 s12">
+        <span  v-if="task.task_vol.length!=0">
+          <span class="chip truncate" v-for="om in task.task_vol" :key="om">{{om}}</span>
+        </span>
+        
+        </div>
       <!-- icons   -->
       <div v-if="isLoggedIn" class="col iconContainer">
         <div
-          v-if="task.t_isPrivate"
           class="col tooltipped"
           data-position="top"
-          data-tooltip="<span style='font-size:small'>Delete</span>"
+          data-tooltip="<span style='font-size:small'>Add me</span>"
         >
-          <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
+          <i v-if="!task.task_iVol" class="blue-text material-icons" @click="VolMe(task)">person_add</i>
         </div>
-        
-        <div
-          class="col tooltipped"
-          data-position="top"
-          data-tooltip="<span style='font-size:small'>Edit</span>"
-        >
-          <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
-            <i class="fas fa-edit"></i>
-          </router-link>
-        </div>
+          <i v-if="task.task_iVol" class="red-text fas fa-user-minus" @click="VolMe(task)"></i>          
       </div>
     </div>
     
@@ -94,24 +92,31 @@ export default {
     return {
       // isLoggedIn: false,
       Header:[
-        {txt:"Task name",m:"m3",isSel:false,sby:"task_name",hasSort:true},
-        {txt:"Description",m:"m4",isSel:false,sby:"task_description",hasSort:true},
-        {txt:"Project",m:"m1",isSel:false,sby:"task_project",hasSort:true},        
-        {txt:"Priority",m:"m1",isSel:false,sby:"task_priority",hasSort:true},
-        {txt:"Deadline",m:"m1",isSel:false,sby:"task_deadline",hasSort:true},
-        {txt:"FTE",m:"m1",isSel:false,sby:"task_FTE",hasSort:true}
+        {txt:"Task name",m:"m2",sby:"task_name",hasSort:true},
+        {txt:"Description",m:"m3",sby:"task_description",hasSort:true},
+        {txt:"Attachment",m:"m1 truncate",sby:"",hasSort:false},
+        {txt:"Project",m:"m1 truncate",sby:"task_project",hasSort:true},
+        {txt:"Priority",m:"m1 truncate",sby:"task_priority",hasSort:true},
+        {txt:"Deadline",m:"m1 truncate",sby:"task_deadline",hasSort:true},
+        {txt:"FTE",m:"m1 truncate",sby:"task_FTE",hasSort:true},
+        {txt:"Volunteers",m:"m1 truncate",sby:"task_vol",hasSort:true},
         
         ],
       HSorted:"Task name",
       tasksBackLog:[],
       hasDone: false,
       viewDone: null,
+      currUserName:null,
       // tasks: this.tasksBackLog,
       SortBy:"task_priority"
     };
   },
   mounted(){
       var vueObj = this;
+      
+      RTDB.ref("/USERS/"+firebase.auth().currentUser.uid+"/Label/").once("value",res=>{
+        this.currUserName=res.val()
+      })
 
        RTDB.ref("/USERS/backlog/TASKS/")
         .orderByChild("t_isActive")
@@ -143,11 +148,12 @@ export default {
                 task_priority:queryOBJ[prop].tPriority ? queryOBJ[prop].tPriority : "",
                 task_usedFTE: queryOBJ[prop].tFTEused ? queryOBJ[prop].tFTEused : null,
                 task_status: queryOBJ[prop].tStatus,
-
+                task_vol:queryOBJ[prop].tVol ? queryOBJ[prop].tVol :[],// ["Stefania Domnisoru","Ovidiu Calburean"],                
                 
                 task_isActive: queryOBJ[prop].t_isActive,
                 
               };
+              data.task_iVol=data.task_vol.indexOf(this.currUserName)>-1,
   
               vueObj.tasksBackLog.push(data);
             }
@@ -169,6 +175,30 @@ export default {
   },
   
   methods: {
+    VolMe(task){
+      if(!task.task_iVol){  
+          task.task_vol.push(this.currUserName)
+          task.task_iVol=true
+      }else{
+          let index =  task.task_vol.indexOf(this.currUserName);
+          if( index!=-1){
+            task.task_vol.splice(index, 1);
+            task.task_iVol=false
+          }
+      }
+       RTDB.ref("/USERS/backlog/TASKS/"+task.id).update({
+         tVol: task.task_vol
+       }).then(clbk=>{
+          M.toast({ html: `Task was updated` });
+       }
+       )
+    },
+    HeaderClick(itm){
+      if (itm.hasSort){
+        this.DoSort(itm.sby)
+        this.HSorted=itm.txt
+      }
+    },
     DoSort(by){
       this.SortBy=by
       this.tasksBackLog.sort(this.sortMNG)
@@ -250,7 +280,11 @@ h6 {
 }
 .row {
   margin-bottom: 5px !important;
-  background-color: white !important;  
+  background-color: white ;  
+}
+.row:hover {  
+    background-color: #add8e636;    
+    box-shadow: 0px 0px 19px 1px rgba(0,0,0,0.75);
 }
 .logTigle {
   color: teal;
@@ -299,7 +333,7 @@ h6 {
 }
 .sorted::before{
       content: "\2193";
-    color: #3eb0ae;
+    color: #024e4d;
     font-size: 20px;
     font-weight: bold;
 }
