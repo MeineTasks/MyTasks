@@ -30,6 +30,7 @@
                   </span>
               </div>
           </div>
+        
          <!-- details -->
            <div class="row">
               <span v-if="!showDetails" @click="showDetails=true" class="waves-effect waves-light btn-small black-text blue-grey lighten-4">Add details</span>

@@ -117,6 +117,18 @@
                   </div>
               </div>
           </div>
+            <!-- feedBack -->
+          <div class="row">
+             <label>
+                <input type="checkbox" class="filled-in" checked="checked" v-model="task_feedback"/>
+                <span>Request feedback</span>
+              </label>
+              <div v-if="task_feedback">
+                <input placeholder="Feedback email" type="text" class="col m2 validate" v-model="task_fbkEmail" required>
+                 <span id="emailDomain">@ipsos.com</span>
+              </div>
+              
+          </div> 
            <!-- priority -->
           <div class="row" v-if="SelectedOwner.Label=='xBacklog'">
               <div class="input-field col s12">
@@ -263,7 +275,9 @@ export default {
       task_deadline: null,
       task_priority:null,
       task_status: null,
-      task_project: null,      
+      task_project: null,     
+      task_feedback:false,
+      task_fbkEmail:"", 
       task_isActive: null,
       task_createdBy: null,
       Statuses: fireList.statusesList,
@@ -334,11 +348,24 @@ export default {
         $("#StartDate,#DeadLine").css("border", "solid red 1px");
         return false;
       }
-      if (this.ShowFTE=='used' && (this.task_usedFTE==null ||this.task_usedFTE=="") ) {
-        M.toast({ html: `Used FTE should not be null` });
-        $(".FTEcont select").css("border", "solid red 1px");
+      //feedback
+      if (this.task_feedback && this.task_fbkEmail.indexOf(".")==-1){        
+        M.toast({ html: "Email should contain at least one dot" });
         return false;
       }
+      // complete extend
+      if(CloneT && (this.task_usedFTE==null ||this.task_usedFTE=="")){
+        this.ShowFTE='used'
+        M.toast({ html: `Used FTE should not be null` });
+        setTimeout(function(){ $(".FTEcont select").css("border", "solid red 1px")},500);
+        return false;
+      }
+      if (this.ShowFTE=='used' && (this.task_usedFTE==null ||this.task_usedFTE=="") ) {
+        M.toast({ html: `Used FTE should not be nulls` });
+        setTimeout(function(){ $(".FTEcont select").css("border", "solid red 1px")},500);
+        return false;
+      }
+      
       //validari
       var message = [];
       var msg = "Please select ";
@@ -415,6 +442,8 @@ export default {
                   tProject: vueObj.SelectedProj,
                   tProjCateg: vueObj.SelectedProjCat,
                   tStatus: vueObj.nSelectedStatus,
+                  tFbk:this.task_feedback,
+                  tFbkEmail:this.task_fbkEmail.replace("@ipsos.com","")+"@ipsos.com",
                   tAttach: vueObj.task_attachement,
                   tClosedDate:
                     vueObj.nSelectedStatus == "Completed"
@@ -473,6 +502,8 @@ export default {
             tProject: this.SelectedProj,
             tProjCateg: this.SelectedProjCat,
             tStatus: this.nSelectedStatus,
+            tFbk:this.task_feedback,
+          tFbkEmail:this.task_fbkEmail.replace("@ipsos.com","")+"@ipsos.com",
             tClosedDate:
               this.nSelectedStatus == "Completed"
                 ? moment().format("YYYY-MM-DD")
@@ -679,6 +710,10 @@ export default {
         : { Label: null, UID: null };
       objVue.initialOwner = objVue.SelectedOwner;
       objVue.task_attachement = queryOBJ.tAttach ? queryOBJ.tAttach : [];
+
+      objVue.task_feedback = queryOBJ.tFbk ? queryOBJ.tFbk : false;
+      objVue.task_fbkEmail = queryOBJ.tFbkEmail ? queryOBJ.tFbkEmail.replace("@ipsos.com","") : "";
+      
       objVue.task_createdBy = queryOBJ.CreatedBy;
 
       objVue.task_isActive = queryOBJ.t_isActive ? "No" : "Yes";
@@ -792,6 +827,11 @@ label {
 .MyContainer {
   background-color: white;
   padding: 10px;
+}
+#emailDomain{
+  top: 10px;
+    position: relative;
+    color: gray
 }
 </style>
 

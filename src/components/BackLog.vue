@@ -45,7 +45,16 @@
         
         </div>
       <!-- icons   -->
-      <div v-if="isLoggedIn" class="col iconContainer">
+      <div v-if="isLoggedIn" class="col m1 iconContainer">
+        <div v-if="isManager">                                                   
+          <router-link class="tooltipped" data-position="top" 
+          data-tooltip="<span style='font-size:small'>Edit</span>" 
+          v-bind:to="{name:'edit-task_mng',
+          params:{task_id:task.id},
+          query:{uid:task.task_owner,mnext:'viewusers'} }">
+              <i class="fas fa-edit"></i>
+          </router-link>                
+        </div>
         <div
           class="col tooltipped"
           data-position="top"
@@ -149,7 +158,7 @@ export default {
                 task_usedFTE: queryOBJ[prop].tFTEused ? queryOBJ[prop].tFTEused : null,
                 task_status: queryOBJ[prop].tStatus,
                 task_vol:queryOBJ[prop].tVol ? queryOBJ[prop].tVol :[],// ["Stefania Domnisoru","Ovidiu Calburean"],                
-                
+                task_owner: queryOBJ[prop].tOwner.UID,
                 task_isActive: queryOBJ[prop].t_isActive,
                 
               };
@@ -295,8 +304,9 @@ h6 {
   background: #ececec;
 }
 .iconContainer {
-  float: right;
-  text-align: right;
+      display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
 }
 .fa-eye-slash {
   color: #8a4f3b;

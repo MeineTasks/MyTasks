@@ -58,6 +58,18 @@
                   </span>
               </div>
           </div>
+           <!-- feedBack -->
+          <div class="row">
+             <label>
+                <input type="checkbox" class="filled-in" checked="checked" v-model="task_feedback"/>
+                <span>Request feedback</span>
+              </label>
+              <div v-if="task_feedback">
+                <input placeholder="Feedback email" type="text" class="col m2 validate" v-model="task_fbkEmail" required>
+                 <span id="emailDomain">@ipsos.com</span>
+              </div>
+              
+          </div> 
           <!-- Owners -->
           <div v-if="showOwner" class="row">
               <label class="active">Owner:</label>
@@ -152,6 +164,8 @@ export default {
         .format("YYYY-MM-DD"),
       task_status: null,
       task_project: null,
+      task_feedback:false,
+      task_fbkEmail:"",
 
       userTaskArr: [],
       userFTE: null,
@@ -260,6 +274,7 @@ export default {
           message.push("Owner");
         }
       }
+      
 
       //validate mandatory fields
       // console.log(message);
@@ -276,6 +291,11 @@ export default {
         M.toast({ html: "Attachment URL should be empty" });
         return false;
       }
+      //feedback
+      if (this.task_feedback && this.task_fbkEmail.indexOf(".")==-1){        
+        M.toast({ html: "Email should contain at least one dot" });
+        return false;
+      }
       
       // return true;
       RTDB.ref("/USERS/" + this.SelectedOwner.UID + "/TASKS/")
@@ -288,6 +308,8 @@ export default {
           tProjCateg: this.SelectedProjCat,
           tStatus: this.SelectedStatus,
           tFTE: this.task_fte ? this.task_fte : "TBD",
+          tFbk:this.task_feedback,
+          tFbkEmail:this.task_fbkEmail.replace("@ipsos.com","")+"@ipsos.com",
           tOwner: this.SelectedOwner,
           tAttach: this.task_attachement,
           t_isActive: true,
@@ -523,5 +545,10 @@ input[type="date"] {
 .mySingleSelected {
   background: teal;
   color: white;
+}
+#emailDomain{
+  top: 10px;
+    position: relative;
+    color: gray
 }
 </style>
