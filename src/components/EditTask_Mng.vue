@@ -324,7 +324,7 @@ export default {
 
       if (opt=="Canceled" || opt=="Completed" || opt=="On hold"){
         this.ShowFTE="used"
-        if (this.task_usedFTE=="TBD" ||this.task_usedFTE=="" ){
+        if ((this.task_usedFTE=="TBD" ||this.task_usedFTE=="") && opt=="Completed" ){
           this.task_usedFTE=this.task_FTE
            $(".FTEcont select").eq(1).css("border", "solid green 1px")
         }else{
@@ -407,6 +407,9 @@ export default {
 
       if (CloneT) {
         vueObj.nSelectedStatus = "Completed";
+        if (this.task_usedFTE=="TBD" ||this.task_usedFTE==""){
+          this.task_usedFTE=this.task_FTE
+        }
       }
 
       if (vueObj.SelectedOwner.UID != vueObj.initialOwner.UID) {
@@ -601,6 +604,7 @@ export default {
         TaskObj.tStatus = "In progress";
         //AlexP
         TaskObj.tFTE="TBD"
+        TaskObj.tFTEused=""
         
         // add new task on same user
         RTDB.ref("/USERS/" + vueObj.$route.query.uid + "/TASKS/")
