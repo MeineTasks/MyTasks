@@ -182,7 +182,7 @@
               <div class="input-field col s12">
                 <label class="active">Created by:</label>
                 <div class="input-field">
-                 <span v-for="mng in ManagersArray" v-bind:key="mng.id" v-bind:class="{'mySingleSelected':SelectedManager==mng}" class="mySingle chip">
+                 <span v-for="mng in ManagersArray" v-bind:key="mng.id" v-bind:class="{'mySingleSelected':task_createdBy==mng.OBJ.UID}" class="mySingle chip">
                     {{mng.OBJ.name}}
                   </span>
                 </div>  
@@ -461,6 +461,7 @@ export default {
                       : "",
                   tOwner: vueObj.SelectedOwner,
                   // tEnvironment:vueObj.task_env?vueObj.task_env:"",
+                  CreatedBy: firebase.auth().currentUser.uid,
                   ModifiedBy: firebase.auth().currentUser.uid,
                   ModifiedDate: moment().format("YYYY-MM-DD HH:MM"),
                   t_isActive: vueObj.task_isActive == "No"
@@ -521,7 +522,7 @@ export default {
             tAttach: this.task_attachement,
             // tOwner:this.SelectedOwner,
 
-            CreatedBy: this.task_createdBy,
+            // CreatedBy: firebase.auth().currentUser.uid,
             ModifiedBy: firebase.auth().currentUser.uid,
             ModifiedDate: moment().format("YYYY-MM-DD"),
             t_isActive: this.task_isActive == "No"
@@ -714,7 +715,7 @@ export default {
       objVue.task_FTE = queryOBJ.tFTE ? queryOBJ.tFTE : "";
       objVue.task_usedFTE = queryOBJ.tFTEused ? queryOBJ.tFTEused : "";
       objVue.nSelectedStatus = queryOBJ.tStatus;
-      objVue.task_priority=queryOBJ.tPriority;
+      objVue.task_priority=queryOBJ.tPriority?queryOBJ.tPriority:"";
       objVue.SelectedProjCat = queryOBJ.tProjCateg;
       objVue.SelectedProj = queryOBJ.tProject;
       objVue.SelectedOwner = queryOBJ.tOwner
@@ -780,12 +781,12 @@ export default {
 
         objVue.ManagersArray.sort(sortMNG);
 
-        objVue.ManagersArray.forEach(owner => {
-          if (owner.OBJ.UID == objVue.task_createdBy) {
-            objVue.SelectedManager = owner;
-            return true;
-          }
-        });
+        // objVue.ManagersArray.forEach(owner => {
+        //   if (owner.OBJ.UID == objVue.task_createdBy) {
+        //     objVue.SelectedManager = owner;
+        //     return true;
+        //   }
+        // });
       });
     $(".material-tooltip").remove();   
     

@@ -6,6 +6,10 @@
           <i class="large material-icons tooltipped" style="padding-top: 4px;color:#8bbf8b;cursor: help;"  data-position="bottom" v-bind:data-tooltip="currentUser">account_circle</i>
           <a v-if="isLoggedIn">
             <button v-on:click="logout" class="btn-flat white-text">Logout</button></a>
+          
+            <a href="http://kb.ipsosinteractive.com/Compentence_Stuff/%5BCompetence_Internal%5D_Meinetasks_App" target="_blank" class="material-icons blue-text text-lighten-3">help_outline</a>
+
+            
         </span>
         <!-- small screen only -->
         <a class="dropdown-trigger right col s12 hide-on-med-and-up	" href="#!" data-target="dropdown1">Select View<i class="material-icons right">arrow_drop_down</i></a>
