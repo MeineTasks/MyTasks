@@ -51,7 +51,7 @@
           data-tooltip="<span style='font-size:small'>Edit</span>" 
           v-bind:to="{name:'edit-task_mng',
           params:{task_id:task.id},
-          query:{uid:task.task_owner,mnext:'viewusers'} }">
+          query:{uid:task.task_owner,mnext:'backlog'} }">
               <i class="fas fa-edit"></i>
           </router-link>                
         </div>
@@ -68,7 +68,7 @@
     
     <!-- add new -->
         <div v-if="isManager" class="fixed-action-btn">
-          <router-link v-bind:to="{name:'new-task',query:{mnext:'viewprojcat'}}" class="btn-floating btn-large red">
+          <router-link v-bind:to="{name:'new-task',query:{mnext:'backlog'}}" class="btn-floating btn-large red">
             <i class="fa fa-plus"></i>
           </router-link>
         </div>
@@ -105,19 +105,19 @@ export default {
         {txt:"Description",m:"m3",sby:"task_description",hasSort:true},
         {txt:"Attachment",m:"m1 truncate",sby:"",hasSort:false},
         {txt:"Project",m:"m1 truncate",sby:"task_project",hasSort:true},
-        {txt:"Priority",m:"m1 truncate",sby:"task_priority",hasSort:true},
+        {txt:"Priority",m:"m1 truncate",sby:"task_PriorNum",hasSort:true},
         {txt:"Deadline",m:"m1 truncate",sby:"task_deadline",hasSort:true},
         {txt:"FTE",m:"m1 truncate",sby:"task_FTE",hasSort:true},
         {txt:"Volunteers",m:"m1 truncate",sby:"task_vol",hasSort:true},
         
         ],
-      HSorted:"Task name",
+      HSorted:"Priority",
       tasksBackLog:[],
       hasDone: false,
       viewDone: null,
       currUserName:null,
       // tasks: this.tasksBackLog,
-      SortBy:"task_priority"
+      SortBy:"task_PriorNum"
     };
   },
   mounted(){
@@ -163,7 +163,7 @@ export default {
                 
               };
               data.task_iVol=data.task_vol.indexOf(this.currUserName)>-1,
-  
+              data.task_PriorNum=["High","Normal","Low"].indexOf(data.task_priority)
               vueObj.tasksBackLog.push(data);
             }
             
@@ -213,10 +213,12 @@ export default {
       this.tasksBackLog.sort(this.sortMNG)
     },
 
-    sortMNG(a, b) {          
-          if (a[this.SortBy]  < b[this.SortBy]) return -1;
-          if (a[this.SortBy]  > b[this.SortBy]) return 1;
-          return 0;
+    sortMNG(a, b) {
+      
+        if (a[this.SortBy]  < b[this.SortBy]) return -1;
+        if (a[this.SortBy]  > b[this.SortBy]) return 1;
+        return 0;
+      
     },
    
     CloseTask(task) {

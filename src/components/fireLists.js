@@ -42,9 +42,9 @@ RTDB.ref("/USERS/").orderByChild("isOwner")
     }
     const queryOBJ = querySnapshot.val();
         for (var prop in queryOBJ) {
-          if (prop!="backlog"){
+          // if (prop!="backlog"){
             Owners.push({Label:queryOBJ[prop].Label,UID:prop})
-          }
+          // }
         }
     Owners=Owners.sort(sortUsers)
 })

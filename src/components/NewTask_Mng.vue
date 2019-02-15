@@ -84,6 +84,17 @@
               </div>
              
           </div>
+           <!-- priority -->
+          <div class="row" v-if="SelectedOwner.Label=='xBacklog'">
+              <div class="input-field col s12">
+              <label class="active">Priority:</label>
+                <div class="input-field">
+                  <span @click="nSelectedPriority=opt" v-for="opt in PiorityArr" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedPriority==opt}" class="mySingle chip">
+                    {{opt}}
+                  </span>
+                  </div>
+              </div>
+          </div>
            <div class="row">
               <span v-if="!showDetails" @click="showDetails=true" class="waves-effect waves-light btn-small black-text blue-grey lighten-4">Add details</span>
               
@@ -141,6 +152,7 @@ export default {
   data() {
     return {
       FTAarray: fireList.FTEList,
+      PiorityArr:["Low","Normal","High"],
       task_fte: null,
       showDetails: false,
       showProject: false,
@@ -163,6 +175,7 @@ export default {
         .weekday(5)
         .format("YYYY-MM-DD"),
       task_status: null,
+      task_priority:"",
       task_project: null,
       task_feedback:false,
       task_fbkEmail:"",
@@ -180,6 +193,7 @@ export default {
 
       Statuses: fireList.statusesList,
       SelectedStatus: "Not started",
+      nSelectedPriority:"Normal",
 
       ownersList: fireList.OwnersList,
       SelectedOwner: { Label: null, UID: null }
@@ -309,6 +323,7 @@ export default {
           tStatus: this.SelectedStatus,
           tFTE: this.task_fte ? this.task_fte : "TBD",
           tFbk:this.task_feedback,
+          tPriority:this.nSelectedPriority,
           tFbkEmail:this.task_fbkEmail.replace("@ipsos.com","")+"@ipsos.com",
           tOwner: this.SelectedOwner,
           tAttach: this.task_attachement,
@@ -404,6 +419,7 @@ export default {
         vueObj.showStatus = false;
         vueObj.SelectedProj = "Backlog";
         vueObj.SelectedStatus = "Not allocated";
+        vueObj.task_priority="Normal"
         vueObj.task_fte = null;
         vueObj.showDates = false;
         vueObj.SelectedOwner = { Label: "xBacklog", UID: "backlog" };

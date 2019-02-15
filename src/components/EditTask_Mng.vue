@@ -34,7 +34,7 @@
           </div>
           
           <!-- FTA estimated-->
-          <span v-if="ShowFTE=='estimated'">
+          
             <span v-if="displayFTA" class="FTEcont">
               <select  v-model="task_FTE" style="display:inline;width:70px"  @change="updateFTE('fte')">
                     <option v-for="fta in FTAarray" v-bind:key="fta.id"
@@ -47,14 +47,14 @@
                       <option v-for="fta in FTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
                         v-bind:value="fta*40">{{fta*40}}</option>
                     </select> 
-                <span>Hours</span>   
+                <span>Estimated Hours</span>   
             </span>
-          </span>
+          
           <!-- FTA used-->
-          <span v-if="ShowFTE=='used'" class="FTEcont">
-            <span v-if="displayFTA">          
+          
+            <span v-if="displayFTA" class="FTEcont">          
               <select  v-model="task_usedFTE" style="display:inline;width:70px"  @change="updateUsedFTE('fte')">
-                    <option v-for="fta in FTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
+                    <option v-for="fta in FTAarray" v-bind:key="fta.id"
                       v-bind:value="fta">{{fta}}</option>
                   </select> 
                   <span>Used FTE</span>
@@ -66,7 +66,7 @@
                     </select> 
                 <span>Used Hours</span>   
             </span>
-          </span>
+          
           <div class="switch">
             <label>
               Hours
@@ -134,7 +134,7 @@
               <div class="input-field col s12">
               <label class="active">Priority:</label>
                 <div class="input-field">
-                  <span @click="nSelectedPriority=opt" v-for="opt in PiorityArr" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedPriority==opt}" class="mySingle chip">
+                  <span @click="task_priority=opt" v-for="opt in PiorityArr" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':task_priority==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
                   </div>
@@ -294,8 +294,7 @@ export default {
       AddNewProj: null,
 
       nStatusesList: fireList.statusesList,
-      nSelectedStatus: "In progress",
-      nSelectedPriority:"Normal",
+      nSelectedStatus: "In progress",      
 
       ownersList: fireList.OwnersList,
       SelectedOwner: { Label: null, UID: null },
@@ -325,12 +324,18 @@ export default {
 
       if (opt=="Canceled" || opt=="Completed" || opt=="On hold"){
         this.ShowFTE="used"
+        if (this.task_usedFTE=="TBD" ||this.task_usedFTE=="" ){
+          this.task_usedFTE=this.task_FTE
+           $(".FTEcont select").eq(1).css("border", "solid green 1px")
+        }else{
+           $(".FTEcont select").eq(1).css("border", "1px solid #f2f2f2")
+        }
       }else{
         this.ShowFTE="estimated"
       }      
-      if (initialShow!=this.ShowFTE && anim){
-        setTimeout(function(){ $(".FTEcont").effect( "pulsate", {times:3}, 3000 ) }, 500);
-      }
+      // if (initialShow!=this.ShowFTE && anim){
+      //   setTimeout(function(){ $(".FTEcont").effect( "pulsate", {times:3}, 3000 ) }, 500);
+      // }
     },
     SetDeadline() {
       this.task_deadline = moment(this.task_start, "YYYY-MM-DD")
@@ -355,14 +360,15 @@ export default {
       }
       // complete extend
       if(CloneT && (this.task_usedFTE==null ||this.task_usedFTE=="")){
-        this.ShowFTE='used'
-        M.toast({ html: `Used FTE should not be null` });
-        setTimeout(function(){ $(".FTEcont select").css("border", "solid red 1px")},500);
-        return false;
+        // this.ShowFTE='used'
+        // M.toast({ html: `Used FTE should not be null` });
+        // $(".FTEcont select").eq(1).css("border", "solid red 1px")
+        // return false;
+        
       }
       if (this.ShowFTE=='used' && (this.task_usedFTE==null ||this.task_usedFTE=="") ) {
-        M.toast({ html: `Used FTE should not be nulls` });
-        setTimeout(function(){ $(".FTEcont select").css("border", "solid red 1px")},500);
+        M.toast({ html: `Used FTE should not be null` });
+        $(".FTEcont select").eq(1).css("border", "solid red 1px")
         return false;
       }
       
@@ -438,7 +444,7 @@ export default {
                   tDeadline: vueObj.task_deadline,
                   tFTE: vueObj.task_FTE ? vueObj.task_FTE : "TBD",
                   tFTEused:vueObj.task_usedFTE?vueObj.task_usedFTE:"",
-                  tPriority:vueObj.task_priority?vueObj.task_priority:"",
+                  tPriority:vueObj.task_priority,
                   tProject: vueObj.SelectedProj,
                   tProjCateg: vueObj.SelectedProjCat,
                   tStatus: vueObj.nSelectedStatus,
@@ -498,7 +504,7 @@ export default {
             tDeadline: this.task_deadline,
             tFTE: this.task_FTE ? this.task_FTE : "TBD",
             tFTEused:this.task_usedFTE?this.task_usedFTE:"",
-            tPriority:this.nSelectedPriority?this.nSelectedPriority:"",
+            tPriority:this.task_priority,
             tProject: this.SelectedProj,
             tProjCateg: this.SelectedProjCat,
             tStatus: this.nSelectedStatus,
@@ -703,6 +709,7 @@ export default {
       objVue.task_FTE = queryOBJ.tFTE ? queryOBJ.tFTE : "";
       objVue.task_usedFTE = queryOBJ.tFTEused ? queryOBJ.tFTEused : "";
       objVue.nSelectedStatus = queryOBJ.tStatus;
+      objVue.task_priority=queryOBJ.tPriority;
       objVue.SelectedProjCat = queryOBJ.tProjCateg;
       objVue.SelectedProj = queryOBJ.tProject;
       objVue.SelectedOwner = queryOBJ.tOwner
