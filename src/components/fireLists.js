@@ -3,6 +3,7 @@ import RTDB from "./firebaseInitRTDB";
 
 var Statuses = [];
 var FTEs = [];
+var usedFTEArr=[];
 var Envrmnts = [];
 var InnoProjCat = [];
 var Owners=[];
@@ -24,7 +25,13 @@ RTDB.ref("/LISTS/").once("value",querySnapshot => {
   ListData.FTE.List.split("#").forEach(LstItem => {
     //console.log(user)
     FTEs.push(LstItem);
+    usedFTEArr.push(LstItem);
   });
+  
+  //usedFTEArr.push("A")
+  usedFTEArr.splice(1,0,"0")
+  // debugger
+  //console.log(usedFTEArr)
   // Environments
   ListData.Environments.List.split("#").forEach(LstItem => {
     //console.log(user)
@@ -100,7 +107,9 @@ RTDB.ref("/USERS/").orderByChild("isOwner")
 export default {
   statusesList: Statuses,
   FTEList: FTEs,  
+  usedFTEArrList: usedFTEArr,
   // envList: Envrmnts,
   innoProjCat: InnoProjCat,
   OwnersList:Owners
+
 };

@@ -54,14 +54,14 @@
           
             <span v-if="displayFTA" class="FTEcont">          
               <select  v-model="task_usedFTE" style="display:inline;width:70px"  @change="updateUsedFTE('fte')">
-                    <option v-for="fta in FTAarray" v-bind:key="fta.id"
+                    <option v-for="fta in UsedFTAarray" v-bind:key="fta.id"
                       v-bind:value="fta">{{fta}}</option>
                   </select> 
                   <span>Used FTE</span>
             </span>    
             <span v-else>
               <select v-model="UsedHours" style="display:inline;width:70px" @change="updateUsedFTE('hours')" >
-                      <option v-for="fta in FTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
+                      <option v-for="fta in UsedFTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
                         v-bind:value="fta*40">{{fta*40}}</option>
                     </select> 
                 <span>Used Hours</span>   
@@ -251,6 +251,7 @@ export default {
   data() {
     return {
       FTAarray: fireList.FTEList,
+      UsedFTAarray: fireList.usedFTEArrList,
       PiorityArr:["Low","Normal","High"],
       task_FTE: null,
       task_usedFTE: null,
@@ -786,7 +787,9 @@ export default {
           }
         });
       });
-    $(".material-tooltip").remove();
+    $(".material-tooltip").remove();   
+    
+    //this.UsedFTAarray.splice(2,0,"0")
   },
   mounted() {
     var objVue = this;

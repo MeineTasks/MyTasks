@@ -33,8 +33,8 @@
       <div class="col m1 s12 truncate">
         <i>{{task.task_project}}</i>
       </div>
-      <div class="col m1 s12">
-        <span class="chip" :class="'ch_'+task.task_priority">{{task.task_priority}}</span>
+      <div class="col m1 s12 ">
+        <span class="chip valign-wrapper" :class="'ch_'+task.task_priority">{{task.task_priority}}</span>
       </div>
       <div class="col m1 s12">{{task.task_deadline}}</div>
       <div class="col m1 s12">{{task.task_FTE}}</div>
@@ -291,11 +291,12 @@ h6 {
 }
 .row {
   margin-bottom: 5px !important;
+  padding-top: 3px;
   background-color: white ;  
 }
 .row:hover {  
-    background-color: #add8e636;    
-    box-shadow: 0px 0px 19px 1px rgba(0,0,0,0.75);
+    /* background-color: #bfd0d642;     */
+    box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.75);
 }
 .logTigle {
   color: teal;
