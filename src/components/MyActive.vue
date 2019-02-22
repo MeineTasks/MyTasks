@@ -316,60 +316,17 @@
       </router-link>
     </div>
     <!-- Modal Structure -->
-    <div
-      id="modal1"
-      class="modal"
-    >
-      <div class="modal-content" v-if="GotTarget">
-        <h4>Required info</h4>
-        <p>Please update the used FTE</p>
-        <span v-if="displayFTA" class="FTEcont">
-          <select
-            v-model="targetTask.task_usedFTE"
-            style="display:inline;width:70px"
-            @change="updateFTE('fte')"
-          >
-            <option
-              v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
-              v-bind:key="fta.id"
-              v-bind:value="fta"
-            >{{fta}}</option>
-          </select>
-          <span>FTE</span>
-        </span>
-        <span v-else>
-          <select
-            v-model="hours"
-            style="display:inline;width:70px"
-            @change="updateFTE('hours')"
-          >
-            <option
-              v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
-              v-bind:key="fta.id"
-              v-bind:value="fta*40"
-            >{{fta*40}}</option>
-          </select>
-          <span>Hours</span>
-        </span>
-        <div class="switch">
-          <label>
-            Hours
-            <input
-             @change="updateFTE('fte')"
-              v-model="displayFTA"
-              type="checkbox"
-            >
-            <span class="lever"></span>
-            FTE
-          </label>
+    <modal   
+    
+      :FTAarray="FTAarray"
+      :GotTarget="GotTarget"
+      :targetTask="targetTask"
+      :hours="hours"
+      :targetFte="5"
 
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn black" @click="AddInfo('close')">Close</button>
-          <button type="button" class="btn" @click="AddInfo('save')">Save</button>
-        </div>
-      </div>
-      </div>
+      v-on:updateFTE="updateFTEs($event)"
+      v-on:AddInfo="AddInfo($event)"
+    ></modal>
     </div>
 </template>
 
@@ -377,12 +334,14 @@
 import firebase from "firebase";
 import fireList from "./fireLists";
 import RTDB from "./firebaseInitRTDB";
+import modal from "./Modal"
 
 var moment = require("moment");
 
 export default {
   name: "MyActive",
   props: { tasksMyActive: Array },
+  components: { modal },
   data () {
     return {
       // tasks: []
@@ -394,8 +353,8 @@ export default {
     };
   },
   mounted () {
-    $(".tooltipped").tooltip();
-    $('.modal').modal();
+    $(".tooltipped").tooltip();    
+    $(".modal").modal();
   },
 
   computed: {
@@ -416,14 +375,8 @@ export default {
     }
   },
   methods: {
-    AddInfo(typ){
-      if (typ=='save'){
-        if (this.targetTask.task_usedFTE == null){
-          M.toast({ html: `Please set used FTE` });
-          return false
-        }
-        //  var newStatus =
-        //     this.targetTask.task_status == "In progress" ? "On hold" : "In progress";  
+    AddInfo(){
+              
         let updObj={}        
             updObj.tStatus= this.targetTask.newStatus
             updObj.tFTEused= this.targetTask.task_usedFTE
@@ -439,20 +392,22 @@ export default {
             "/USERS/" + firebase.auth().currentUser.uid + "/TASKS/" + this.targetTask.id + "/"
           ).update(updObj);        
 
-      }
-        M.Modal.getInstance($("#modal1")).close()
-        this.task_FTE= null
-        this.hours= null
+      
+        // this.task_FTE= null
+        // this.hours= null
       
     },
-    updateFTE (type) {
-      if (type == 'fte') {
-
-        this.hours = 40 * this.targetTask.task_usedFTE
-      } else {
-         this.targetTask.task_usedFTE = (this.hours / 40).toFixed(2)
-      }
+    updateFTEs(val){
+      this.targetTask.task_usedFTE=val
     },
+    // updateFTE (type) {
+    //   if (type == 'fte') {
+
+    //     this.hours = 40 * this.targetTask.task_usedFTE
+    //   } else {
+    //      this.targetTask.task_usedFTE = (this.hours / 40).toFixed(2)
+    //   }
+    // },
     CompleteTask (task) {
       this.targetTask=task
       this.hours=40 * this.targetTask.task_usedFTE

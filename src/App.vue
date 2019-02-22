@@ -19,6 +19,7 @@ import Navbar from "./components/Navbar";
 import firebase from "firebase";
 import RTDB from "./components/firebaseInitRTDB";
 
+
 export default {
   name: "App",
   components: { Navbar },
@@ -36,7 +37,8 @@ export default {
       chartData: []
     };
   },
-  mounted() {
+  mounted() {    
+     
     if (firebase.auth().currentUser) {
       this.isLoggedIn = true;
       var vueObj = this;

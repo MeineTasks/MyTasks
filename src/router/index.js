@@ -4,7 +4,7 @@ import Dashboard from "@/components/Dashboard";
 import Backlog from "@/components/BackLog";
 
 import ViewAll from "@/components/ViewAll";
-import ViewCols from "@/components/ViewCols";
+import MyActive from "@/components/MyActive";
 // import ViewGantt from "@/components/ViewGantt";
 
 import ViewUsers from "@/components/viewUsers";
@@ -47,7 +47,7 @@ let router = new Router({
     {
       path: "/view/cols",
       name: "view-cols",
-      component: ViewCols,
+      component: MyActive,
       meta: {
         requiresAuth: true
       }
