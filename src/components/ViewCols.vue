@@ -322,7 +322,7 @@
     >
       <div class="modal-content" v-if="GotTarget">
         <h4>Required info</h4>
-        <p>Please set the used FTE</p>
+        <p>Please update the used FTE</p>
         <span v-if="displayFTA" class="FTEcont">
           <select
             v-model="targetTask.task_usedFTE"
@@ -422,15 +422,22 @@ export default {
           M.toast({ html: `Please set used FTE` });
           return false
         }
-         var newStatus =
-            this.targetTask.task_status == "In progress" ? "On hold" : "In progress";          
-          
+        //  var newStatus =
+        //     this.targetTask.task_status == "In progress" ? "On hold" : "In progress";  
+        let updObj={}        
+            updObj.tStatus= this.targetTask.newStatus
+            updObj.tFTEused= this.targetTask.task_usedFTE
+
+        if (this.targetTask.newStatus=="Completed")
+          {
+            updObj.tClosedDate= moment().format("YYYY-MM-DD")
+            }
+
+
+
           RTDB.ref(
             "/USERS/" + firebase.auth().currentUser.uid + "/TASKS/" + this.targetTask.id + "/"
-          ).update({
-            tStatus: newStatus,
-            tFTEused:this.targetTask.task_usedFTE
-          });        
+          ).update(updObj);        
 
       }
         M.Modal.getInstance($("#modal1")).close()
@@ -447,44 +454,55 @@ export default {
       }
     },
     CompleteTask (task) {
-      if (!task.task_completed) {
-        RTDB.ref(
-          "/USERS/" +
-          firebase.auth().currentUser.uid +
-          "/TASKS/" +
-          task.id +
-          "/"
-        ).update(
-          {
-            tStatus: "Completed",
-            tClosedDate: moment().format("YYYY-MM-DD")
-          },
-          function (error) {
-            if (error) {
-              console.log(error);
-            } else {
-              $(".material-tooltip").removeAttr("style");
-              console.log("update done");
+      this.targetTask=task
+      this.hours=40 * this.targetTask.task_usedFTE
+      this.GotTarget=true
+      this.targetTask.newStatus ="Completed"
+
+      if (this.targetTask.newStatus!="In progress"){
+        M.Modal.getInstance($("#modal1")).open()
+      }else{
+        if (!task.task_completed) {
+          RTDB.ref(
+            "/USERS/" +
+            firebase.auth().currentUser.uid +
+            "/TASKS/" +
+            task.id +
+            "/"
+          ).update(
+            {
+              tStatus: "Completed",
+              tClosedDate: moment().format("YYYY-MM-DD")
+            },
+            function (error) {
+              if (error) {
+                console.log(error);
+              } else {
+                $(".material-tooltip").removeAttr("style");
+                console.log("update done");
+              }
             }
-          }
-        );
+          );
+        }
       }
+      
     },
     StartStop (task) {
       this.targetTask=task
       this.hours=40 * this.targetTask.task_usedFTE
       this.GotTarget=true
+      this.targetTask.newStatus =
+            task.task_status == "In progress" ? "On hold" : "In progress"; 
 
-      if (task.task_status=="In progress"){
+      if (this.targetTask.newStatus!="In progress"){
         M.Modal.getInstance($("#modal1")).open()
       }else{
-        var newStatus =
-            task.task_status == "In progress" ? "On hold" : "In progress";          
+                
           
           RTDB.ref(
             "/USERS/" + firebase.auth().currentUser.uid + "/TASKS/" + task.id + "/"
           ).update({
-            tStatus: newStatus            
+            tStatus: this.targetTask.newStatus            
           });  
       }
       
