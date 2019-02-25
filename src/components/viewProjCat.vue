@@ -159,7 +159,7 @@
       :UsedFTAarray="UsedFTAarray"      
       :GotTarget="GotTarget"
       :targetTask="targetTask"
-      infoType="UsedOnly"
+      infoType="both"
 
       v-on:updateFTE="updateFTEs($event)"
       v-on:AddInfo="AddInfo($event)"

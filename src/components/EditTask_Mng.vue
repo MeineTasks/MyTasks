@@ -32,53 +32,61 @@
               v-model="task_deadline">
             <label class="active">Deadline:</label>
           </div>
-          
-          <!-- FTA estimated-->
-          
-            <span v-if="displayFTA" class="FTEcont">
-              <select  v-model="task_FTE" style="display:inline;width:70px"  @change="updateFTE('fte')">
-                    <option v-for="fta in FTAarray" v-bind:key="fta.id"
-                      v-bind:value="fta">{{fta}}</option>
-                  </select> 
-                  <span>Estimated FTE</span>
-            </span>    
-            <span v-else>
-              <select v-model="hours" style="display:inline;width:70px" @change="updateFTE('hours')" >
-                      <option v-for="fta in FTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
-                        v-bind:value="fta*40">{{fta*40}}</option>
+        </div>
+        <div class="row">
+          Task FTE:
+          <blockquote>If you close the task (set the status to either Canceled, On hold, Completed) and leave the used FTE blank, will use the value from Estimated if not equal to TBD</blockquote>
+        </div>  
+          <div class="row">
+            <div class="col s6 right-align blue-text">
+            <!-- FTA estimated-->
+              <span v-if="displayFTA" class="FTEcont">
+                <select  v-model="task_FTE" style="display:inline;width:70px"  @change="updateFTE('fte')" class="blue-text">
+                      <option v-for="fta in FTAarray" v-bind:key="fta.id"
+                        v-bind:value="fta">{{fta}}</option>
                     </select> 
-                <span>Estimated Hours</span>   
-            </span>
-          
-          <!-- FTA used-->
-          
-            <span v-if="displayFTA" class="FTEcont">          
-              <select  v-model="task_usedFTE" style="display:inline;width:70px"  @change="updateUsedFTE('fte')">
-                    <option v-for="fta in UsedFTAarray" v-bind:key="fta.id"
-                      v-bind:value="fta">{{fta}}</option>
-                  </select> 
-                  <span>Used FTE</span>
-            </span>    
-            <span v-else>
-              <select v-model="UsedHours" style="display:inline;width:70px" @change="updateUsedFTE('hours')" >
-                      <option v-for="fta in UsedFTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
-                        v-bind:value="fta*40">{{fta*40}}</option>
+                    <span>Estimated FTE</span>
+              </span>    
+              <span v-else>
+                <select v-model="hours" style="display:inline;width:70px" @change="updateFTE('hours')" class="blue-text">
+                        <option v-for="fta in FTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
+                          v-bind:value="fta*40">{{fta*40}}</option>
+                      </select> 
+                  <span>Estimated Hours</span>   
+              </span>
+            </div>
+            <div class="col s6 green-text">
+              <!-- FTA used-->
+              <span v-if="displayFTA" class="FTEcont ">          
+                <select  v-model="task_usedFTE" style="display:inline;width:70px"  @change="updateUsedFTE('fte')" class="green-text text-darken-2">
+                      <option v-for="fta in UsedFTAarray" v-bind:key="fta.id"
+                        v-bind:value="fta">{{fta}}</option>
                     </select> 
-                <span>Used Hours</span>   
-            </span>
-          
-          <div class="switch">
-            <label>
-              Hours
-              <input v-model="displayFTA" type="checkbox">
-              <span class="lever"></span>
-              FTE
-            </label>
+                    <span>Used FTE</span>
+              </span>    
+              <span v-else>
+                <select v-model="UsedHours" style="display:inline;width:70px" @change="updateUsedFTE('hours')" class="green-text text-darken-2">
+                        <option v-for="fta in UsedFTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
+                          v-bind:value="fta*40">{{fta*40}}</option>
+                      </select> 
+                  <span>Used Hours</span>   
+              </span>
+            </div>
           </div>
 
+         <div class="row">
+            <div class="col s6 offset-s4 switch">
+              <label>
+                Hours
+                <input v-model="displayFTA" type="checkbox">
+                <span class="lever"></span>
+                FTE
+              </label>
+            </div>
+         </div> 
+          
 
-
-        </div>        
+              
         <!-- projects category -->
           <div class="row">
               <div class="input-field col s12">
@@ -196,7 +204,7 @@
             <div v-for="attach in task_attachement" v-bind:key="attach.id">
               <span id="Attachment_span" v-html="attach" >                
               </span>              
-              <i class="fas fa-minus-square red-text" style="cursor:pointer" @click="RemoveHyperlink(attach)"></i>
+              <i class="fas fa-minus-square green-text" style="cursor:pointer" @click="RemoveHyperlink(attach)"></i>
             </div>
             <div style="margin-top:10px" class="helperfield row">
                 <div class="input-field col m4">
@@ -321,16 +329,16 @@ export default {
     },
     StatusUpdateFTE(opt,anim){      
       this.nSelectedStatus=opt
-      let initialShow=this.ShowFTE
+      // let initialShow=this.ShowFTE
 
       if (opt=="Canceled" || opt=="Completed" || opt=="On hold"){
         this.ShowFTE="used"
-        if ((this.task_usedFTE=="TBD" ||this.task_usedFTE=="") && opt=="Completed" ){
-          this.task_usedFTE=this.task_FTE
-           $(".FTEcont select").eq(1).css("border", "solid green 1px")
-        }else{
-           $(".FTEcont select").eq(1).css("border", "1px solid #f2f2f2")
-        }
+      //   if ((this.task_usedFTE=="TBD" ||this.task_usedFTE=="") && opt=="Completed" ){
+      //     this.task_usedFTE=this.task_FTE
+      //      $(".FTEcont select").eq(1).css("border", "solid green 1px")
+      //   }else{
+      //      $(".FTEcont select").eq(1).css("border", "1px solid #f2f2f2")
+      //   }
       }else{
         this.ShowFTE="estimated"
       }      
@@ -359,20 +367,16 @@ export default {
         M.toast({ html: "Email should contain at least one dot" });
         return false;
       }
-      // complete extend
-      if(CloneT && (this.task_usedFTE==null ||this.task_usedFTE=="")){
-        // this.ShowFTE='used'
-        // M.toast({ html: `Used FTE should not be null` });
-        // $(".FTEcont select").eq(1).css("border", "solid red 1px")
-        // return false;
-        
-      }
-      if (this.ShowFTE=='used' && (this.task_usedFTE==null ||this.task_usedFTE=="") ) {
+      
+      if (this.ShowFTE=='used' && (this.task_usedFTE==null ||this.task_usedFTE=="") && this.task_FTE=="TBD" ) {
         M.toast({ html: `Used FTE should not be null` });
         $(".FTEcont select").eq(1).css("border", "solid red 1px")
         return false;
       }
-      
+      //recodare used FTE pt comozi
+      if (this.ShowFTE=='used' && (this.task_usedFTE==null ||this.task_usedFTE=="") && this.task_FTE!="TBD" ) {
+        this.task_usedFTE=this.task_FTE
+      }
       //validari
       var message = [];
       var msg = "Please select ";
@@ -408,9 +412,9 @@ export default {
 
       if (CloneT) {
         vueObj.nSelectedStatus = "Completed";
-        if (this.task_usedFTE=="TBD" ||this.task_usedFTE==""){
-          this.task_usedFTE=this.task_FTE
-        }
+        // if (this.task_usedFTE=="TBD" ||this.task_usedFTE==""){
+        //   this.task_usedFTE=this.task_FTE
+        // }
       }
 
       if (vueObj.SelectedOwner.UID != vueObj.initialOwner.UID) {

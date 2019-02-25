@@ -79,7 +79,7 @@
                 </span>
                     <div class="row"><b>{{user.OBJ.tasks.length}}</b> tasks</div>
                     <div class="row blue-text"><b>Estimated</b> FTE <b>{{sumFTA(user.OBJ.tasks)}}</b><br/>
-                    <span class="red-text"><b>Used</b> FTE <b>{{sumFTAused(user.OBJ.tasks)}}</b></span></div>
+                    <span class="green-text"><b>Used</b> FTE <b>{{sumFTAused(user.OBJ.tasks)}}</b></span></div>
                     
                 </div>
                 <!-- second coll -->
@@ -103,7 +103,7 @@
                                     <span class="col">{{task.task_deadline_short}}</span>
                                     <br/>
                                     <div v-if="task.task_FTE!=undefined && task.task_FTE!='' && ['In progress','Not started','Not allocated'].indexOf(task.task_status)>=0" class="blue-text col text-lighten-3">{{task.task_FTE}} FTE</div>
-                                    <div v-if="task.task_usedFTE!=undefined && task.task_usedFTE!='' && ['In progress','Not started','Not allocated'].indexOf(task.task_status)==-1" class="red-text col">{{task.task_usedFTE}} FTE</div>
+                                    <div v-if="task.task_usedFTE!=undefined && task.task_usedFTE!='' && ['In progress','Not started','Not allocated'].indexOf(task.task_status)==-1" class="green-text col text-darken-4">{{task.task_usedFTE}} FTE</div>
                                 </div>
                                 <hr/>
                                 <!-- START icon container -->
@@ -149,7 +149,7 @@
       :UsedFTAarray="UsedFTAarray"      
       :GotTarget="GotTarget"
       :targetTask="targetTask"
-      infoType="UsedOnly"
+      infoType="both"
 
       v-on:updateFTE="updateFTEs($event)"
       v-on:AddInfo="AddInfo($event)"

@@ -23,8 +23,21 @@
               <select v-model="task_fte" style="display:inline;width:70px" >
                 <option v-for="fta in FTAarray" v-bind:key="fta.id"
                   v-bind:value="fta">{{fta}}</option>
-              </select> 
-              
+              </select>
+          </div>
+          <!-- recurency  -->
+          <div class="row">
+            <blockquote>If you want to set recurrencies select the below option<br/>If enabled you will be able to select multiple owners, and at Save a task will be created for each selecte owner for the following X weeks.</blockquote>
+             <label>
+              <input type="checkbox" class="filled-in" v-model="UseRecurency" />
+              <span>Use recurency</span>
+            </label>
+            <div v-if="UseRecurency" class="input-field">
+                <span>Number of recurrencies:</span>
+                    <select v-model="Recurencies" style="display:inline;width:70px">
+                      <option v-for="x in 10" :key="x" :value="x">{{x}}</option>                  
+                    </select>
+              </div>
           </div>
           <!-- projects category -->
           <div class="row">
@@ -74,7 +87,8 @@
           <div v-if="showOwner" class="row">
               <label class="active">Owner:</label>
               <div class="input-field col s12">
-                  <span @click="SelectedOwner=opt,clickUser()" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.Label==opt.Label}" class="mySingle chip">
+                  <span @click="clickUser(opt)" v-for="opt in ownersList" v-bind:key="opt.id" 
+                  v-bind:class="{'mySingleSelected':SelectedOwners.indexOf(opt)>-1}" class="mySingle chip">
                     {{opt.Label}}
                   </span>
               </div>
@@ -153,6 +167,10 @@ export default {
     return {
       FTAarray: fireList.FTEList,
       PiorityArr:["Low","Normal","High"],
+      
+      UseRecurency:false,
+      SelectedOwners:[],
+      Recurencies:1,
       task_fte: null,
       showDetails: false,
       showProject: false,
@@ -211,9 +229,9 @@ export default {
 
     GetUserFTE() {
       var objVue = this;
-      // console.log(objVue.SelectedOwner.Label)
-      if (objVue.SelectedOwner.Label != null) {
-        RTDB.ref("/USERS/" + objVue.SelectedOwner.UID + "/TASKS/")
+      // console.log(objVue.SelectedOwners[0].Label)
+      if (objVue.SelectedOwners[0].Label != null) {
+        RTDB.ref("/USERS/" + objVue.SelectedOwners[0].UID + "/TASKS/")
           .orderByChild("t_isActive")
           .equalTo(true)
           // .orderByChild("tStatus")
@@ -284,7 +302,7 @@ export default {
       }
       if (this.showOwner) {
         // Owner
-        if (this.SelectedOwner.UID == null) {
+        if (this.SelectedOwners.length==0) {
           message.push("Owner");
         }
       }
@@ -311,32 +329,70 @@ export default {
         return false;
       }
       
-      // return true;
-      RTDB.ref("/USERS/" + this.SelectedOwner.UID + "/TASKS/")
-        .push({
-          tName: this.task_name,
-          tDescription: this.task_details, //(this.task_details) ? this.task_details : '',
-          tStart: this.task_start,
-          tDeadline: this.task_deadline,
-          tProject: this.SelectedProj,
-          tProjCateg: this.SelectedProjCat,
-          tStatus: this.SelectedStatus,
-          tFTE: this.task_fte ? this.task_fte : "TBD",
-          tFbk:this.task_feedback,
-          tPriority:this.nSelectedPriority,
-          tFbkEmail:this.task_fbkEmail.replace("@ipsos.com","")+"@ipsos.com",
-          tOwner: this.SelectedOwner,
-          tAttach: this.task_attachement,
-          t_isActive: true,
-          isPrivate: this.SelectedProjCat == "Personal" ? true : false,
-          CreatedBy: firebase.auth().currentUser.uid,
-          CreatedDate: moment().format("YYYY-MM-DD")
-        })
-        .then(docRef => {
-          RTDB.ref("/LISTS/").off();
-          this.$router.push({ name: this.$route.query.mnext });
-        })
-        .catch(error => console.log(err));
+      if(this.UseRecurency){
+        let vueObj=this
+        // for each recurency 
+        for(var i=0; i<this.Recurencies; i++){
+          // console.log(moment(this.task_start,"YYYY-MM-DD").add(i,'w').format("YYYY-MM-DD"))
+          // for each owner
+          this.SelectedOwners.forEach(owner=>{
+            console.log(owner.Label)
+            RTDB.ref("/USERS/" + owner.UID + "/TASKS/")
+            .push({
+              tName: vueObj.task_name,
+              tDescription: vueObj.task_details, //(this.task_details) ? this.task_details : '',
+              tStart: moment(vueObj.task_start,"YYYY-MM-DD").add(i,'w').format("YYYY-MM-DD"),
+              tDeadline: moment(vueObj.task_deadline,"YYYY-MM-DD").add(i,'w').format("YYYY-MM-DD"),
+              tProject: vueObj.SelectedProj,
+              tProjCateg: vueObj.SelectedProjCat,
+              tStatus: vueObj.SelectedStatus,
+              tFTE: vueObj.task_fte ? vueObj.task_fte : "TBD",
+              tFbk:vueObj.task_feedback,
+              tPriority:vueObj.nSelectedPriority,
+              tFbkEmail:vueObj.task_fbkEmail.replace("@ipsos.com","")+"@ipsos.com",
+              tOwner: owner,
+              tAttach: vueObj.task_attachement,
+              t_isActive: true,
+              isPrivate: vueObj.SelectedProjCat == "Personal" ? true : false,
+              CreatedBy: firebase.auth().currentUser.uid,
+              CreatedDate: moment().format("YYYY-MM-DD")
+            })
+            // .then(docRef => {              
+            //   this.$router.push({ name: this.$route.query.mnext });
+            // })
+            .catch(error => console.log(err));
+          })
+        }
+        this.$router.push({ name: this.$route.query.mnext });
+
+      }else{
+      return true;
+        RTDB.ref("/USERS/" + this.SelectedOwners[0].UID + "/TASKS/")
+          .push({
+            tName: this.task_name,
+            tDescription: this.task_details, //(this.task_details) ? this.task_details : '',
+            tStart: this.task_start,
+            tDeadline: this.task_deadline,
+            tProject: this.SelectedProj,
+            tProjCateg: this.SelectedProjCat,
+            tStatus: this.SelectedStatus,
+            tFTE: this.task_fte ? this.task_fte : "TBD",
+            tFbk:this.task_feedback,
+            tPriority:this.nSelectedPriority,
+            tFbkEmail:this.task_fbkEmail.replace("@ipsos.com","")+"@ipsos.com",
+            tOwner: this.SelectedOwners[0],
+            tAttach: this.task_attachement,
+            t_isActive: true,
+            isPrivate: this.SelectedProjCat == "Personal" ? true : false,
+            CreatedBy: firebase.auth().currentUser.uid,
+            CreatedDate: moment().format("YYYY-MM-DD")
+          })
+          .then(docRef => {
+            RTDB.ref("/LISTS/").off();
+            this.$router.push({ name: this.$route.query.mnext });
+          })
+          .catch(error => console.log(err));
+      }
     },
     AddHyperlink() {
       if (this.detail_link != "") {
@@ -481,9 +537,24 @@ export default {
         vueObj.userFTE = null;
       }
     },
-    clickUser() {
+    clickUser(opt) {
       this.showDates = true;
-      this.GetUserFTE();
+      if (this.UseRecurency){
+        this.userFTE=null
+        var index = this.SelectedOwners.indexOf(opt);
+        if (index == -1) {
+          this.SelectedOwners.push(opt)
+        }else{
+           this.SelectedOwners.splice(index,1)
+        }
+      }else{
+        this.SelectedOwners=[]
+        this.SelectedOwners.push(opt)
+        
+        this.GetUserFTE()
+      }
+
+      // this.GetUserFTE();
     },
     addProj() {
       var vueObj = this;
@@ -540,6 +611,11 @@ export default {
     //     objVue.ProjectsCat.sort();
     //   }
     // );
+  },
+  watch: {
+    UseRecurency:function(){
+      this.SelectedOwners=[]
+    }
   }
 };
 </script>
