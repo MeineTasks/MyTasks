@@ -152,8 +152,21 @@
             <i class="fa fa-plus"></i>
           </router-link>
         </div>
+   
+    <!-- Modal Structure -->
+    <modal
+      :FTAarray="FTAarray"
+      :UsedFTAarray="UsedFTAarray"      
+      :GotTarget="GotTarget"
+      :targetTask="targetTask"
+      infoType="UsedOnly"
+
+      v-on:updateFTE="updateFTEs($event)"
+      v-on:AddInfo="AddInfo($event)"
+    ></modal>
+
         <!-- Modal Structure -->
-    <div
+    <!-- <div
       id="modal1"
       class="modal"
     >
@@ -206,7 +219,7 @@
           <button type="button" class="btn" @click="AddInfo('save')">Save</button>
         </div>
       </div>
-      </div>
+      </div> -->
     </div>
 </template>
 
@@ -215,12 +228,13 @@
 import firebase from "firebase";
 import fireList from "./fireLists";
 import RTDB from "./firebaseInitRTDB";
-
+import modal from "./Modal"
 var moment = require("moment");
 
 export default {
   name: "viewProjcat",
   props: { isManager: Boolean },
+  components: { modal },
   data() {
     return {
       //   users: fireList.OwnersList,
@@ -248,6 +262,7 @@ export default {
         ? JSON.parse(localStorage.getItem("viewProj_CreatorsFilterObj"))
         : [], //[{ OBJ: { UID: "All", name: "All" } }]
         FTAarray: fireList.FTEList,
+        UsedFTAarray: fireList.usedFTEArrList,
       GotTarget:false,
       displayFTA: true,
       hours: null,
@@ -303,35 +318,49 @@ export default {
   },
   methods: {
      AddInfo(typ){
-      if (typ=='save'){
-        if (this.targetTask.task_usedFTE == null){
-          M.toast({ html: `Please set used FTE` });
-          return false
-        }
-        //  var newStatus =
-        //     this.targetTask.task_status == "In progress" ? "On hold" : "In progress";          
-          
-          RTDB.ref(
-            "/USERS/" + firebase.auth().currentUser.uid + "/TASKS/" + this.targetTask.id + "/"
-          ).update({
-            tStatus: this.QActStat,
-            tFTEused:this.targetTask.task_usedFTE
-          });        
+       let updObj={}        
+            updObj.tStatus= this.targetTask.newStatus
+            updObj.tFTEused= this.targetTask.task_usedFTE
 
-      }
-        M.Modal.getInstance($("#modal1")).close()
-        this.task_FTE= null
-        this.hours= null
+        if (this.targetTask.newStatus=="Completed" || this.targetTask.newStatus=="Canceled")
+          {
+            updObj.tClosedDate= moment().format("YYYY-MM-DD")
+            }
+       RTDB.ref(
+            "/USERS/" +   this.targetTask.task_owner  + "/TASKS/" + this.targetTask.id + "/"
+          ).update(updObj);
+      // if (typ=='save'){
+      //   if (this.targetTask.task_usedFTE == null){
+      //     M.toast({ html: `Please set used FTE` });
+      //     return false
+      //   }
+      //   //  var newStatus =
+      //   //     this.targetTask.task_status == "In progress" ? "On hold" : "In progress";          
+          
+      //     RTDB.ref(
+      //       "/USERS/" + firebase.auth().currentUser.uid + "/TASKS/" + this.targetTask.id + "/"
+      //     ).update({
+      //       tStatus: this.QActStat,
+      //       tFTEused:this.targetTask.task_usedFTE
+      //     });        
+
+      // }
+      //   M.Modal.getInstance($("#modal1")).close()
+      //   this.task_FTE= null
+      //   this.hours= null
       
     },
-    updateFTE (type) {
-      if (type == 'fte') {
-
-        this.hours = 40 * this.targetTask.task_usedFTE
-      } else {
-         this.targetTask.task_usedFTE = (this.hours / 40).toFixed(2)
-      }
+     updateFTEs (val) {
+      this.targetTask.task_usedFTE=val
     },
+    // updateFTE (type) {
+    //   if (type == 'fte') {
+
+    //     this.hours = 40 * this.targetTask.task_usedFTE
+    //   } else {
+    //      this.targetTask.task_usedFTE = (this.hours / 40).toFixed(2)
+    //   }
+    // },
     MultiStatus(opt) {
       var objVue = this;
       var index = objVue.SelectedStatus.indexOf(opt);
@@ -761,78 +790,35 @@ export default {
       this.targetTask=task
       this.hours=40 * this.targetTask.task_usedFTE
       this.GotTarget=true
-
-      this.QActStat="Completed"
-       if (task.task_status=="In progress"){
-        M.Modal.getInstance($("#modal1")).open()
-      }else{
-
-        if (!task.task_completed) {
-          RTDB.ref(
-            "/USERS/" + task.task_owner + "/TASKS/" + task.id + "/"
-          ).update(
-            {
-              tStatus: "Completed",
-              tClosedDate: moment().format("YYYY-MM-DD")
-            },
-            function(error) {
-              if (error) {
-                console.log(error);
-              } else {
-                $(".material-tooltip").removeAttr("style");
-                console.log("update done");
-              }
-            }
-          );
-       
-        }
-      }
+      this.targetTask.newStatus ="Completed"
+      
+      M.Modal.getInstance($("#modal1")).open()
+     
     },
     CancelTask(task) {
-      this.targetTask=task
+       this.targetTask=task
       this.hours=40 * this.targetTask.task_usedFTE
       this.GotTarget=true
 
-      this.QActStat="Canceled"
-       if (task.task_status=="In progress"){
+      this.targetTask.newStatus="Canceled"
         M.Modal.getInstance($("#modal1")).open()
-      }else{
-          if (!task.task_completed) {
-          RTDB.ref(
-            "/USERS/" + task.task_owner + "/TASKS/" + task.id + "/"
-          ).update(
-            {
-              tStatus: "Canceled"
-            },
-            function(error) {
-              if (error) {
-                console.log(error);
-              } else {
-                $(".material-tooltip").removeAttr("style");
-                console.log("update done");
-              }
-            }
-          );
-
-        }
-      }
-
       
     },
     StartStop(task) {
       this.targetTask=task
       this.hours=40 * this.targetTask.task_usedFTE
       this.GotTarget=true
+      this.targetTask.newStatus =
+            task.task_status == "In progress" ? "On hold" : "In progress"; 
 
-      this.QActStat=task.task_status == "In progress" ? "On hold" : "In progress"
-      if (task.task_status=="In progress"){
+      if (this.targetTask.newStatus!="In progress"){
         M.Modal.getInstance($("#modal1")).open()
       }else{
       // var newStatus =
       //   task.task_status == "In progress" ? "On hold" : "In progress";
       RTDB.ref("/USERS/" + task.task_owner + "/TASKS/" + task.id + "/")
         .update({
-          tStatus: this.QActStat
+          tStatus: this.targetTask.newStatus
         })
         .then(docRef => {
           $(".material-tooltip").removeAttr("style");

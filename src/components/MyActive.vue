@@ -316,13 +316,12 @@
       </router-link>
     </div>
     <!-- Modal Structure -->
-    <modal   
-    
+    <modal
       :FTAarray="FTAarray"
+      :UsedFTAarray="UsedFTAarray"      
       :GotTarget="GotTarget"
       :targetTask="targetTask"
-      :hours="hours"
-      :targetFte="5"
+      infoType="UsedOnly"
 
       v-on:updateFTE="updateFTEs($event)"
       v-on:AddInfo="AddInfo($event)"
@@ -346,6 +345,7 @@ export default {
     return {
       // tasks: []
       FTAarray: fireList.FTEList,
+      UsedFTAarray: fireList.usedFTEArrList,
       GotTarget:false,
       displayFTA: true,
       hours: null,
@@ -414,32 +414,32 @@ export default {
       this.GotTarget=true
       this.targetTask.newStatus ="Completed"
 
-      if (this.targetTask.newStatus!="In progress"){
         M.Modal.getInstance($("#modal1")).open()
-      }else{
-        if (!task.task_completed) {
-          RTDB.ref(
-            "/USERS/" +
-            firebase.auth().currentUser.uid +
-            "/TASKS/" +
-            task.id +
-            "/"
-          ).update(
-            {
-              tStatus: "Completed",
-              tClosedDate: moment().format("YYYY-MM-DD")
-            },
-            function (error) {
-              if (error) {
-                console.log(error);
-              } else {
-                $(".material-tooltip").removeAttr("style");
-                console.log("update done");
-              }
-            }
-          );
-        }
-      }
+      // if (this.targetTask.newStatus!="In progress"){
+      // }else{
+      //   if (!task.task_completed) {
+      //     RTDB.ref(
+      //       "/USERS/" +
+      //       firebase.auth().currentUser.uid +
+      //       "/TASKS/" +
+      //       task.id +
+      //       "/"
+      //     ).update(
+      //       {
+      //         tStatus: "Completed",
+      //         tClosedDate: moment().format("YYYY-MM-DD")
+      //       },
+      //       function (error) {
+      //         if (error) {
+      //           console.log(error);
+      //         } else {
+      //           $(".material-tooltip").removeAttr("style");
+      //           console.log("update done");
+      //         }
+      //       }
+      //     );
+      //   }
+      // }
       
     },
     StartStop (task) {

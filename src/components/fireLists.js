@@ -25,11 +25,16 @@ RTDB.ref("/LISTS/").once("value",querySnapshot => {
   ListData.FTE.List.split("#").forEach(LstItem => {
     //console.log(user)
     FTEs.push(LstItem);
-    usedFTEArr.push(LstItem);
+    // if(LstItem!="TBD"){
+      usedFTEArr.push(LstItem);
+    // }
   });
   
   //usedFTEArr.push("A")
-  usedFTEArr.splice(1,0,"0")
+  // usedFTEArr=FTEs
+  usedFTEArr[0]="0.00"
+
+  // usedFTEArr.splice(0,0,"0.00")
   // debugger
   //console.log(usedFTEArr)
   // Environments

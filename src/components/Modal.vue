@@ -2,30 +2,33 @@
   <div id="modal1" class="modal">
     <div class="modal-content" v-if="GotTarget">
       <h4>Required info</h4>
-      <p>Please update the used FTE</p>
-      <span v-if="displayFTA" class="FTEcont">          
-        <select          
-          v-bind:value="targetTask.task_usedFTE"
-          style="display:inline;width:70px"
-          @change="updateParentFTE($event)"
-        >
-          <option
-            v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
-            v-bind:key="fta.id"
-            v-bind:value="fta"            
-          >{{fta}}</option>
-        </select>
-        <span>FTE</span>
-      </span>
-      <span v-else>
-        <select v-model="hours" style="display:inline;width:70px" @change="updateFTE('hours')">
-          <option
-            v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
-            v-bind:key="fta.id"
-            v-bind:value="fta*40"
-          >{{fta*40}}</option>
-        </select>
-        <span>Hours</span>
+      <span v-if="infoType=='UsedOnly'">
+        <p>Please update the used FTE</p>
+        <span v-if="displayFTA" class="FTEcont">          
+          <select          
+            v-bind:value="targetTask.task_usedFTE"
+            style="display:inline;width:70px"
+            @change="updateParentFTE($event)"
+          >
+            <option
+              v-for="fta in UsedFTAarray"
+              v-bind:key="fta.id"
+              v-bind:value="fta"            
+            >{{fta}}</option>
+          </select>
+          <span>FTE</span>
+        </span>
+        <span v-else>
+          <!-- generate hours list -->
+          <select v-model="hours" style="display:inline;width:70px" @change="updateFTE('hours')">
+            <option
+              v-for="fta in UsedFTAarray"
+              v-bind:key="fta.id"
+              v-bind:value="fta*40"
+            >{{fta*40}}</option>
+          </select>
+          <span>Hours</span>
+        </span>
       </span>
       <div class="switch">
         <label>
@@ -48,8 +51,10 @@ export default {
   name: "Modal",
   props: {
     FTAarray: Array,
+    UsedFTAarray:Array,
     GotTarget: Boolean,
     targetTask: Object,
+    infoType:String
     
   },
   data() {
@@ -79,6 +84,7 @@ export default {
       } else {
         this.targetTask.task_usedFTE = (this.hours / 40).toFixed(2);
       }
+      
     },
 
     AddInfo(typ) {
