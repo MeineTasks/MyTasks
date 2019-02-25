@@ -27,7 +27,7 @@
           </div>
           <!-- recurency  -->
           <div class="row">
-            <blockquote>If you want to set recurrencies select the below option<br/>If enabled you will be able to select multiple owners, and at Save a task will be created for each selecte owner for the following X weeks.</blockquote>
+            <blockquote>If you want to set recurrencies select the below option.<br/>If enabled you will be able to select multiple owners, and at Save a task will be created for each selecte owner for the following X weeks.</blockquote>
              <label>
               <input type="checkbox" class="filled-in" v-model="UseRecurency" />
               <span>Use recurency</span>
