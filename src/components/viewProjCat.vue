@@ -41,7 +41,7 @@
                 <span v-if="!showDateFilter">
                           No date filter applied: 
                           <a 
-                            @click="showDateFilter=true" 
+                            @click="AddCurentDateFilter()" 
                             class="waves-effect waves-light btn-small"
                           >Add filter<i class="material-icons left">event</i></a>
                         </span>
@@ -50,7 +50,7 @@
                           - To: 
                           <input class="dateField" type="date" placeholder="end date" v-model="Datefilter_end" >
                           <a @click="ADDTasksIncat()" class="waves-effect waves-light btn-small">Add date filter</a>
-                          <a @click="showDateFilter=false,ADDTasksIncat()" class="waves-effect waves-light btn-small  grey darken-2">Remove date filter<i class="material-icons left">event_busy</i></a>
+                          <a @click="ClearDateFilter()" class="waves-effect waves-light btn-small  grey darken-2">Remove date filter<i class="material-icons left">event_busy</i></a>
                 </span>
             </div>
          
@@ -165,61 +165,7 @@
       v-on:AddInfo="AddInfo($event)"
     ></modal>
 
-        <!-- Modal Structure -->
-    <!-- <div
-      id="modal1"
-      class="modal"
-    >
-      <div class="modal-content" v-if="GotTarget">
-        <h4>Required info</h4>
-        <p>Please set the used FTE</p>
-        <span v-if="displayFTA" class="FTEcont">
-          <select
-            v-model="targetTask.task_usedFTE"
-            style="display:inline;width:70px"
-            @change="updateFTE('fte')"
-          >
-            <option
-              v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
-              v-bind:key="fta.id"
-              v-bind:value="fta"
-            >{{fta}}</option>
-          </select>
-          <span>FTE</span>
-        </span>
-        <span v-else>
-          <select
-            v-model="hours"
-            style="display:inline;width:70px"
-            @change="updateFTE('hours')"
-          >
-            <option
-              v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
-              v-bind:key="fta.id"
-              v-bind:value="fta*40"
-            >{{fta*40}}</option>
-          </select>
-          <span>Hours</span>
-        </span>
-        <div class="switch">
-          <label>
-            Hours
-            <input
-             @change="updateFTE('fte')"
-              v-model="displayFTA"
-              type="checkbox"
-            >
-            <span class="lever"></span>
-            FTE
-          </label>
-
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn black" @click="AddInfo('close')">Close</button>
-          <button type="button" class="btn" @click="AddInfo('save')">Save</button>
-        </div>
-      </div>
-      </div> -->
+        
     </div>
 </template>
 
@@ -238,11 +184,11 @@ export default {
   data() {
     return {
       //   users: fireList.OwnersList,
-      showDateFilter: true,
-     Datefilter_start:localStorage.getItem("viewProj_FilterStart")?JSON.parse(localStorage.getItem("viewProj_FilterStart")):moment()
+      showDateFilter: localStorage.getItem("viewUser_ShowDate")?JSON.parse(localStorage.getItem("viewUser_ShowDate")):true,
+     Datefilter_start:localStorage.getItem("viewUser_FilterStart")?JSON.parse(localStorage.getItem("viewUser_FilterStart")):moment()
         .weekday(1)
         .format("YYYY-MM-DD"),
-      Datefilter_end:localStorage.getItem("viewProj_FilterEnd")?JSON.parse(localStorage.getItem("viewProj_FilterEnd")): moment()
+      Datefilter_end:localStorage.getItem("viewUser_FilterEnd")?JSON.parse(localStorage.getItem("viewUser_FilterEnd")): moment()
         .weekday(5)
         .format("YYYY-MM-DD"),
       StatusesList: fireList.statusesList,
@@ -293,30 +239,26 @@ export default {
       objVue.FireProjCatArray.sort();
     });
 
-
-
-    // db
-    //   .collection("DropDowns/InnoPipeline/Projects")
-    //   .get()
-    //   .then(querySnapshot => {
-    //     objVue.FireProjCatArray = [];
-
-    //     querySnapshot.forEach(doc => {
-    //       const data = {
-    //         name: doc.id,
-    //         tasks: []
-    //       };
-
-    //       objVue.FireProjCatArray.push(data);
-    //     });
-    //     objVue.FireProjCatArray.push({ name: "Old", tasks: [] });
-    //     objVue.FireProjCatArray.sort();
-    //   });
-
     this.GetFire_users();
     $('.modal').modal();
   },
   methods: {
+      AddCurentDateFilter(){
+      this.Datefilter_start=moment()
+        .weekday(1)
+        .format("YYYY-MM-DD")
+      this.Datefilter_end=moment()
+        .weekday(5)
+        .format("YYYY-MM-DD")
+      this.showDateFilter=true
+    },
+    ClearDateFilter(){
+      this.showDateFilter=false
+      this.Datefilter_start=null
+      this.Datefilter_end=null
+
+      this.ADDTasksIncat()
+    },
      AddInfo(typ){
        let updObj={}        
             updObj.tStatus= this.targetTask.newStatus
@@ -683,13 +625,14 @@ export default {
         JSON.stringify(objVue.SelectedUsers)
       );
        localStorage.setItem(
-        "viewProj_FilterStart",
+        "viewUser_FilterStart",
         JSON.stringify(objVue.Datefilter_start)
       );
        localStorage.setItem(
-        "viewProj_FilterEnd",
+        "viewUser_FilterEnd",
         JSON.stringify(objVue.Datefilter_end)
       );
+      localStorage.setItem("viewUser_ShowDate",JSON.stringify(objVue.showDateFilter))
       // filter displayed information
 
       // FILTER USERS

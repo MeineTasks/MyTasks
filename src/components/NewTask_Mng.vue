@@ -366,7 +366,7 @@ export default {
         this.$router.push({ name: this.$route.query.mnext });
 
       }else{
-      return true;
+      // return true;
         RTDB.ref("/USERS/" + this.SelectedOwners[0].UID + "/TASKS/")
           .push({
             tName: this.task_name,
@@ -478,7 +478,7 @@ export default {
         vueObj.task_priority="Normal"
         vueObj.task_fte = null;
         vueObj.showDates = false;
-        vueObj.SelectedOwner = { Label: "xBacklog", UID: "backlog" };
+        vueObj.SelectedOwners.push( { Label: "xBacklog", UID: "backlog" });
 
         vueObj.ownersList.forEach(owner => {
           if (owner.UID == "backlog") {
