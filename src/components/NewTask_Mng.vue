@@ -449,10 +449,10 @@ export default {
       var getProjects = true;
 
       vueObj.showOwner = true;
-      if (vueObj.SelectedOwner.UID == "backlog") {
-        vueObj.userFTE = null;
-        vueObj.SelectedOwner = { Label: null, UID: null };
-      }
+      // if (vueObj.SelectedOwners[0].UID == "backlog") {
+      //   vueObj.userFTE = null;
+      //   // vueObj.SelectedOwners = [{ Label: null, UID: null }];
+      // }
 
       vueObj.SelectedProj = null;
       // vueObj.SelectedStatus = "In progress";
@@ -480,12 +480,12 @@ export default {
         vueObj.showDates = false;
         vueObj.SelectedOwners.push( { Label: "xBacklog", UID: "backlog" });
 
-        vueObj.ownersList.forEach(owner => {
-          if (owner.UID == "backlog") {
-            vueObj.SelectedOwner = owner;
-            return true;
-          }
-        });
+        // vueObj.ownersList.forEach(owner => {
+        //   if (owner.UID == "backlog") {
+        //     vueObj.SelectedOwner = owner;
+        //     return true;
+        //   }
+        // });
       }
 
       //personal tasks
@@ -501,7 +501,8 @@ export default {
         vueObj.ownersList.forEach(owner => {
           // console.log(owner)
           if (owner.UID == myUID) {
-            vueObj.SelectedOwner = owner;
+            vueObj.SelectedOwners = []
+            vueObj.SelectedOwners.push(owner);
             return true;
           }
         });
@@ -531,11 +532,13 @@ export default {
       if (vueObj.SelectedStatus == "Not allocated") {
         vueObj.showOwner = false;
         vueObj.showDates = false;
-        vueObj.SelectedOwner = { Label: "xBacklog", UID: "backlog" };
-      } else if (vueObj.SelectedOwner.UID == "backlog") {
-        vueObj.SelectedOwner = { Label: null, UID: null };
-        vueObj.userFTE = null;
-      }
+        // vueObj.SelectedOwner = { Label: "xBacklog", UID: "backlog" };
+        vueObj.SelectedOwners=[{ Label: "xBacklog", UID: "backlog" }]
+      } 
+      // else if (vueObj.SelectedOwner.UID == "backlog") {
+      //   vueObj.SelectedOwner = { Label: null, UID: null };
+      //   vueObj.userFTE = null;
+      // }
     },
     clickUser(opt) {
       this.showDates = true;
