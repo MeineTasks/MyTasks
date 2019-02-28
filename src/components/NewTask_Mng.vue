@@ -43,7 +43,7 @@
           <div class="row">
               <label class="active">Category:</label>
               <div class="input-field col s12">
-                  <span @click="SelectedProjCat=opt,clickCat()" v-for="opt in ProjectsCat" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProjCat==opt}" class="mySingle chip">
+                  <span @click="clickCat(opt)" v-for="opt in ProjectsCat" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProjCat==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
                   <a @click="showNewProjCat=true" v-if="!showNewProjCat" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>
@@ -88,7 +88,7 @@
               <label class="active">Owner:</label>
               <div class="input-field col s12">
                   <span @click="clickUser(opt)" v-for="opt in ownersList" v-bind:key="opt.id" 
-                  v-bind:class="{'mySingleSelected':SelectedOwners.indexOf(opt)>-1}" class="mySingle chip">
+                  v-bind:class="{'mySingleSelected':SelectedOwners.findIndex(x => x.UID === opt.UID)>-1}" class="mySingle chip">
                     {{opt.Label}}
                   </span>
               </div>
@@ -99,11 +99,11 @@
              
           </div>
            <!-- priority -->
-          <div class="row" v-if="SelectedOwner.Label=='xBacklog'">
+          <div class="row" v-if="showPriority">
               <div class="input-field col s12">
               <label class="active">Priority:</label>
                 <div class="input-field">
-                  <span @click="nSelectedPriority=opt" v-for="opt in PiorityArr" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedPriority==opt}" class="mySingle chip">
+                  <span @click="Selected_Priority=opt" v-for="opt in PiorityArr" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':Selected_Priority==opt}" class="mySingle chip">
                     {{opt}}
                   </span>
                   </div>
@@ -167,11 +167,12 @@ export default {
     return {
       FTAarray: fireList.FTEList,
       PiorityArr:["Low","Normal","High"],
+      Statuses: fireList.statusesList,
+      ownersList: fireList.OwnersList,
       
       UseRecurency:false,
-      SelectedOwners:[],
       Recurencies:1,
-      task_fte: null,
+
       showDetails: false,
       showProject: false,
       showNewProj: false,
@@ -179,10 +180,10 @@ export default {
       showOwner: true,
       showDates: true,
       showStatus: true,
+      showPriority:false,
 
       detail_link: "",
       detail_title: "",
-      task_attachement: [],
 
       task_name: null,
       task_details: "",
@@ -191,10 +192,10 @@ export default {
         .format("YYYY-MM-DD"),
       task_deadline: moment()
         .weekday(5)
-        .format("YYYY-MM-DD"),
-      task_status: null,
-      task_priority:"",
-      task_project: null,
+        .format("YYYY-MM-DD"),      
+      task_attachement: [],
+      
+      task_fte: null,
       task_feedback:false,
       task_fbkEmail:"",
 
@@ -203,34 +204,31 @@ export default {
 
       ProjectsCat: [],
       AddNewProjCat: null,
-      SelectedProjCat: null,
 
       ProjectsList: [],
-      SelectedProj: null,
       AddNewProj: null,
 
-      Statuses: fireList.statusesList,
+      SelectedProjCat: null,
+      SelectedProj: null,
       SelectedStatus: "Not started",
-      nSelectedPriority:"Normal",
-
-      ownersList: fireList.OwnersList,
-      SelectedOwner: { Label: null, UID: null }
+      Selected_Priority:"Normal",
+      SelectedOwners:[],
+      
+      // SelectedOwner: { Label: null, UID: null }
     };
   },
   methods: {
     updateDeadline() {
-      console.log("update");
       if (this.task_start!=""){
         this.task_deadline = moment(this.task_start, "YYYY-MM-DD")
           .weekday(5)
           .format("YYYY-MM-DD");
       }
     },
-
     GetUserFTE() {
       var objVue = this;
-      // console.log(objVue.SelectedOwners[0].Label)
-      if (objVue.SelectedOwners[0].Label != null) {
+      
+      if (objVue.SelectedOwners.length==1) {
         RTDB.ref("/USERS/" + objVue.SelectedOwners[0].UID + "/TASKS/")
           .orderByChild("t_isActive")
           .equalTo(true)
@@ -276,7 +274,7 @@ export default {
       //validate end start times
       if (this.showDates) {
         if (new Date(this.task_deadline) < new Date(this.task_start)) {
-          M.toast({ html: `Start date should be sooner than Deadline` });
+          M.toast({ html: 'Start date should be sooner than Deadline' });
           $("#StartDate,#DeadLine").css("border", "solid red 1px");
           return false;
         }
@@ -336,7 +334,7 @@ export default {
           // console.log(moment(this.task_start,"YYYY-MM-DD").add(i,'w').format("YYYY-MM-DD"))
           // for each owner
           this.SelectedOwners.forEach(owner=>{
-            console.log(owner.Label)
+            // console.log(owner.Label)
             RTDB.ref("/USERS/" + owner.UID + "/TASKS/")
             .push({
               tName: vueObj.task_name,
@@ -348,7 +346,7 @@ export default {
               tStatus: vueObj.SelectedStatus,
               tFTE: vueObj.task_fte ? vueObj.task_fte : "TBD",
               tFbk:vueObj.task_feedback,
-              tPriority:vueObj.nSelectedPriority,
+              tPriority:vueObj.Selected_Priority,
               tFbkEmail:vueObj.task_fbkEmail.replace("@ipsos.com","")+"@ipsos.com",
               tOwner: owner,
               tAttach: vueObj.task_attachement,
@@ -378,7 +376,7 @@ export default {
             tStatus: this.SelectedStatus,
             tFTE: this.task_fte ? this.task_fte : "TBD",
             tFbk:this.task_feedback,
-            tPriority:this.nSelectedPriority,
+            tPriority:this.Selected_Priority,
             tFbkEmail:this.task_fbkEmail.replace("@ipsos.com","")+"@ipsos.com",
             tOwner: this.SelectedOwners[0],
             tAttach: this.task_attachement,
@@ -442,28 +440,18 @@ export default {
         vueObj.showNewProjCat = false;
       }
     },
-    clickCat() {
+    clickCat(opt) {
       var vueObj = this;
+      this.SelectedProjCat=opt
 
       // defaults
       var getProjects = true;
 
       vueObj.showOwner = true;
-      // if (vueObj.SelectedOwners[0].UID == "backlog") {
-      //   vueObj.userFTE = null;
-      //   // vueObj.SelectedOwners = [{ Label: null, UID: null }];
-      // }
-
       vueObj.SelectedProj = null;
-      // vueObj.SelectedStatus = "In progress";
+      vueObj.showPriority=false;
       vueObj.showStatus = true;
-      vueObj.showDates = true;
-      // vueObj.task_start = moment()
-      //   .weekday(1)
-      //   .format("YYYY-MM-DD");
-      // vueObj.task_deadline = moment()
-      //   .weekday(5)
-      //   .format("YYYY-MM-DD");
+      vueObj.showDates = true;      
 
       // backlog
       if (vueObj.SelectedProjCat == "xBacklog") {
@@ -472,20 +460,14 @@ export default {
         vueObj.showOwner = false;
         // vueObj.task_start=null
         // vueObj.task_deadline=null
+        vueObj.showPriority=true
         vueObj.showStatus = false;
         vueObj.SelectedProj = "Backlog";
         vueObj.SelectedStatus = "Not allocated";
-        vueObj.task_priority="Normal"
+        vueObj.Selected_Priority="Normal"
         vueObj.task_fte = null;
         vueObj.showDates = false;
-        vueObj.SelectedOwners.push( { Label: "xBacklog", UID: "backlog" });
-
-        // vueObj.ownersList.forEach(owner => {
-        //   if (owner.UID == "backlog") {
-        //     vueObj.SelectedOwner = owner;
-        //     return true;
-        //   }
-        // });
+        vueObj.SelectedOwners=[ { Label: "xBacklog", UID: "backlog" }];
       }
 
       //personal tasks
@@ -528,17 +510,14 @@ export default {
       var vueObj = this;
       // default
       vueObj.showOwner = true;
+      vueObj.showPriority=false
 
       if (vueObj.SelectedStatus == "Not allocated") {
         vueObj.showOwner = false;
         vueObj.showDates = false;
-        // vueObj.SelectedOwner = { Label: "xBacklog", UID: "backlog" };
+        vueObj.showPriority=true        
         vueObj.SelectedOwners=[{ Label: "xBacklog", UID: "backlog" }]
       } 
-      // else if (vueObj.SelectedOwner.UID == "backlog") {
-      //   vueObj.SelectedOwner = { Label: null, UID: null };
-      //   vueObj.userFTE = null;
-      // }
     },
     clickUser(opt) {
       this.showDates = true;
