@@ -419,7 +419,14 @@ export default {
 
       if (vueObj.SelectedOwner.UID != vueObj.initialOwner.UID) {
         // move existing task
-        console.log("reasignare");
+         console.log("reasignare");
+         //check for status
+         if (vueObj.SelectedOwner.UID!="backlog" && vueObj.nSelectedStatus=="Not allocated"){
+            vueObj.nSelectedStatus="Not started"
+         }
+
+
+
         RTDB.ref(
           "/USERS/" +
             vueObj.$route.query.uid +
