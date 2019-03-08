@@ -145,19 +145,8 @@
       </div>
     </div>
     <hr>
-    <div style="margin:5px">
-      <a @click="ShowCompleted=!ShowCompleted" class="waves-effect waves-light btn-floating  green lighten-2" :class="ShowCompleted?'brown':'green'" >      
-        <i v-if="ShowCompleted" class="material-icons left">visibility_off</i>
-        <i v-else class="material-icons left">visibility</i>
-      </a>
-      <span v-if="ShowCompleted">Hide closed</span>
-      <span v-else>Show closed</span>      
-    </div> 
-    
-    <div  id="CompletedContainer" v-if="ShowCompleted">
     <!-- view Completed  -->
-
-      <div  v-for="task in ViewCompleted" v-bind:key="task.id" class="row Completed">
+    <div v-for="task in ViewCompleted" v-bind:key="task.id" class="row Completed">
       <div class="col m2 s12">
         <span>
           <b>{{task.task_name}}</b>
@@ -249,24 +238,27 @@
         </div>
       </div>
     </div>
-    </div>
-    
-    <div style="margin:5px">
-      <a @click="ShowArchived=!ShowArchived" class="waves-effect waves-light btn-floating  green lighten-2" :class="ShowArchived?'brown':'grey'" >      
-        <i v-if="ShowArchived" class="material-icons left">visibility_off</i>
-        <i v-else class="material-icons left">visibility</i>
-      </a>
-      <span v-if="ShowArchived">Hide archived</span>
-      <span v-else>Show archived</span>      
-    </div> 
-    
     <!-- add new -->
     <div class="fixed-action-btn">
       <router-link to="/AddNew" class="btn-floating btn-large blue">
         <i class="fa fa-plus-square"></i>
       </router-link>
     </div>
-    
+    <!-- grafic -->
+    <div class="row GraphContainer">
+      <div class="col m12 s12">
+        <center>
+          <pie-chart
+            :data="chartData"
+            :colors="['#bcaaa4','#a0cfff', '#FFC107', '#69c56c']"
+            :download="true"
+            :donut="true"
+            height="200px"
+            legend="bottom"
+          ></pie-chart>
+        </center>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -276,63 +268,15 @@ import RTDB from "./firebaseInitRTDB";
 
 export default {
   name: "dashboard",
-  props: { isLoggedIn: Boolean },
+  props: { tasksDashboard: Array, chartData: Array, isLoggedIn: Boolean },
   data() {
     return {
       // isLoggedIn: false,
-      tasksDashboard:[],
       hasDone: false,
       viewDone: null,
       // tasks: this.tasksDashboard,
-      ShowCompleted:false,
-      ShowArchived:false,
-      gotCompleted:false,
-      gotArchived:false,
       logData: []
     };
-  },
-  created(){
-    //get active
-    var UID = firebase.auth().currentUser.uid;
-    var vueObj=this;
-
-      RTDB.ref("/USERS/" + UID + "/TASKS/")
-        .orderByChild("t_isActive")
-        .equalTo(true)
-        .on("value", querySnapshot => {
-          
-          vueObj.tasksDashboard = [];
-          const queryOBJ = querySnapshot.val();
-          for (var prop in queryOBJ) {
-            const data = {
-              id: prop,
-              task_name: queryOBJ[prop].tName,
-              task_description: queryOBJ[prop].tDescription.replace(
-                /\n/g,
-                "<br/>"
-              ),
-              task_projectCategory: queryOBJ[prop].tProjCateg,
-              task_project: queryOBJ[prop].tProject,
-              task_attachement: queryOBJ[prop].tAttach
-                ? queryOBJ[prop].tAttach
-                : [],
-              task_deadline: queryOBJ[prop].tDeadline,
-              task_FTE: queryOBJ[prop].tFTE ? queryOBJ[prop].tFTE : "none",
-              task_usedFTE: queryOBJ[prop].tFTEused ? queryOBJ[prop].tFTEused : null,
-              task_status: queryOBJ[prop].tStatus,
-              task_completed: queryOBJ[prop].tStatus == "Completed",
-              task_canceled: queryOBJ[prop].tStatus == "Canceled",
-              task_inProgress: queryOBJ[prop].tStatus == "In progress",
-              task_onHold: queryOBJ[prop].tStatus == "On hold",
-              task_notStarted: queryOBJ[prop].tStatus == "Not started",
-              t_isPrivate: queryOBJ[prop].tProjCateg == "Personal",
-              task_isActive: queryOBJ[prop].t_isActive
-            };
-
-            vueObj.tasksDashboard.push(data);
-          }
-        })
-
   },
   computed: {
     ViewOnHold: function() {
@@ -398,7 +342,7 @@ export default {
     $(".tooltipped").tooltip();
     //   // this.SetGraphic();
   },
-  
+  created() {},
   mounted() {
     // $(".tooltipped").tooltip();
   },

@@ -39,7 +39,8 @@ export default {
   },
   mounted() {    
      
-    if (firebase.auth().currentUser) {
+    //if (firebase.auth().currentUser) {
+    if (false)  {
       this.isLoggedIn = true;
       var vueObj = this;
       var UID = firebase.auth().currentUser.uid;
