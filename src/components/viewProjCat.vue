@@ -103,12 +103,13 @@
                               </span>
                                 <div class="row" style="margin-left:0px">
                                     <div class="chip col">{{task.task_status}}</div>
-                                    <span class="col">{{task.task_deadline_short}}</span>
-                                    <br/>
-                                    <div v-if="task.task_FTE!=undefined && task.task_FTE!='' && ['In progress','Not started','Not allocated'].indexOf(task.task_status)>=0" class="blue-text col"
-                                      v-bind:class="task.task_status=='In progress'?'cyan-text text-lighten-2':'text-darken-4'"
-                                      >{{task.task_FTE}} FTE</div>
-                                    <div v-if="task.task_usedFTE!=undefined && task.task_usedFTE!='' && ['In progress','Not started','Not allocated'].indexOf(task.task_status)==-1" class="green-text col text-darken-4">{{task.task_usedFTE}} FTE</div>
+                                    <span class="col">{{task.task_deadline_short}}</span>                                    
+                                </div>
+                                <div class="row" style="margin-left:0px">
+                                    <div  class="blue-text col text-lighten-3"
+                                    :class="{'text-darken-4':['In progress','Not started','Not allocated'].indexOf(task.task_status)==-1}">{{task.task_FTE}} FTE</div>
+                                    <div v-if="task.task_usedFTE!=undefined && task.task_usedFTE!=''" 
+                                    :class="{'text-darken-4':['In progress','Not started','Not allocated'].indexOf(task.task_status)==-1}" class="green-text col ">{{task.task_usedFTE}} FTE</div>
                                 </div>
                                  <div class="row">
                                   {{task.task_owner_label}}

@@ -132,14 +132,7 @@
           data-tooltip="<span style='font-size:small'>Delete</span>"
         >
           <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
-        </div>
-        <div
-          class="col tooltipped"
-          data-position="top"
-          data-tooltip="<span style='font-size:small'>Archive</span>"
-        >
-          <i @click="CloseTask(task)" class="fas fa-eye-slash"></i>
-        </div>
+        </div>        
         <div
           class="col tooltipped"
           data-position="top"
