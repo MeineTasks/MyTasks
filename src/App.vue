@@ -28,6 +28,7 @@ export default {
       isLoggedIn: false,
       isManager: false,
       userEmail: "",
+      LogedUser:null,
       hasDone: false,
       viewDone: null,
       tasksDashboard: [],
@@ -39,8 +40,9 @@ export default {
   },
   mounted() {    
      
-    //if (firebase.auth().currentUser) {
-    if (false)  {
+    if (firebase.auth().currentUser) {
+      // this.LogedUser=
+      
       this.isLoggedIn = true;
       var vueObj = this;
       var UID = firebase.auth().currentUser.uid;
@@ -56,150 +58,83 @@ export default {
             vueObj.isManager = true;
           }
         });
-
-      RTDB.ref("/USERS/" + UID + "/TASKS/")
-        .orderByChild("t_isActive")
-        .equalTo(true)
-        .on("value", querySnapshot => {
-          vueObj.tasksDashboard = [];
-          //this.tasksAllview = [];
-
-          function taskCalculated(Deadline) {
-            var aziEOD = new Date().setHours(24);
-            var aziSOD = new Date().setHours(0);
-            var Calculated = { tCategory: null, tDelayed: null };
-            // console.log(Deadline)
-            // console.log(new Date(Deadline))
-            if (Deadline == null || Deadline == "") {
-              Calculated.tCategory = "1";
-              Calculated.tDelayed = false;
-            } else if (new Date(Deadline) < new Date(aziSOD)) {
-              Calculated.tCategory = "2";
-              Calculated.tDelayed = true;
-            } else if (new Date(Deadline) < new Date(aziEOD)) {
-              Calculated.tCategory = "2";
-              Calculated.tDelayed = false;
-            } else {
-              Calculated.tCategory = "3";
-              Calculated.tDelayed = false;
-            }
-            return Calculated;
-          }
-          // console.log(querySnapshot.val());
-          const queryOBJ = querySnapshot.val();
-          for (var prop in queryOBJ) {
-            var tskCalculated = taskCalculated(queryOBJ[prop].tDeadline);
-
-            // console.log(queryOBJ[prop].tName);
-            const data = {
-              id: prop,
-              task_name: queryOBJ[prop].tName,
-              task_description: queryOBJ[prop].tDescription.replace(
-                /\n/g,
-                "<br/>"
-              ),
-              task_projectCategory: queryOBJ[prop].tProjCateg,
-              task_project: queryOBJ[prop].tProject,
-              task_attachement: queryOBJ[prop].tAttach
-                ? queryOBJ[prop].tAttach
-                : [],
-              task_deadline: queryOBJ[prop].tDeadline,
-              task_FTE: queryOBJ[prop].tFTE ? queryOBJ[prop].tFTE : "none",
-              task_usedFTE: queryOBJ[prop].tFTEused ? queryOBJ[prop].tFTEused : null,
-              task_status: queryOBJ[prop].tStatus,
-              task_completed: queryOBJ[prop].tStatus == "Completed",
-              task_canceled: queryOBJ[prop].tStatus == "Canceled",
-              task_inProgress: queryOBJ[prop].tStatus == "In progress",
-              task_onHold: queryOBJ[prop].tStatus == "On hold",
-              task_notStarted: queryOBJ[prop].tStatus == "Not started",
-              t_isPrivate: queryOBJ[prop].tProjCateg == "Personal",
-              task_isActive: queryOBJ[prop].t_isActive,
-              task_Category: tskCalculated.tCategory,
-              task_Delayed: tskCalculated.tDelayed
-            };
-
-            vueObj.tasksDashboard.push(data);
-          }
-
-          this.tasksMyActive = this.tasksDashboard.filter(function(task) {
-            return (
-              task.task_status == "In progress" || task.task_status == "On hold" ||task.task_status == "Not started" 
-            );
-          });
-          this.SetGraphic();
-        });
     }
-  },
-  BKP_mounted() {
-    if (firebase.auth().currentUser) {
-      this.isLoggedIn = true;
-      db.collection(firebase.auth().currentUser.uid)
-        .where("t_isActive", "==", true)
-        .onSnapshot(querySnapshot => {
-          this.tasksDashboard = [];
-          //this.tasksAllview = [];
 
-          function taskCalculated(Deadline) {
-            var aziEOD = new Date().setHours(24);
-            var aziSOD = new Date().setHours(0);
-            var Calculated = { tCategory: null, tDelayed: null };
-            // console.log(Deadline)
-            // console.log(new Date(Deadline))
-            if (Deadline == null || Deadline == "") {
-              Calculated.tCategory = "1";
-              Calculated.tDelayed = false;
-            } else if (new Date(Deadline) < new Date(aziSOD)) {
-              Calculated.tCategory = "2";
-              Calculated.tDelayed = true;
-            } else if (new Date(Deadline) < new Date(aziEOD)) {
-              Calculated.tCategory = "2";
-              Calculated.tDelayed = false;
-            } else {
-              Calculated.tCategory = "3";
-              Calculated.tDelayed = false;
-            }
-            return Calculated;
-          }
+    // if (false)  {
 
-          querySnapshot.forEach(doc => {
-            var tskCalculated = taskCalculated(doc.data().tDeadline);
-            const data = {
-              id: doc.id,
-              task_name: doc.data().tName,
-              task_description: doc.data().tDescription.replace(/\n/g, "<br/>"),
-              task_projectCategory: doc.data().tProjCateg,
-              task_project: doc.data().tProject,
-              task_attachement: doc.data().tAttach,
-              task_deadline: doc.data().tDeadline,
-              task_FTE: doc.data().tFTE ? doc.data().tFTE : "none",
-              task_status: doc.data().tStatus,
-              task_completed: doc.data().tStatus == "Completed",
-              task_canceled: doc.data().tStatus == "Canceled",
-              task_inProgress: doc.data().tStatus == "In progress",
-              task_onHold: doc.data().tStatus == "On hold",
-              task_notStarted: doc.data().tStatus == "Not started",
-              t_isPrivate: doc.data().tProjCateg == "Personal",
-              task_isActive: doc.data().t_isActive,
-              task_Category: tskCalculated.tCategory,
-              task_Delayed: tskCalculated.tDelayed
-            };
-            this.tasksDashboard.push(data);
-          });
-          // filter data
-          // this.tasksDashboard = this.tasksAllview.filter(function(task) {
-          //   return task.task_isActive == true;
-          // });
+    //   RTDB.ref("/USERS/" + UID + "/TASKS/")
+    //     .orderByChild("t_isActive")
+    //     .equalTo(true)
+    //     .on("value", querySnapshot => {
+    //       vueObj.tasksDashboard = [];
+    //       //this.tasksAllview = [];
 
-          this.tasksMyActive = this.tasksDashboard.filter(function(task) {
-            return (
-              task.task_status == "In progress" || task.task_status == "On hold"|| task.task_status == "Not started"
-            );
-          });
+    //       // function taskCalculated(Deadline) {
+    //       //   var aziEOD = new Date().setHours(24);
+    //       //   var aziSOD = new Date().setHours(0);
+    //       //   var Calculated = { tCategory: null, tDelayed: null };
+    //       //   // console.log(Deadline)
+    //       //   // console.log(new Date(Deadline))
+    //       //   if (Deadline == null || Deadline == "") {
+    //       //     Calculated.tCategory = "1";
+    //       //     Calculated.tDelayed = false;
+    //       //   } else if (new Date(Deadline) < new Date(aziSOD)) {
+    //       //     Calculated.tCategory = "2";
+    //       //     Calculated.tDelayed = true;
+    //       //   } else if (new Date(Deadline) < new Date(aziEOD)) {
+    //       //     Calculated.tCategory = "2";
+    //       //     Calculated.tDelayed = false;
+    //       //   } else {
+    //       //     Calculated.tCategory = "3";
+    //       //     Calculated.tDelayed = false;
+    //       //   }
+    //       //   return Calculated;
+    //       // }
+    //       // console.log(querySnapshot.val());
+    //       const queryOBJ = querySnapshot.val();
+    //       for (var prop in queryOBJ) {
+    //         // var tskCalculated = taskCalculated(queryOBJ[prop].tDeadline);
 
-          this.SetGraphic();
-        });
-    }
-  },
+    //         // console.log(queryOBJ[prop].tName);
+    //         const data = {
+    //           id: prop,
+    //           task_name: queryOBJ[prop].tName,
+    //           task_description: queryOBJ[prop].tDescription.replace(
+    //             /\n/g,
+    //             "<br/>"
+    //           ),
+    //           task_projectCategory: queryOBJ[prop].tProjCateg,
+    //           task_project: queryOBJ[prop].tProject,
+    //           task_attachement: queryOBJ[prop].tAttach
+    //             ? queryOBJ[prop].tAttach
+    //             : [],
+    //           task_deadline: queryOBJ[prop].tDeadline,
+    //           task_FTE: queryOBJ[prop].tFTE ? queryOBJ[prop].tFTE : "none",
+    //           task_usedFTE: queryOBJ[prop].tFTEused ? queryOBJ[prop].tFTEused : null,
+    //           task_status: queryOBJ[prop].tStatus,
+    //           task_completed: queryOBJ[prop].tStatus == "Completed",
+    //           task_canceled: queryOBJ[prop].tStatus == "Canceled",
+    //           task_inProgress: queryOBJ[prop].tStatus == "In progress",
+    //           task_onHold: queryOBJ[prop].tStatus == "On hold",
+    //           task_notStarted: queryOBJ[prop].tStatus == "Not started",
+    //           t_isPrivate: queryOBJ[prop].tProjCateg == "Personal",
+    //           task_isActive: queryOBJ[prop].t_isActive,
+    //           // task_Category: tskCalculated.tCategory,
+    //           // task_Delayed: tskCalculated.tDelayed
+    //         };
+
+    //         vueObj.tasksDashboard.push(data);
+    //       }
+
+    //       this.tasksMyActive = this.tasksDashboard.filter(function(task) {
+    //         return (
+    //           task.task_status == "In progress" || task.task_status == "On hold" ||task.task_status == "Not started" 
+    //         );
+    //       });
+    //       this.SetGraphic();
+    //     });
+    // }
+  },  
   methods: {
     SetGraphic() {
       this.chartData = [];

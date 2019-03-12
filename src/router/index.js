@@ -3,8 +3,8 @@ import Router from "vue-router";
 import Dashboard from "@/components/Dashboard";
 import Backlog from "@/components/BackLog";
 
-import ViewAll from "@/components/ViewAll";
-import MyActive from "@/components/MyActive";
+// import ViewAll from "@/components/ViewAll";
+// import MyActive from "@/components/MyActive";
 // import ViewGantt from "@/components/ViewGantt";
 
 import ViewUsers from "@/components/viewUsers";
@@ -35,23 +35,23 @@ let router = new Router({
         requiresAuth: true
       }
     },
-    {
-      path: "/view/all",
-      props: true,
-      name: "viewall",
-      component: ViewAll,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: "/view/cols",
-      name: "view-cols",
-      component: MyActive,
-      meta: {
-        requiresAuth: true
-      }
-    },
+    // {
+    //   path: "/view/all",
+    //   props: true,
+    //   name: "viewall",
+    //   component: ViewAll,
+    //   meta: {
+    //     requiresAuth: true
+    //   }
+    // },
+    // {
+    //   path: "/view/cols",
+    //   name: "view-cols",
+    //   component: MyActive,
+    //   meta: {
+    //     requiresAuth: true
+    //   }
+    // },
     // {
     //   path: "/view/gantt",
     //   name: "viewgantt",

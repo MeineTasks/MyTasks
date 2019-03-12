@@ -132,6 +132,7 @@ export default {
           tStart: this.task_start,
           tDeadline: this.task_deadline,
           tProjCateg: "Personal",
+          tProject:"Personal",
 
           tStatus: this.nSelectedStatus,
           tAttach: this.task_attachement,

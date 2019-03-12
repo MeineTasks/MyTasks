@@ -6,12 +6,12 @@ import router from './router'
 import firebase from 'firebase';
 // import './components/firebaseInit';
 
-import Chartkick from 'chartkick'
-import VueChartkick from 'vue-chartkick'
-import 'chart.js'
+// import Chartkick from 'chartkick'
+// import VueChartkick from 'vue-chartkick'
+// import 'chart.js'
 
 Vue.config.productionTip = false
-Vue.use(VueChartkick, { Chartkick })
+// Vue.use(VueChartkick, { Chartkick })
 
 /* eslint-disable no-new */
 let app;

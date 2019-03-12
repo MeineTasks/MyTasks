@@ -413,34 +413,7 @@ export default {
       this.hours=40 * this.targetTask.task_usedFTE
       this.GotTarget=true
       this.targetTask.newStatus ="Completed"
-
         M.Modal.getInstance($("#modal1")).open()
-      // if (this.targetTask.newStatus!="In progress"){
-      // }else{
-      //   if (!task.task_completed) {
-      //     RTDB.ref(
-      //       "/USERS/" +
-      //       firebase.auth().currentUser.uid +
-      //       "/TASKS/" +
-      //       task.id +
-      //       "/"
-      //     ).update(
-      //       {
-      //         tStatus: "Completed",
-      //         tClosedDate: moment().format("YYYY-MM-DD")
-      //       },
-      //       function (error) {
-      //         if (error) {
-      //           console.log(error);
-      //         } else {
-      //           $(".material-tooltip").removeAttr("style");
-      //           console.log("update done");
-      //         }
-      //       }
-      //     );
-      //   }
-      // }
-      
     },
     StartStop (task) {
       this.targetTask=task

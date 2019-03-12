@@ -1,7 +1,15 @@
 <template>
   <div id="dashboard" style="margin: 0px 50px;">
     <div class="row hide-on-small-only myHeader">
-      <h6 class="col m2 s12">Task name</h6>
+      <h6
+        v-for="itm in Header"
+        :key="itm.txt"
+        class="col s12 left"
+        :class="[itm.m,{'sorted':itm.txt==HSorted},{'clickable':itm.hasSort}]"
+        @click="HeaderClick(itm)"
+      >{{itm.txt}}</h6>
+
+      <!-- <h6 class="col m2 s12">Task name</h6>
       <h6 class="col m3 s12">Description</h6>
       <h6 class="col m1 s12 truncate">Project</h6>
       <h6 class="col m2 s12 truncate">Attachments</h6>
@@ -10,11 +18,16 @@
       <h6 class="col m1 s12 truncate">FTE</h6>
       <h6 class="col m1 iconContainer">
         <span class="truncate">Quick actions</span>
-      </h6>
+      </h6>-->
     </div>
-    <!-- view not started  -->
-    <div v-for="task in ViewNotStarted" v-bind:key="task.id" class="row NotStarted">
-      <div class="col m2 s12">
+    <!-- view active  -->
+    <div
+      v-for="task in viewActive"
+      v-bind:key="task.id"
+      class="row tblRow"
+      :class="task.task_status.replace(' ','')"
+    >
+      <div class="col m2 s12 clickable NameEdit" @click="EditTask(task)">
         <span>
           <b>{{task.task_name}}</b>
         </span>
@@ -23,7 +36,7 @@
       <div class="col m1 s12 truncate">
         <i>{{task.task_project}}</i>
       </div>
-      <div class="col m2 s12">
+      <div class="col m1 s12">
         <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
           <span id="Attachment_span" v-html="attach"></span>
         </div>
@@ -34,7 +47,8 @@
       <div class="col m1 s12">{{task.task_deadline}}</div>
       <div class="col m1 s12">{{task.task_FTE}}</div>
       <!-- icons   -->
-      <div v-if="isLoggedIn" class="col iconContainer">
+      <div v-if="isLoggedIn" class="col m2">
+        <!-- delete personal -->        
         <div
           v-if="task.t_isPrivate"
           class="col tooltipped"
@@ -43,7 +57,7 @@
         >
           <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
         </div>
-        
+        <!-- user edit -->
         <div
           class="col tooltipped"
           data-position="top"
@@ -53,256 +67,651 @@
             <i class="fas fa-edit"></i>
           </router-link>
         </div>
-      </div>
-    </div>
-    <!-- view in progress -->
-    <div v-for="task in ViewInProgress" v-bind:key="task.id" class="row inProgress">
-      <div class="col m2 s12">
-        <span>
-          <b>{{task.task_name}}</b>
-        </span>
-      </div>
-      <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
-      <div class="col m1 s12 truncate">
-        <i>{{task.task_project}}</i>
-      </div>
-      <div class="col m2 s12">
-        <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
-          <span id="Attachment_span" v-html="attach"></span>
-        </div>
-      </div>
-      <div class="col m1 s12">
-        <i>{{task.task_status}}</i>
-      </div>
-      <div class="col m1 s12">{{task.task_deadline}}</div>
-      <div class="col m1 s12">{{task.task_FTE}}</div>
-      <!-- icons  -->
-      <div v-if="isLoggedIn" class="col iconContainer">
+        <!-- complete -->
         <div
-          v-if="task.t_isPrivate"
           class="col tooltipped"
           data-position="top"
-          data-tooltip="<span style='font-size:small'>Delete</span>"
+          data-tooltip="<span style='font-size:small'>Complete</span>"
         >
-          <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
+          <i
+            @click="CompleteTask(task)"
+            v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'"
+            class="fas"
+          ></i>
         </div>
+        <!-- start stop -->
+        <div
+          class="col tooltipped"
+          data-position="top"
+          data-tooltip="<span style='font-size:small'>Start/Stop</span>"
+        >
+          <i
+            @click="StartStop(task)"
+            v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"
+            class="far"
+          ></i>
+        </div>
+      </div>
+    </div>
 
-        <!-- <div class="col tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Archive</span>">
-            <i @click="CloseTask(task)" class="fas fa-eye-slash"></i>
-        </div>-->
-        <div
-          class="col tooltipped"
-          data-position="top"
-          data-tooltip="<span style='font-size:small'>Edit</span>"
-        >
-          <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
-            <i class="fas fa-edit"></i>
-          </router-link>
-        </div>
-      </div>
-    </div>
-    
-    <!-- view on hold  -->
-    <div v-for="task in ViewOnHold" v-bind:key="task.id" class="row OnHold">
-      <div class="col m2 s12">
-        <span>
-          <b>{{task.task_name}}</b>
-        </span>
-      </div>
-      <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
-      <div class="col m1 s12 truncate">
-        <i>{{task.task_project}}</i>
-      </div>
-      <div class="col m2 s12">
-        <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
-          <span id="Attachment_span" v-html="attach"></span>
-        </div>
-      </div>
-      <div class="col m1 s12">
-        <i>{{task.task_status}}</i>
-      </div>
-      <div class="col m1 s12">{{task.task_deadline}}</div>
-      <div class="col m1 s12">{{task.task_FTE}}</div>
-      <!-- icons   -->
-      <div v-if="isLoggedIn" class="col iconContainer">
-        <div
-          v-if="task.t_isPrivate"
-          class="col tooltipped"
-          data-position="top"
-          data-tooltip="<span style='font-size:small'>Delete</span>"
-        >
-          <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
-        </div>        
-        <div
-          class="col tooltipped"
-          data-position="top"
-          data-tooltip="<span style='font-size:small'>Edit</span>"
-        >
-          <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
-            <i class="fas fa-edit"></i>
-          </router-link>
-        </div>
-      </div>
-    </div>
     <hr>
     <div style="margin:5px">
-      <a @click="ShowCompleted=!ShowCompleted" class="waves-effect waves-light btn-floating  green lighten-2" :class="ShowCompleted?'brown':'green'" >      
+      <a
+        @click="ShowCompleted=!ShowCompleted"
+        class="waves-effect waves-light btn-floating lighten-2"
+        :class="ShowCompleted?'grey':'green'"
+      >
         <i v-if="ShowCompleted" class="material-icons left">visibility_off</i>
         <i v-else class="material-icons left">visibility</i>
       </a>
       <span v-if="ShowCompleted">Hide closed</span>
-      <span v-else>Show closed</span>      
-    </div> 
-    
-    <div  id="CompletedContainer" v-if="ShowCompleted">
-    <!-- view Completed  -->
+      <span v-else>Show closed</span>
+    </div>
 
-      <div  v-for="task in ViewCompleted" v-bind:key="task.id" class="row Completed">
-      <div class="col m2 s12">
-        <span>
-          <b>{{task.task_name}}</b>
-        </span>
-      </div>
-      <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
-      <div class="col m1 s12 truncate">
-        <i>{{task.task_project}}</i>
-      </div>
-      <div class="col m2 s12">
-        <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
-          <span id="Attachment_span" v-html="attach"></span>
+    <div id="CompletedContainer" v-if="ShowCompleted">
+      <!-- view Completed  -->
+      <div
+        v-for="task in viewCompleted"
+        v-bind:key="task.id"
+        class="row"
+        :class="task.task_status.replace(' ','')"
+      >
+        <div class="col m2 s12">
+          <span>
+            <b>{{task.task_name}}</b>
+          </span>
         </div>
-      </div>
-      <div class="col m1 s12">
-        <i>{{task.task_status}}</i>
-      </div>
-      <div class="col m1 s12">{{task.task_deadline}}</div>
-      <div class="col m1 s12">{{task.task_FTE}}</div>
-      <!-- icons   -->
-      <div v-if="isLoggedIn" class="col iconContainer">
-        <div
-          v-if="task.t_isPrivate"
-          class="col tooltipped"
-          data-position="top"
-          data-tooltip="<span style='font-size:small'>Delete</span>"
-        >
-          <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
+        <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
+        <div class="col m1 s12 truncate">
+          <i>{{task.task_project}}</i>
         </div>
-        <div
-          class="col tooltipped"
-          data-position="top"
-          data-tooltip="<span style='font-size:small'>Archive</span>"
-        >
-          <i @click="CloseTask(task)" class="fas fa-eye-slash"></i>
+        <div class="col m1 s12">
+          <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
+            <span id="Attachment_span" v-html="attach"></span>
+          </div>
         </div>
-        <div
-          class="col tooltipped"
-          data-position="top"
-          data-tooltip="<span style='font-size:small'>Edit</span>"
-        >
-          <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
-            <i class="fas fa-edit"></i>
-          </router-link>
+        <div class="col m1 s12">
+          <i>{{task.task_status}}</i>
         </div>
-      </div>
-    </div>
-    <!-- view Canceled  -->
-    <div v-for="task in ViewCanceled" v-bind:key="task.id" class="row Canceled">
-      <div class="col m2 s12 truncate">
-        <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name">
-          <b>{{task.task_name}}</b>
-        </span>
-      </div>
-      <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
-      <div class="col m1 s12 truncate">
-        <i>{{task.task_project}}</i>
-      </div>
-      <div class="col m2 s12">
-        <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
-          <span id="Attachment_span" v-html="attach"></span>
-        </div>
-      </div>
-      <div class="col m1 s12">
-        <i>{{task.task_status}}</i>
-      </div>
-      <div class="col m1 s12">{{task.task_deadline}}</div>
-      <div class="col m1 s12">{{task.task_FTE}}</div>
-      <div v-if="isLoggedIn" class="col iconContainer">
-        <div
-          v-if="task.t_isPrivate"
-          class="col tooltipped"
-          data-position="top"
-          data-tooltip="<span style='font-size:small'>Delete</span>"
-        >
-          <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
-        </div>
-        <div
-          class="col tooltipped"
-          data-position="top"
-          data-tooltip="<span style='font-size:small'>Archive</span>"
-        >
-          <i @click="CloseTask(task)" class="fas fa-eye-slash"></i>
-        </div>
-        <div class="col">
-          <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
-            <i class="fas fa-edit"></i>
-          </router-link>
+        <div class="col m1 s12">{{task.task_deadline}}</div>
+        <div class="col m1 s12">{{task.task_FTE}}</div>
+        <!-- icons   -->
+        <div v-if="isLoggedIn" class="col m2">
+          <div
+            v-if="task.t_isPrivate"
+            class="col tooltipped"
+            data-position="top"
+            data-tooltip="<span style='font-size:small'>Delete</span>"
+          >
+            <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
+          </div>
+          <div
+            class="col tooltipped"
+            data-position="top"
+            data-tooltip="<span style='font-size:small'>Archive</span>"
+          >
+            <i @click="CloseTask(task)" class="fas fa-eye-slash"></i>
+          </div>
+          <div
+            class="col tooltipped"
+            data-position="top"
+            data-tooltip="<span style='font-size:small'>Edit</span>"
+          >
+            <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+              <i class="fas fa-edit"></i>
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
-    </div>
-    
+    <!-- view archived -->
     <div style="margin:5px">
-      <a @click="ShowArchived=!ShowArchived" class="waves-effect waves-light btn-floating  green lighten-2" :class="ShowArchived?'brown':'grey'" >      
+      <a
+        @click="ShowArchived=!ShowArchived,GetArchived()"
+        class="waves-effect waves-light btn-floating lighten-2"
+        :class="ShowArchived?'grey':'green'"
+      >
         <i v-if="ShowArchived" class="material-icons left">visibility_off</i>
         <i v-else class="material-icons left">visibility</i>
       </a>
       <span v-if="ShowArchived">Hide archived</span>
-      <span v-else>Show archived</span>      
-    </div> 
-    
+      <span v-else>Show archived</span>
+    </div>
+    <div id="ArchivedContainer" v-if="ShowArchived">
+      <div
+        v-for="task in tasks_Archived"
+        v-bind:key="task.id"
+        class="row"
+        :class="task.task_status.replace(' ','')"
+      >
+        <div class="col m2 s12">
+          <span>
+            <b>{{task.task_name}}</b>
+          </span>
+        </div>
+        <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
+        <div class="col m1 s12 truncate">
+          <i>{{task.task_project}}</i>
+        </div>
+        <div class="col m2 s12">
+          <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
+            <span id="Attachment_span" v-html="attach"></span>
+          </div>
+        </div>
+        <div class="col m1 s12">
+          <i>{{task.task_status}}</i>
+        </div>
+        <div class="col m1 s12">{{task.task_deadline}}</div>
+        <div class="col m1 s12">{{task.task_FTE}}</div>
+        <!-- icons   -->
+        <div v-if="isLoggedIn" class="col iconContainer">
+          
+          <div
+            v-if="task.t_isPrivate"
+            class="col tooltipped"
+            data-position="top"
+            data-tooltip="<span style='font-size:small'>Delete</span>"
+          >
+            <i @click="DeleteTask(task)" class="material-icons right DelIcn">delete_forever</i>
+          </div>
+
+          <div
+            class="col tooltipped"
+            data-position="top"
+            data-tooltip="<span style='font-size:small'>Edit</span>"
+          >
+            <router-link v-bind:to="{name:'edit-task',params:{task_id:task.id}}">
+              <i class="fas fa-edit"></i>
+            </router-link>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal -->
+    <div id="modal2" class="modal">
+      <div class="modal-content">
+        <h3>Edit task</h3>
+        <div class="row MyContainer" v-if="targetTask">
+          <form class="col s12">
+            <div class="row">
+              <div class="input-field col s12">
+                <input placeholder="Task name" type="text" v-model="targetTask.task_name" required>
+                <label class="active">Name:</label>
+              </div>
+            </div>
+            <!-- details -->
+            <div class="row">
+              <div class="input-field col s12">
+                <label for="textarea1" class="active">Details:</label>
+                <textarea
+                  id="textarea1"
+                  placeholder="Task details"
+                  v-model="targetTask.task_description"
+                />
+              </div>
+            </div>
+            <!-- timings -->
+            <div class="row">
+              <div class="input-field col">
+                <input
+                  id="StartDate"
+                  type="date"
+                  placeholder="start date"
+                  v-model="targetTask.task_start"
+                >
+                <label class="active">Start date:</label>
+              </div>
+              <div class="input-field col">
+                <input
+                  id="DeadLine"
+                  type="date"
+                  placeholder="Task deadline"
+                  v-model="targetTask.task_deadline"
+                >
+                <label class="active">Deadline:</label>
+              </div>
+
+              <div id="FTAcontainer" v-if="targetTask.task_projectCategory!='Personal'">
+                <!-- FTA estimated-->
+                <span v-if="ShowFTE=='estimated'">
+                  <span v-if="displayFTA" class="FTEcont">
+                    <select
+                      v-model="targetTask.task_FTE"
+                      style="display:inline;width:70px"
+                      @change="updateFTE('fte')"
+                    >
+                      <option v-for="fta in FTAarray" v-bind:key="fta.id" v-bind:value="fta">{{fta}}</option>
+                    </select>
+                    <span>Estimated FTE</span>
+                  </span>
+                  <span v-else>
+                    <select
+                      v-model="targetTask.hours"
+                      style="display:inline;width:70px"
+                      @change="updateFTE('hours')"
+                    >
+                      <option
+                        v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
+                        v-bind:key="fta.id"
+                        v-bind:value="fta*40"
+                      >{{fta*40}}</option>
+                    </select>
+                    <span>Hours</span>
+                  </span>
+                </span>
+                <!-- FTA used-->
+                <span v-if="ShowFTE=='used'" class="FTEcont">
+                  <span v-if="displayFTA">
+                    <select
+                      v-model="targetTask.task_usedFTE"
+                      style="display:inline;width:70px"
+                      @change="updateUsedFTE('fte')"
+                    >
+                      <option
+                        v-for="fta in UsedFTAarray"
+                        v-bind:key="fta.id"
+                        v-bind:value="fta"
+                      >{{fta}}</option>
+                    </select>
+                    <span>Used FTE</span>
+                  </span>
+                  <span v-else>
+                    <select
+                      v-model="targetTask.UsedHours"
+                      style="display:inline;width:70px"
+                      @change="updateUsedFTE('hours')"
+                    >
+                      <option
+                        v-for="fta in UsedFTAarray.filter(itm=>itm!='TBD')"
+                        v-bind:key="fta.id"
+                        v-bind:value="fta*40"
+                      >{{fta*40}}</option>
+                    </select>
+                    <span>Used Hours</span>
+                  </span>
+                </span>
+                <div class="switch">
+                  <label>
+                    Hours
+                    <input v-model="displayFTA" type="checkbox">
+                    <span class="lever"></span>
+                    FTE
+                  </label>
+                </div>
+              </div>
+            </div>
+            <!-- status -->
+            <div class="row">
+              <div class="input-field col s12">
+                <label class="active">Status:</label>
+                <div class="input-field">
+                  <span
+                    @click="StatusUpdateFTE(opt,true)"
+                    v-for="opt in nStatusesList.filter(opt=>opt!='Not allocated')"
+                    v-bind:key="opt.id"
+                    v-bind:class="{'mySingleSelected':targetTask.task_status==opt}"
+                    class="mySingle chip"
+                  >{{opt}}</span>
+                </div>
+              </div>
+            </div>
+            <!-- arhived -->
+            <div class="row">
+              <div class="input-field col s12">
+                <select
+                  required
+                  style="display:block;width:70px;margin-top: 10px;"
+                  v-model="targetTask.task_isActive"
+                >
+                  <option>Yes</option>
+                  <option>No</option>
+                </select>
+                <label class="active">Is archived:</label>
+                <span class="info">
+                  By setting this to
+                  <b>Yes</b> the task will be moved to archived category
+                </span>
+              </div>
+            </div>
+            <!-- Attachement -->
+            <div class="row">
+              <div class="input-field col s12">
+                <label for="textarea1" class="active">Attachment:</label>
+
+                <div v-for="attach in targetTask.task_attachement" v-bind:key="attach.id">
+                  <span id="Attachment_span" v-html="attach"></span>
+                  <i
+                    class="fas fa-minus-square red-text"
+                    style="cursor:pointer"
+                    @click="RemoveHyperlink(attach)"
+                  ></i>
+                </div>
+
+                <div style="margin-top:10px" class="helperfield row">
+                  <div class="input-field col m4">
+                    <label for="linkDetails" class="col">File URL path:</label>
+                    <input id="linkDetails" type="text" v-model="detail_link">
+                  </div>
+                  <div class="col m2 input-field">
+                    <label for="linkhyper" class="col">Link caption:</label>
+                    <input id="linkhyper" type="text" v-model="detail_title">
+                  </div>
+                  <a
+                    @click="AddHyperlink()"
+                    class="waves-effect waves-light btn-small col cyan darken-2"
+                    style="margin-right: 10px;"
+                  >
+                    <i class="material-icons">public</i>
+                    Add attachment hyperlink
+                  </a>
+                </div>
+              </div>
+            </div>
+            <!-- created by -->
+            <div class="row">
+              <div class="input-field col s12 info">
+                <span>
+                  Task category :
+                  <b>{{targetTask.task_project}}</b> >
+                  <b>{{targetTask.task_projectCategory}}</b>
+                </span>
+                <br>
+                <span>
+                  Task created by :
+                  <b>{{targetTask.task_createdBy}}</b>
+                </span>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn black" @click="cancelUpdate()">Cancel</button>
+        <button type="button" class="btn" @click="updateTask()">Save</button>
+      </div>
+    </div>
     <!-- add new -->
     <div class="fixed-action-btn">
       <router-link to="/AddNew" class="btn-floating btn-large blue">
         <i class="fa fa-plus-square"></i>
       </router-link>
     </div>
-    
+    <!-- Modal Structure -->
+    <modal
+      :FTAarray="FTAarray"
+      :UsedFTAarray="UsedFTAarray"
+      :GotTarget="GotTarget"
+      :targetTask="targetTask"
+      infoType="UsedOnly"
+      v-on:updateFTE="updateFTEs($event)"
+      v-on:AddInfo="AddInfo($event)"
+    ></modal>
   </div>
 </template>
 
 <script>
 import firebase from "firebase";
 import RTDB from "./firebaseInitRTDB";
+import fireList from "./fireLists";
+import modal from "./Modal";
 
+var moment = require("moment");
 export default {
   name: "dashboard",
   props: { isLoggedIn: Boolean },
+  components: { modal },
   data() {
     return {
       // isLoggedIn: false,
-      tasksDashboard:[],
+      FTAarray: fireList.FTEList,
+      UsedFTAarray: fireList.usedFTEArrList,
+
+      nStatusesList: fireList.statusesList,
+      nSelectedStatus: "In progress",
+
+      ShowFTE: "estimated",
+      // hours: this.targetTask.task_FTE * 4,
+      // UsedHours:this.targetTask.task_usedFTE * 4,
+      showDetails: false,
+      showProject: true,
+      showNewProj: false,
+      showNewProjCat: false,
+      detail_link: "",
+      detail_title: "",
+      task_attachement: [],
+      SelectedProjCat: null,
+      displayFTA: true,
+
+      targetTask: null,
+
+      Header: [
+        { txt: "Task name", m: "m2", sby: "task_name", hasSort: true },
+        { txt: "Description", m: "m3", sby: "task_description", hasSort: true },
+        {
+          txt: "Project",
+          m: "m1 truncate",
+          sby: "task_project",
+          hasSort: true
+        },
+        { txt: "Attachment", m: "m1 truncate", sby: "", hasSort: false },
+        { txt: "Status", m: "m1 truncate", sby: "task_status", hasSort: true },
+        {
+          txt: "Deadline",
+          m: "m1 truncate",
+          sby: "task_deadline",
+          hasSort: true
+        },
+        { txt: "FTE", m: "m1 truncate", sby: "task_FTE", hasSort: true },
+        { txt: "Quick actions", m: "m2 truncate", sby: "", hasSort: false }
+      ],
+
+      HSorted: "Deadline",
+      SortBy: "task_deadline",
+      tasks_Active: [],
+      tasks_Archived: [],
       hasDone: false,
       viewDone: null,
-      // tasks: this.tasksDashboard,
-      ShowCompleted:false,
-      ShowArchived:false,
-      gotCompleted:false,
-      gotArchived:false,
+      GotTarget: false,
+
+      hours: null,
+      // tasks: this.tasks_Active,
+      ShowCompleted: false,
+      ShowArchived: false,
+      gotActive: false,
+      gotArchived: false,
       logData: []
     };
   },
-  created(){
+  created() {
     //get active
-    var UID = firebase.auth().currentUser.uid;
-    var vueObj=this;
+    this.GetFireTask(true);
+  },
+  mounted() {
+    //modal
+    $(".modal").modal();
+  },
+  computed: {
+    viewActive() {
+      return this.tasks_Active
+        .filter(function(task) {
+          return (
+            ["In progress", "On hold", "Not started"].indexOf(
+              task.task_status
+            ) > -1
+          );
+        })
+        .sort(this.sortMNG);
+    },
+    viewCompleted() {
+      return this.tasks_Active
+        .filter(function(task) {
+          return (
+            ["In progress", "On hold", "Not started"].indexOf(
+              task.task_status
+            ) == -1
+          );
+        })
+        .sort(this.sortMNG);
+    }
+  },
+  updated() {
+    $(".tooltipped").tooltip();
+  },
+  methods: {
+    AddInfo() {
+      let updObj = {};
+      updObj.tStatus = this.targetTask.newStatus;
+      updObj.tFTEused = this.targetTask.task_usedFTE;
+
+      if (this.targetTask.newStatus == "Completed") {
+        updObj.tClosedDate = moment().format("YYYY-MM-DD");
+      }
+
+      RTDB.ref(
+        "/USERS/" +
+          firebase.auth().currentUser.uid +
+          "/TASKS/" +
+          this.targetTask.id +
+          "/"
+      ).update(updObj);
+
+      // this.task_FTE= null
+      // this.hours= null
+    },
+    updateFTEs(val) {
+      this.targetTask.task_usedFTE = val;
+    },
+    EditTask(task) {
+      this.targetTask = JSON.parse(JSON.stringify(task));
+      this.targetTask.hours = this.targetTask.task_FTE * 4;
+      this.targetTask.UsedHours = this.targetTask.task_usedFTE * 4;
+      this.targetTask.task_description = this.targetTask.task_description.replace(
+        /<br\/>/g,
+        "\n"
+      );
+
+      this.getCreatorLabel(this.targetTask.task_creatorUID);
+
+      M.Modal.getInstance($("#modal2")).open();
+      // M.textareaAutoResize($('#textarea1'));
+    },
+    cancelUpdate() {
+      M.Modal.getInstance($("#modal2")).close();
+      this.targetTask = {};
+    },
+    updateTask() {
+      //validate end start times
+      if (new Date($("#DeadLine").val()) < new Date($("#StartDate").val())) {
+        M.toast({ html: `Start date should be sooner than Deadline` });
+        $("#StartDate,#DeadLine").css("border", "solid red 1px");
+        return false;
+      }
+      if (this.ShowFTE == "used" && this.targetTask.task_usedFTE == null) {
+        M.toast({ html: `Used FTE should not be null` });
+        $(".FTEcont select").css("border", "solid red 1px");
+        return false;
+      }
+      RTDB.ref(
+        "/USERS/" +
+          firebase.auth().currentUser.uid +
+          "/TASKS/" +
+          this.targetTask.id +
+          "/"
+      )
+
+        .update({
+          tName: this.targetTask.task_name,
+          tDescription: this.targetTask.task_description,
+          tStart: this.targetTask.task_start,
+          tDeadline: this.targetTask.task_deadline,
+          tFTE: this.targetTask.task_FTE,
+          tFTEused: this.targetTask.task_usedFTE
+            ? this.targetTask.task_usedFTE
+            : "",
+          // tProject: this.targetTask.SelectedProj,
+          // tProjCateg: this.targetTask.SelectedProjCat,
+          tAttach: this.targetTask.task_attachement,
+          tStatus: this.targetTask.task_status,
+
+          // tOwner:this.SelectedOwner,
+          // tEnvironment:this.task_env?this.task_env:"",
+          ModifiedBy: firebase.auth().currentUser.uid,
+          ModifiedDate: moment().format("YYYY-MM-DD HH:MM"),
+          t_isActive: this.targetTask.task_isActive == "No"
+        })
+        .then(docRef => {
+          console.log("task update done");
+          M.Modal.getInstance($("#modal2")).close();
+        })
+        .catch(function(error) {
+          console.error("Error writing document: ", error);
+        });
+    },
+    getCreatorLabel(UID) {
+      // console.log(UID)
+      var objVue = this;
+      RTDB.ref("/USERS/")
+        .orderByKey()
+        .equalTo(UID)
+        .once("value", querySnapshot => {
+          // console.log(querySnapshot.val());
+          // debugger;
+          objVue.targetTask.task_createdBy = querySnapshot.val()[UID].Label;
+        });
+    },
+    AddHyperlink() {
+      if (this.detail_link != "") {
+        var title = this.detail_title ? this.detail_title : "Click here";
+        //add https
+        if (this.detail_link.indexOf("http") == -1) {
+          this.detail_link = "https://" + this.detail_link;
+        }
+        this.targetTask.task_attachement.push(
+          "<a href='" + this.detail_link + "' target='_blank'>" + title + "</a>"
+        );
+
+        // this.task_attachement=this.task_attachement+"\n\n"+"Attachement: <a href='"+this.detail_link+"' target='_blank'>"+title+"</a>"
+        this.detail_link = "";
+        this.detail_title = "";
+      } else {
+        M.toast({ html: "URL field should not be empty" });
+      }
+    },
+    RemoveHyperlink(attch) {
+      var index = this.targetTask.task_attachement.indexOf(attch);
+      this.targetTask.task_attachement.splice(index, 1);
+    },
+    updateUsedFTE(type) {
+      if (type == "fte") {
+        this.targetTask.UsedHours = 40 * this.targetTask.task_usedFTE;
+      } else {
+        this.targetTask.task_usedFTE = (this.targetTask.UsedHours / 40).toFixed(
+          2
+        );
+      }
+    },
+    updateFTE(type) {
+      if (type == "fte") {
+        this.targetTask.hours = 40 * this.targetTask.task_FTE;
+      } else {
+        this.targetTask.task_FTE = (this.targetTask.hours / 40).toFixed(2);
+      }
+    },
+    GetFireTask(Active) {
+      var UID = firebase.auth().currentUser.uid;
+      var vueObj = this;
 
       RTDB.ref("/USERS/" + UID + "/TASKS/")
         .orderByChild("t_isActive")
-        .equalTo(true)
+        .equalTo(Active)
         .on("value", querySnapshot => {
-          
-          vueObj.tasksDashboard = [];
+          if (Active) {
+            vueObj.tasks_Active = [];
+          } else {
+            vueObj.tasks_Archived = [];
+          }
           const queryOBJ = querySnapshot.val();
+
           for (var prop in queryOBJ) {
             const data = {
               id: prop,
@@ -316,94 +725,65 @@ export default {
               task_attachement: queryOBJ[prop].tAttach
                 ? queryOBJ[prop].tAttach
                 : [],
+              task_start: queryOBJ[prop].tStart,
               task_deadline: queryOBJ[prop].tDeadline,
               task_FTE: queryOBJ[prop].tFTE ? queryOBJ[prop].tFTE : "none",
-              task_usedFTE: queryOBJ[prop].tFTEused ? queryOBJ[prop].tFTEused : null,
+              task_usedFTE: queryOBJ[prop].tFTEused
+                ? queryOBJ[prop].tFTEused
+                : null,
               task_status: queryOBJ[prop].tStatus,
-              task_completed: queryOBJ[prop].tStatus == "Completed",
-              task_canceled: queryOBJ[prop].tStatus == "Canceled",
-              task_inProgress: queryOBJ[prop].tStatus == "In progress",
-              task_onHold: queryOBJ[prop].tStatus == "On hold",
-              task_notStarted: queryOBJ[prop].tStatus == "Not started",
-              t_isPrivate: queryOBJ[prop].tProjCateg == "Personal",
-              task_isActive: queryOBJ[prop].t_isActive
+              task_isActive: queryOBJ[prop].t_isActive ? "No" : "Yes",
+              task_creatorUID: queryOBJ[prop].CreatedBy,
+              t_isPrivate:queryOBJ[prop].tProjCateg=="Personal"
             };
 
-            vueObj.tasksDashboard.push(data);
+            if (Active) {
+              vueObj.tasks_Active.push(data);
+            } else {
+              vueObj.tasks_Archived.push(data);
+            }
           }
-        })
+          if (Active) {
+            vueObj.gotActive = true;
+          } else {
+            vueObj.gotArchived = true;
+          }
+        });
+    },
+    StatusUpdateFTE(opt, anim) {
+      this.targetTask.task_status = opt;
 
-  },
-  computed: {
-    ViewOnHold: function() {
-      return this.tasksDashboard
-        .filter(function(task) {
-          return task.task_onHold == true;
-        })
-        .sort(function(a, b) {
-          if (a.task_deadline < b.task_deadline) return 1;
-          if (a.task_deadline > b.task_deadline) return -1;
-          return 0;
-        });
+      let initialShow = this.ShowFTE;
+
+      if (opt == "Canceled" || opt == "Completed" || opt == "On hold") {
+        this.ShowFTE = "used";
+      } else {
+        this.ShowFTE = "estimated";
+      }
+      if (initialShow != this.ShowFTE && anim) {
+        setTimeout(function() {
+          $(".FTEcont").effect("pulsate", { times: 3 }, 3000);
+        }, 500);
+      }
     },
-    ViewNotStarted(){
-       return this.tasksDashboard
-        .filter(function(task) {
-          return task.task_notStarted == true;
-        })
-        .sort(function(a, b) {
-          if (a.task_deadline < b.task_deadline) return 1;
-          if (a.task_deadline > b.task_deadline) return -1;
-          return 0;
-        });
+
+    sortMNG(a, b) {
+      if (a[this.SortBy] < b[this.SortBy]) return -1;
+      if (a[this.SortBy] > b[this.SortBy]) return 1;
+      return 0;
     },
-    ViewInProgress: function() {
-      return this.tasksDashboard
-        .filter(function(task) {
-          return task.task_inProgress == true;
-        })
-        .sort(function(a, b) {
-          if (a.task_deadline < b.task_deadline) return 1;
-          if (a.task_deadline > b.task_deadline) return -1;
-          return 0;
-        });
+    HeaderClick(itm) {
+      if (itm.hasSort) {
+        this.HSorted = itm.txt;
+        this.SortBy = itm.sby;
+      }
     },
-    ViewCompleted: function() {
-      return this.tasksDashboard
-        .filter(function(task) {
-          return task.task_completed == true;
-        })
-        .sort(function(a, b) {
-          if (a.task_deadline < b.task_deadline) return 1;
-          if (a.task_deadline > b.task_deadline) return -1;
-          return 0;
-        });
+    GetArchived() {
+      if (!this.gotArchived) {
+        this.GetFireTask(false);
+      }
     },
-    ViewCanceled: function() {
-      // $(".tooltipped").tooltip();
-      return this.tasksDashboard
-        .filter(function(task) {
-          return task.task_canceled == true;
-        })
-        .sort(function(a, b) {
-          if (a.task_deadline < b.task_deadline) return 1;
-          if (a.task_deadline > b.task_deadline) return -1;
-          return 0;
-        });
-    }
-  },
-  updated() {
-    //   // $(".sidenav").sidenav();
-    // console.log("updated");
-    $(".tooltipped").tooltip();
-    //   // this.SetGraphic();
-  },
-  
-  mounted() {
-    // $(".tooltipped").tooltip();
-  },
-  methods: {
-   
+
     CloseTask(task) {
       RTDB.ref(
         "/USERS/" + firebase.auth().currentUser.uid + "/TASKS/" + task.id + "/"
@@ -436,6 +816,40 @@ export default {
             $(".material-tooltip").removeAttr("style");
           });
       }
+    },
+    CompleteTask(task) {
+      if (task.task_projectCategory != "Personal") {
+        this.targetTask = task;
+        this.hours = 40 * this.targetTask.task_usedFTE;
+        this.GotTarget = true;
+        this.targetTask.newStatus = "Completed";
+        M.Modal.getInstance($("#modal1")).open();
+      } else {
+        this.targetTask = task;
+        this.targetTask.newStatus = "Completed";
+        this.AddInfo()
+      }
+    },
+    StartStop(task) {
+      this.targetTask = task;
+      this.hours = 40 * this.targetTask.task_usedFTE;
+      this.GotTarget = true;
+      this.targetTask.newStatus =
+        task.task_status == "In progress" ? "On hold" : "In progress";
+
+      if (this.targetTask.newStatus != "In progress") {
+        M.Modal.getInstance($("#modal1")).open();
+      } else {
+        RTDB.ref(
+          "/USERS/" +
+            firebase.auth().currentUser.uid +
+            "/TASKS/" +
+            task.id +
+            "/"
+        ).update({
+          tStatus: this.targetTask.newStatus
+        });
+      }
     }
   }
 };
@@ -445,17 +859,20 @@ export default {
 h6 {
   font-weight: 500;
 }
-.inProgress {
+#CompletedContainer {
+  background: white;
+}
+.Inprogress {
   /* background: #d6e9fd !important; */
   border-left: solid 7px #a0cfff;
   border-bottom: solid 1px lightgrey;
 }
-.NotStarted {
+.Notstarted {
   /* background: #d6e9fd !important; */
   border-left: solid 7px #bcaaa4;
   border-bottom: solid 1px lightgrey;
 }
-.OnHold {
+.Onhold {
   /* background: #d6e9fd !important; */
   border-left: solid 7px #ffc107;
   border-bottom: solid 1px lightgrey;
@@ -502,6 +919,20 @@ h6 {
 .fa-edit {
   color: #00bcd4;
 }
+
+.fa-clipboard-check {
+  color: #a5a5a5;
+}
+.fa-check {
+  color: #a5a5a5;
+}
+
+.fa-stop-circle {
+  color: #ff9800;
+}
+.fa-play-circle {
+  color: #06d210;
+}
 .DelIcn {
   color: #ea1010;
 }
@@ -525,5 +956,38 @@ h6 {
 .GraphContainer {
   margin-top: 30px;
   padding: 5px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+.sorted::before {
+  content: "\2193";
+  color: #024e4d;
+  font-size: 20px;
+  font-weight: bold;
+}
+.tblRow:hover {
+  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.75);
+}
+
+.modal {
+  top: 1% !important;
+  max-height: unset;
+  width: 80%;
+  max-height: 95vh;
+}
+.mySingle {
+  cursor: pointer;
+}
+.mySingleSelected {
+  background: teal;
+  color: white;
+}
+.NameEdit:hover {
+  transform: scale(1.05);
+  color: blue;
+  text-decoration: underline;
+  transition: all 50ms;
 }
 </style>

@@ -154,7 +154,7 @@
         <div class="row MyFixed" style="width:100%">
           <div class="col right" style="margin-left:37px;z-index:100">
             <button type="submit" class="btn">Save</button>
-           <router-link to="/view/cols" class="btn grey">Cancel</router-link>
+           <router-link to="/" class="btn grey">Cancel</router-link>
           </div>          
         </div> 
       </form>
@@ -288,7 +288,7 @@ export default {
         })
         .then(docRef => {
           console.log("task update done");
-          this.$router.push("/view/cols");
+          this.$router.push("/");
         })
         .catch(function (error) {
           console.error("Error writing document: ", error);
