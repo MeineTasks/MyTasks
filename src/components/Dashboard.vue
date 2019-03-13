@@ -9,18 +9,11 @@
         @click="HeaderClick(itm)"
       >{{itm.txt}}</h6>
 
-      <!-- <h6 class="col m2 s12">Task name</h6>
-      <h6 class="col m3 s12">Description</h6>
-      <h6 class="col m1 s12 truncate">Project</h6>
-      <h6 class="col m2 s12 truncate">Attachments</h6>
-      <h6 class="col m1 s12 truncate">Status</h6>
-      <h6 class="col m1 s12 truncate">Deadline</h6>
-      <h6 class="col m1 s12 truncate">FTE</h6>
-      <h6 class="col m1 iconContainer">
-        <span class="truncate">Quick actions</span>
-      </h6>-->
     </div>
     <!-- view active  -->
+    <div class="progress" v-if="!gotActive">
+      <div class="indeterminate"></div>
+    </div>
     <div
       v-for="task in viewActive"
       v-bind:key="task.id"
@@ -179,7 +172,7 @@
     </div>
     <div id="ArchivedContainer" v-if="ShowArchived">
       <div
-        v-for="task in tasks_Archived"
+        v-for="task in viewArchived"
         v-bind:key="task.id"
         class="row"
         :class="task.task_status.replace(' ','')"
@@ -193,7 +186,7 @@
         <div class="col m1 s12 truncate">
           <i>{{task.task_project}}</i>
         </div>
-        <div class="col m2 s12">
+        <div class="col m1 s12">
           <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
             <span id="Attachment_span" v-html="attach"></span>
           </div>
@@ -204,7 +197,7 @@
         <div class="col m1 s12">{{task.task_deadline}}</div>
         <div class="col m1 s12">{{task.task_FTE}}</div>
         <!-- icons   -->
-        <div v-if="isLoggedIn" class="col iconContainer">
+        <div v-if="isLoggedIn" class="col m2 iconContainer">
           
           <div
             v-if="task.t_isPrivate"
@@ -552,6 +545,11 @@ export default {
           );
         })
         .sort(this.sortMNG);
+    },
+    
+    viewArchived() {
+      return this.tasks_Archived
+        .sort(this.sortMNG);
     }
   },
   updated() {
@@ -768,8 +766,8 @@ export default {
     },
 
     sortMNG(a, b) {
-      if (a[this.SortBy] < b[this.SortBy]) return -1;
       if (a[this.SortBy] > b[this.SortBy]) return 1;
+      if (a[this.SortBy] < b[this.SortBy]) return -1;
       return 0;
     },
     HeaderClick(itm) {

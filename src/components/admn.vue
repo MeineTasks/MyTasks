@@ -68,7 +68,7 @@ export default {
       RTDB.ref("USERS")
         .once("value", querySnapshot => {
           const queryOBJ = querySnapshot.val();
-          var ActiveDate = moment("12/1/2018", "MM/DD/YYYY");
+          var ActiveDate = moment("02/01/2019", "MM/DD/YYYY");
 
           for (var prop in queryOBJ) {
             const queryTskOBJ = queryOBJ[prop].TASKS;
