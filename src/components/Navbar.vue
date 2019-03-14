@@ -96,7 +96,7 @@ export default {
 .material-icons {
   cursor: pointer;
 }
-.fas {
+.fas, .far {
   cursor: pointer;
 }
 .link:hover {
