@@ -816,20 +816,21 @@ export default {
       }
     },
     CompleteTask(task) {
-      if (task.task_projectCategory != "Personal") {
-        this.targetTask = task;
+      if (task.task_projectCategory != "Personal") {        
+        this.targetTask = JSON.parse(JSON.stringify(task));
         this.hours = 40 * this.targetTask.task_usedFTE;
         this.GotTarget = true;
         this.targetTask.newStatus = "Completed";
         M.Modal.getInstance($("#modal1")).open();
-      } else {
-        this.targetTask = task;
+      } else {        
+        this.targetTask = JSON.parse(JSON.stringify(task));
         this.targetTask.newStatus = "Completed";
         this.AddInfo()
       }
     },
     StartStop(task) {
-      this.targetTask = task;
+      
+      this.targetTask = JSON.parse(JSON.stringify(task));
       this.hours = 40 * this.targetTask.task_usedFTE;
       this.GotTarget = true;
       this.targetTask.newStatus =
