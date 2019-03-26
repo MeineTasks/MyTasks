@@ -377,7 +377,9 @@ export default {
       if (
         //this.ShowFTE=='used' &&
       (this.task_usedFTE==null ||this.task_usedFTE=="") 
-      && this.task_FTE!="TBD" ) {
+      && this.task_FTE!="TBD" 
+      && (this.nSelectedStatus=="Completed" || CloneT)
+      ) {
         this.task_usedFTE=this.task_FTE
       }
       //validari
