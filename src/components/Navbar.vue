@@ -67,7 +67,7 @@ export default {
     $(".tooltipped").tooltip();
     $(".dropdown-trigger").dropdown();
     //  if (!(/chrom(e|ium)/.test(navigator.userAgent.toLowerCase())) || /opr/.test(navigator.userAgent.toLowerCase())) {
-    if (/trident/.test(navigator.userAgent.toLowerCase())) {
+    if (!/chrome/.test(navigator.userAgent.toLowerCase())) {      
       $("body").html(
         "<center>The application was designed for Google Chrome</center>"
       );
