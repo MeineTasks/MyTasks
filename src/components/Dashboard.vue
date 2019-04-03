@@ -266,7 +266,7 @@
 
               <div id="FTAcontainer" v-if="targetTask.task_projectCategory!='Personal'">
                 <!-- FTA estimated-->
-                <span v-if="ShowFTE=='estimated'">
+                <span >
                   <span v-if="displayFTA" class="FTEcont">
                     <select
                       v-model="targetTask.task_FTE"
@@ -275,7 +275,7 @@
                     >
                       <option v-for="fta in FTAarray" v-bind:key="fta.id" v-bind:value="fta">{{fta}}</option>
                     </select>
-                    <span>Estimated FTE</span>
+                    <span><b>Estimated</b> FTE</span>
                   </span>
                   <span v-else>
                     <select
@@ -289,11 +289,11 @@
                         v-bind:value="fta*40"
                       >{{fta*40}}</option>
                     </select>
-                    <span>Hours</span>
+                    <span><b>Estimated</b> Hours</span>
                   </span>
                 </span>
                 <!-- FTA used-->
-                <span v-if="ShowFTE=='used'" class="FTEcont">
+                <span  id="UsedFTE" class="FTEcont">
                   <span v-if="displayFTA">
                     <select
                       v-model="targetTask.task_usedFTE"
@@ -306,7 +306,7 @@
                         v-bind:value="fta"
                       >{{fta}}</option>
                     </select>
-                    <span>Used FTE</span>
+                    <span><b>Used</b> FTE</span>
                   </span>
                   <span v-else>
                     <select
@@ -320,7 +320,7 @@
                         v-bind:value="fta*40"
                       >{{fta*40}}</option>
                     </select>
-                    <span>Used Hours</span>
+                    <span><b>Used</b> Hours</span>
                   </span>
                 </span>
                 <div class="switch">
@@ -421,6 +421,18 @@
       <div class="modal-footer">
         <button type="button" class="btn black" @click="cancelUpdate()">Cancel</button>
         <button type="button" class="btn" @click="updateTask()">Save</button>
+        <div class="left">
+            <a
+              @click="updateTask('Clone')"
+              class="btn waves-effect waves-light deep-orange accent-3"
+            >
+              <span class="right">
+                <i class="material-icons">check</i>
+                <i class="material-icons">filter_none</i>
+              </span>
+              Complete & extend |
+            </a>
+          </div>
       </div>
     </div>
     <!-- add new -->
@@ -597,7 +609,8 @@ export default {
       M.Modal.getInstance($("#modal2")).close();
       this.targetTask = {};
     },
-    updateTask() {
+    updateTask(Action) {
+      var CloneT = Action == "Clone";
       //validate end start times
       if (new Date($("#DeadLine").val()) < new Date($("#StartDate").val())) {
         M.toast({ html: `Start date should be sooner than Deadline` });
@@ -608,6 +621,14 @@ export default {
         M.toast({ html: `Used FTE should not be null` });
         $(".FTEcont select").css("border", "solid red 1px");
         return false;
+      }
+      if (CloneT) {
+        if (this.targetTask.task_usedFTE == null || this.targetTask.task_usedFTE == "") {
+          M.toast({ html: `Used FTE should not be null` });
+          $("#UsedFTE select").css("border", "solid red 1px");
+          return false;
+        }
+        this.targetTask.task_status = "Completed";
       }
       RTDB.ref(
         "/USERS/" +
@@ -639,11 +660,56 @@ export default {
         })
         .then(docRef => {
           console.log("task update done");
-          M.Modal.getInstance($("#modal2")).close();
+           if (!CloneT) {
+            M.Modal.getInstance($("#modal2")).close();
+            
+          } else {
+            this.CloneTask();
+          }
         })
         .catch(function(error) {
           console.error("Error writing document: ", error);
         });
+    },
+    CloneTask() {
+      var vueObj = this;
+      // create clone
+      RTDB.ref(
+        "/USERS/" +
+          firebase.auth().currentUser.uid +
+          "/TASKS/" +
+          this.targetTask.id  +
+          "/"
+      ).once("value", querySnapshot => {
+        // Changes to the clone
+
+        //extend timings with one week
+        var TaskObj = querySnapshot.val();
+        TaskObj.tStart = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
+          .weekday(8)
+          .format("YYYY-MM-DD");
+        TaskObj.tDeadline = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
+          .weekday(12)
+          .format("YYYY-MM-DD");
+        TaskObj.tStatus = "In progress";
+        //AlexP
+        TaskObj.tFTE = "TBD";
+        TaskObj.tFTEused = "";
+
+        // add new task on same user
+        RTDB.ref("/USERS/" + firebase.auth().currentUser.uid + "/TASKS/")
+          .push(TaskObj)
+          .then(updt => {
+            // vueObj.nSelectedStatus = "Completed";
+            M.toast({ html: "Clone succesfully created !" });
+            // vueObj.$router.push({ name: vueObj.$route.query.mnext });
+            
+            M.Modal.getInstance($("#modal2")).close();
+          })
+          .catch(function(error) {
+            console.error("Error writing document: ", error);
+          });
+      });
     },
     getCreatorLabel(UID) {
       // console.log(UID)
