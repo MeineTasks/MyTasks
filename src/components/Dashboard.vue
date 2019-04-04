@@ -593,8 +593,8 @@ export default {
     },
     EditTask(task) {
       this.targetTask = JSON.parse(JSON.stringify(task));
-      this.targetTask.hours = this.targetTask.task_FTE * 4;
-      this.targetTask.UsedHours = this.targetTask.task_usedFTE * 4;
+      this.targetTask.hours = this.targetTask.task_FTE * 40;
+      this.targetTask.UsedHours = this.targetTask.task_usedFTE * 40;
       this.targetTask.task_description = this.targetTask.task_description.replace(
         /<br\/>/g,
         "\n"
