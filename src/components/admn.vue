@@ -5,6 +5,16 @@
       <b>Step1:</b>
       <button type="button" @click="runF1" class="btn">Get data</button>
     </div>
+    <div class="row">
+          <div class="input-field col">
+            <input id="StartDate" type="date" placeholder="start date" v-model="task_start">
+            <label class="active">Start date:</label>
+          </div>
+          <div class="input-field col">
+            <input id="DeadLine" type="date" placeholder="Task deadline" v-model="task_deadline">
+            <label class="active">Deadline:</label>
+          </div>
+    </div>      
     <!-- <div class="row" v-if="GotUsers >= tasks.length && tasks.length>0">        
         <b>Step2:</b> <button type="button" @click="runF2" class="btn blue">Get file</button>
     </div>-->
@@ -28,7 +38,7 @@
       <div class="row">
         <b>Step2:</b>
         <button type="button" @click="runCipF2" class="btn blue">Get file</button>
-        <div v-for="el in testArr" :key="el.id">
+        <div v-for="el in MyDB" :key="el.id">
           {{el.name}}
           <div v-for="tsk in el.tasks" :key="tsk.id">{{tsk.CreatedBy}}</div>
         </div>
@@ -52,7 +62,10 @@ export default {
       UsersAndArrays: [],
       GotUsers: false,
       forCip: false,
-      testArr: []
+      MyDB: [],
+      task_start: null,
+      task_deadline: null,
+      FilteredTasks:[]
     };
   },
   created() {
@@ -156,10 +169,30 @@ export default {
       var objVue = this;
       RTDB.ref("USERS")
         .once("value", querySnapshot => {
-          objVue.testArr = querySnapshot.val();
+          objVue.MyDB = querySnapshot.val();
+          
+          // filter tasks
+           Object.keys(objVue.MyDB).forEach( user=> {
+             
+             Object.keys(objVue.MyDB[user].TASKS).forEach( task=> {          
+              //  console.log(objVue.MyDB[user].TASKS[task].tStart)   
+               if (
+                  moment(objVue.MyDB[user].TASKS[task].tStart, "YYYY-MM-DD").isAfter(
+                    moment(objVue.task_start, "YYYY-MM-DD")
+                  )&&
+                  moment(objVue.MyDB[user].TASKS[task].tDeadline, "YYYY-MM-DD").isBefore(
+                    moment(objVue.task_deadline, "YYYY-MM-DD")
+                  )&& !objVue.MyDB[user].TASKS[task].isPrivate
+               ){
+                 objVue.FilteredTasks.push(objVue.MyDB[user].TASKS[task])
+               }
+             })
+           })
+          // debugger
         })
         .then(succ => {
-          objVue.exportDB(objVue.testArr);
+
+          objVue.exportDB(objVue.FilteredTasks);
         });
     },
     exportDB(myObject) {
@@ -312,7 +345,7 @@ export default {
         });
     },
     runCipF2() {
-      this.exportDB(this.testArr);
+      this.exportDB(this.MyDB);
     }
   }
 };
