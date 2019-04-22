@@ -41,7 +41,7 @@
       <div class="col m1 s12">{{task.task_FTE}}</div>
       <!-- icons   -->
       <div v-if="isLoggedIn" class="col m2">
-        <!-- delete personal -->        
+        <!-- delete personal -->
         <div
           v-if="task.t_isPrivate"
           class="col tooltipped"
@@ -198,7 +198,7 @@
         <div class="col m1 s12">{{task.task_FTE}}</div>
         <!-- icons   -->
         <div v-if="isLoggedIn" class="col m2 iconContainer">
-          
+
           <div
             v-if="task.t_isPrivate"
             class="col tooltipped"
@@ -558,7 +558,7 @@ export default {
         })
         .sort(this.sortMNG);
     },
-    
+
     viewArchived() {
       return this.tasks_Archived
         .sort(this.sortMNG);
@@ -662,7 +662,7 @@ export default {
           console.log("task update done");
            if (!CloneT) {
             M.Modal.getInstance($("#modal2")).close();
-            
+
           } else {
             this.CloneTask();
           }
@@ -703,8 +703,9 @@ export default {
             // vueObj.nSelectedStatus = "Completed";
             M.toast({ html: "Clone succesfully created !" });
             // vueObj.$router.push({ name: vueObj.$route.query.mnext });
-            
+
             M.Modal.getInstance($("#modal2")).close();
+            // debugger
           })
           .catch(function(error) {
             console.error("Error writing document: ", error);
@@ -882,20 +883,20 @@ export default {
       }
     },
     CompleteTask(task) {
-      if (task.task_projectCategory != "Personal") {        
+      if (task.task_projectCategory != "Personal") {
         this.targetTask = JSON.parse(JSON.stringify(task));
         this.hours = 40 * this.targetTask.task_usedFTE;
         this.GotTarget = true;
         this.targetTask.newStatus = "Completed";
         M.Modal.getInstance($("#modal1")).open();
-      } else {        
+      } else {
         this.targetTask = JSON.parse(JSON.stringify(task));
         this.targetTask.newStatus = "Completed";
         this.AddInfo()
       }
     },
     StartStop(task) {
-      
+
       this.targetTask = JSON.parse(JSON.stringify(task));
       this.hours = 40 * this.targetTask.task_usedFTE;
       this.GotTarget = true;
