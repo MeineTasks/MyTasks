@@ -297,8 +297,7 @@ export default {
       //if (this.ShowFTE=='used' && this.task_usedFTE==null) {
       if (
         this.ShowFTE == "used" &&
-        (this.task_usedFTE == null || this.task_usedFTE == "") &&
-        this.task_FTE == "TBD"
+        (this.task_usedFTE == null || this.task_usedFTE == "")
       ) {
         M.toast({ html: `Used FTE should not be null` });
         $("#UsedFTE select").css("border", "solid red 1px");
