@@ -8,7 +8,6 @@
         :class="[itm.m,{'sorted':itm.txt==HSorted},{'clickable':itm.hasSort}]"
         @click="HeaderClick(itm)"
       >{{itm.txt}}</h6>
-
     </div>
     <!-- view active  -->
     <div class="progress" v-if="!gotActive">
@@ -38,7 +37,10 @@
         <i>{{task.task_status}}</i>
       </div>
       <div class="col m1 s12">{{task.task_deadline}}</div>
-      <div class="col m1 s12">{{task.task_FTE}}</div>
+      <div class="col m1 s12">
+        <span>{{task.task_FTE}}</span>
+        <span class="blue-text" v-if="task.task_usedFTE">> {{task.task_usedFTE}}</span>
+      </div>
       <!-- icons   -->
       <div v-if="isLoggedIn" class="col m2">
         <!-- delete personal -->
@@ -84,6 +86,13 @@
             class="far"
           ></i>
         </div>
+      </div>
+    </div>
+    <div id="TotalFTE" class="row" v-if="gotActive">
+      <div class="col m1 offset-m8">Total FTE:</div>
+      <div class="col m1">
+        <span :class="{'red-text':GetTotalFTE.estim>1}">{{ GetTotalFTE.estim}}</span>
+        <span class="blue-text" v-if=" GetTotalFTE.used">>{{ GetTotalFTE.used}}</span>
       </div>
     </div>
 
@@ -198,7 +207,6 @@
         <div class="col m1 s12">{{task.task_FTE}}</div>
         <!-- icons   -->
         <div v-if="isLoggedIn" class="col m2 iconContainer">
-
           <div
             v-if="task.t_isPrivate"
             class="col tooltipped"
@@ -266,7 +274,7 @@
 
               <div id="FTAcontainer" v-if="targetTask.task_projectCategory!='Personal'">
                 <!-- FTA estimated-->
-                <span >
+                <span>
                   <span v-if="displayFTA" class="FTEcont">
                     <select
                       v-model="targetTask.task_FTE"
@@ -275,7 +283,9 @@
                     >
                       <option v-for="fta in FTAarray" v-bind:key="fta.id" v-bind:value="fta">{{fta}}</option>
                     </select>
-                    <span><b>Estimated</b> FTE</span>
+                    <span>
+                      <b>Estimated</b> FTE
+                    </span>
                   </span>
                   <span v-else>
                     <select
@@ -289,11 +299,13 @@
                         v-bind:value="fta*40"
                       >{{fta*40}}</option>
                     </select>
-                    <span><b>Estimated</b> Hours</span>
+                    <span>
+                      <b>Estimated</b> Hours
+                    </span>
                   </span>
                 </span>
                 <!-- FTA used-->
-                <span  id="UsedFTE" class="FTEcont">
+                <span id="UsedFTE" class="FTEcont">
                   <span v-if="displayFTA">
                     <select
                       v-model="targetTask.task_usedFTE"
@@ -306,7 +318,9 @@
                         v-bind:value="fta"
                       >{{fta}}</option>
                     </select>
-                    <span><b>Used</b> FTE</span>
+                    <span>
+                      <b>Used</b> FTE
+                    </span>
                   </span>
                   <span v-else>
                     <select
@@ -320,7 +334,9 @@
                         v-bind:value="fta*40"
                       >{{fta*40}}</option>
                     </select>
-                    <span><b>Used</b> Hours</span>
+                    <span>
+                      <b>Used</b> Hours
+                    </span>
                   </span>
                 </span>
                 <div class="switch">
@@ -422,17 +438,14 @@
         <button type="button" class="btn black" @click="cancelUpdate()">Cancel</button>
         <button type="button" class="btn" @click="updateTask()">Save</button>
         <div class="left">
-            <a
-              @click="updateTask('Clone')"
-              class="btn waves-effect waves-light deep-orange accent-3"
-            >
-              <span class="right">
-                <i class="material-icons">check</i>
-                <i class="material-icons">filter_none</i>
-              </span>
-              Complete & extend |
-            </a>
-          </div>
+          <a @click="updateTask('Clone')" class="btn waves-effect waves-light deep-orange accent-3">
+            <span class="right">
+              <i class="material-icons">check</i>
+              <i class="material-icons">filter_none</i>
+            </span>
+            Complete & extend |
+          </a>
+        </div>
       </div>
     </div>
     <!-- add new -->
@@ -536,6 +549,24 @@ export default {
     $(".modal").modal();
   },
   computed: {
+    GetTotalFTE() {
+      let total = {
+        used: null,
+        estim: null
+      };
+      this.viewActive.forEach(task => {
+        // console.log(parseFloat(task.task_FTE));
+        if (task.task_usedFTE != null) {
+          total.used += parseFloat(task.task_usedFTE);
+        }
+        if (parseFloat(task.task_FTE) > 0) {
+          total.estim += parseFloat(task.task_FTE);
+        }
+      });
+      total.used = total.used.toFixed(2);
+      total.estim = total.estim.toFixed(2);
+      return total;
+    },
     viewActive() {
       return this.tasks_Active
         .filter(function(task) {
@@ -560,8 +591,7 @@ export default {
     },
 
     viewArchived() {
-      return this.tasks_Archived
-        .sort(this.sortMNG);
+      return this.tasks_Archived.sort(this.sortMNG);
     }
   },
   updated() {
@@ -623,7 +653,10 @@ export default {
         return false;
       }
       if (CloneT) {
-        if (this.targetTask.task_usedFTE == null || this.targetTask.task_usedFTE == "") {
+        if (
+          this.targetTask.task_usedFTE == null ||
+          this.targetTask.task_usedFTE == ""
+        ) {
           M.toast({ html: `Used FTE should not be null` });
           $("#UsedFTE select").css("border", "solid red 1px");
           return false;
@@ -660,9 +693,8 @@ export default {
         })
         .then(docRef => {
           console.log("task update done");
-           if (!CloneT) {
+          if (!CloneT) {
             M.Modal.getInstance($("#modal2")).close();
-
           } else {
             this.CloneTask();
           }
@@ -678,7 +710,7 @@ export default {
         "/USERS/" +
           firebase.auth().currentUser.uid +
           "/TASKS/" +
-          this.targetTask.id  +
+          this.targetTask.id +
           "/"
       ).once("value", querySnapshot => {
         // Changes to the clone
@@ -799,7 +831,7 @@ export default {
               task_status: queryOBJ[prop].tStatus,
               task_isActive: queryOBJ[prop].t_isActive ? "No" : "Yes",
               task_creatorUID: queryOBJ[prop].CreatedBy,
-              t_isPrivate:queryOBJ[prop].tProjCateg=="Personal"
+              t_isPrivate: queryOBJ[prop].tProjCateg == "Personal"
             };
 
             if (Active) {
@@ -892,11 +924,10 @@ export default {
       } else {
         this.targetTask = JSON.parse(JSON.stringify(task));
         this.targetTask.newStatus = "Completed";
-        this.AddInfo()
+        this.AddInfo();
       }
     },
     StartStop(task) {
-
       this.targetTask = JSON.parse(JSON.stringify(task));
       this.hours = 40 * this.targetTask.task_usedFTE;
       this.GotTarget = true;
@@ -1055,5 +1086,9 @@ h6 {
   color: blue;
   text-decoration: underline;
   transition: all 50ms;
+}
+#TotalFTE {
+  font-weight: bold;
+  background-color: #dedede !important;
 }
 </style>
