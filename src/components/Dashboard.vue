@@ -5,7 +5,7 @@
         v-for="itm in Header"
         :key="itm.txt"
         class="col s12 left"
-        :class="[itm.m,{'sorted':itm.txt==HSorted},{'clickable':itm.hasSort}]"
+        :class="[itm.m,itm.txt==HSorted?'sortedASC_'+SortASC:'',{'clickable':itm.hasSort}]"
         @click="HeaderClick(itm)"
       >{{itm.txt}}</h6>
     </div>
@@ -96,7 +96,7 @@
       </div>
     </div>
 
-    <hr>
+    <hr />
     <div style="margin:5px">
       <a
         @click="ShowCompleted=!ShowCompleted"
@@ -236,7 +236,7 @@
           <form class="col s12">
             <div class="row">
               <div class="input-field col s12">
-                <input placeholder="Task name" type="text" v-model="targetTask.task_name" required>
+                <input placeholder="Task name" type="text" v-model="targetTask.task_name" required />
                 <label class="active">Name:</label>
               </div>
             </div>
@@ -259,7 +259,7 @@
                   type="date"
                   placeholder="start date"
                   v-model="targetTask.task_start"
-                >
+                />
                 <label class="active">Start date:</label>
               </div>
               <div class="input-field col">
@@ -268,7 +268,7 @@
                   type="date"
                   placeholder="Task deadline"
                   v-model="targetTask.task_deadline"
-                >
+                />
                 <label class="active">Deadline:</label>
               </div>
 
@@ -342,7 +342,7 @@
                 <div class="switch">
                   <label>
                     Hours
-                    <input v-model="displayFTA" type="checkbox">
+                    <input v-model="displayFTA" type="checkbox" />
                     <span class="lever"></span>
                     FTE
                   </label>
@@ -399,11 +399,11 @@
                 <div style="margin-top:10px" class="helperfield row">
                   <div class="input-field col m4">
                     <label for="linkDetails" class="col">File URL path:</label>
-                    <input id="linkDetails" type="text" v-model="detail_link">
+                    <input id="linkDetails" type="text" v-model="detail_link" />
                   </div>
                   <div class="col m2 input-field">
                     <label for="linkhyper" class="col">Link caption:</label>
-                    <input id="linkhyper" type="text" v-model="detail_title">
+                    <input id="linkhyper" type="text" v-model="detail_title" />
                   </div>
                   <a
                     @click="AddHyperlink()"
@@ -424,7 +424,7 @@
                   <b>{{targetTask.task_project}}</b> >
                   <b>{{targetTask.task_projectCategory}}</b>
                 </span>
-                <br>
+                <br />
                 <span>
                   Task created by :
                   <b>{{targetTask.task_createdBy}}</b>
@@ -525,6 +525,7 @@ export default {
 
       HSorted: "Deadline",
       SortBy: "task_deadline",
+      SortASC: false,
       tasks_Active: [],
       tasks_Archived: [],
       hasDone: false,
@@ -563,8 +564,13 @@ export default {
           total.estim += parseFloat(task.task_FTE);
         }
       });
-      total.used = total.used.toFixed(2);
-      total.estim = total.estim.toFixed(2);
+      if (total.used != null) {
+        total.used = total.used.toFixed(2);
+      }
+      if (total.estim != null) {
+        total.estim = total.estim.toFixed(2);
+      }
+
       return total;
     },
     viewActive() {
@@ -633,6 +639,11 @@ export default {
       this.getCreatorLabel(this.targetTask.task_creatorUID);
 
       M.Modal.getInstance($("#modal2")).open();
+      //remove old validations
+      $("#StartDate,#DeadLine,.FTEcont select,#UsedFTE select").css(
+        "border",
+        "none"
+      );
       // M.textareaAutoResize($('#textarea1'));
     },
     cancelUpdate() {
@@ -642,6 +653,7 @@ export default {
     updateTask(Action) {
       var CloneT = Action == "Clone";
       //validate end start times
+
       if (new Date($("#DeadLine").val()) < new Date($("#StartDate").val())) {
         M.toast({ html: `Start date should be sooner than Deadline` });
         $("#StartDate,#DeadLine").css("border", "solid red 1px");
@@ -865,14 +877,20 @@ export default {
     },
 
     sortMNG(a, b) {
-      if (a[this.SortBy] > b[this.SortBy]) return 1;
-      if (a[this.SortBy] < b[this.SortBy]) return -1;
+      let res = this.SortASC ? 1 : -1;
+      if (a[this.SortBy] > b[this.SortBy]) return res;
+      if (a[this.SortBy] < b[this.SortBy]) return -res;
       return 0;
     },
     HeaderClick(itm) {
+      // debugger;
       if (itm.hasSort) {
-        this.HSorted = itm.txt;
-        this.SortBy = itm.sby;
+        if (this.SortBy == itm.sby) {
+          this.SortASC = !this.SortASC;
+        } else {
+          this.HSorted = itm.txt;
+          this.SortBy = itm.sby;
+        }
       }
     },
     GetArchived() {
@@ -1058,7 +1076,13 @@ h6 {
 .clickable {
   cursor: pointer;
 }
-.sorted::before {
+.sortedASC_false::before {
+  content: "\2191";
+  color: #024e4d;
+  font-size: 20px;
+  font-weight: bold;
+}
+.sortedASC_true::before {
   content: "\2193";
   color: #024e4d;
   font-size: 20px;
