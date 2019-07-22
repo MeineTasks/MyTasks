@@ -1,166 +1,227 @@
 <template>
-    <div id="dashboard" style="margin: 0px 25px;">
-        <!-- filter -->
-        <div class="row z-depth-2 filterContainer brown lighten-4">
-            <div class="col m6 s12 " >
-              <span class="tooltipped" data-position="right"
-                data-tooltip="Click for multiple selections">
-                Filter by status :</span>
-               <div id="listStat">
-                 <span
-                  @click="MultiStatus(opt)"
-
-                  v-for="opt in StatusesList"
-                  v-bind:key="opt.id"
-                  v-bind:class="{'mySingleSelected':SelectedStatus.indexOf(opt)>-1}" class="mySingle chip">
-                    {{opt}}
-                  </span>
-               </div>
-
-            </div>
-            <!-- Creator filter -->
-            <div class="col m6 s12 right" style="text-align:right">
-                <span>
-                    Filter by creator:
-                </span>
-                <div id="listCreator">
-                  <span
-                    @click="MultiCreator(mng)"
-                    v-for="mng in FireManagersArray"
-                    v-bind:key="mng.id"
-                    v-bind:class="{'mySingleSelected':SelectedManager.indexOf(mng.OBJ.UID)>-1}"
-                    class="mySingle chip">
-                      {{mng.OBJ.name}}
-                    </span>
-                </div>
-
-            </div>
-            <!-- date filter -->
-            <div class="col m6 s12">
-                <span>Filter by Date &#8594;</span>
-                <span v-if="!showDateFilter">
-                          No date filter applied:
-                          <a
-                            @click="AddCurentDateFilter()"
-                            class="waves-effect waves-light btn-small"
-                          >Add filter<i class="material-icons left">event</i></a>
-                        </span>
-                    <span v-if="showDateFilter">
-                         From:  <input @change="datefilter_setEnd()" class="dateField" type="date" placeholder="start date" v-model="Datefilter_start">
-                          - To:
-                          <input class="dateField" type="date" placeholder="end date" v-model="Datefilter_end" >
-                          <a @click="ADDTasksIncat()" class="waves-effect waves-light btn-small">Add date filter</a>
-                          <a @click="ClearDateFilter()" class="waves-effect waves-light btn-small  grey darken-2">Remove date filter<i class="material-icons left">event_busy</i></a>
-                </span>
-            </div>
-
-
+  <div id="dashboard" style="margin: 0px 25px;">
+    <!-- filter -->
+    <div class="row z-depth-2 filterContainer brown lighten-4">
+      <div class="col m6 s12">
+        <span
+          class="tooltipped"
+          data-position="right"
+          data-tooltip="Click for multiple selections"
+        >Filter by status :</span>
+        <div id="listStat">
+          <span
+            @click="MultiStatus(opt)"
+            v-for="opt in StatusesList"
+            v-bind:key="opt.id"
+            v-bind:class="{'mySingleSelected':SelectedStatus.indexOf(opt)>-1}"
+            class="mySingle chip"
+          >{{opt}}</span>
         </div>
-           <!-- user filter -->
-            <div class="row z-depth-1">
-              <div class="col m12 s12" >
-              <span class="tooltipped " data-position="right" data-tooltip="Click for multiple selections">Filter by users &#8594;</span>
+      </div>
+      <!-- Creator filter -->
+      <div class="col m6 s12 right" style="text-align:right">
+        <span>Filter by creator:</span>
+        <div id="listCreator">
+          <span
+            @click="MultiCreator(mng)"
+            v-for="mng in FireManagersArray"
+            v-bind:key="mng.id"
+            v-bind:class="{'mySingleSelected':SelectedManager.indexOf(mng.OBJ.UID)>-1}"
+            class="mySingle chip"
+          >{{mng.OBJ.name}}</span>
+        </div>
+      </div>
+      <!-- date filter -->
+      <div class="col m6 s12">
+        <span>Filter by Date &#8594;</span>
+        <span v-if="!showDateFilter">
+          No date filter applied:
+          <a
+            @click="AddCurentDateFilter()"
+            class="waves-effect waves-light btn-small"
+          >
+            Add filter
+            <i class="material-icons left">event</i>
+          </a>
+        </span>
+        <span v-if="showDateFilter">
+          From:
+          <input
+            @change="datefilter_setEnd()"
+            class="dateField"
+            type="date"
+            placeholder="start date"
+            v-model="Datefilter_start"
+          />
+          - To:
+          <input
+            class="dateField"
+            type="date"
+            placeholder="end date"
+            v-model="Datefilter_end"
+          />
+          <a @click="ADDTasksIncat()" class="waves-effect waves-light btn-small">Add date filter</a>
+          <a @click="ClearDateFilter()" class="waves-effect waves-light btn-small grey darken-2">
+            Remove date filter
+            <i class="material-icons left">event_busy</i>
+          </a>
+        </span>
+      </div>
+    </div>
+    <!-- user filter -->
+    <div class="row z-depth-1">
+      <div class="col m12 s12">
+        <span
+          class="tooltipped"
+          data-position="right"
+          data-tooltip="Click for multiple selections"
+        >Filter by users &#8594;</span>
+        <span
+          @click="MultiUser(opt)"
+          v-for="opt in FireUsersArray"
+          v-bind:key="opt.id"
+          v-bind:class="{'mySingleSelected':SelectedUsers.indexOf(opt.OBJ.UID)>-1}"
+          class="mySingle chip"
+        >{{opt.OBJ.name}}</span>
+      </div>
+    </div>
+    <!-- user tasks -->
+    <div v-for="user in xFilteredUsersArr" v-bind:key="user.id" class="z-depth-1">
+      <div class="row valign-wrapper" style="border-bottom: #484545 solid 1px; ">
+        <!-- first coll -->
+        <div class="col m2">
+          <span class="chip">{{user.OBJ.name}}</span>
+          <div class="row">
+            <b>{{user.OBJ.tasks.length}}</b> tasks
+          </div>
+          <div class="row blue-text">
+            <b>Estimated</b> FTE
+            <b>{{sumFTA(user.OBJ.tasks)}}</b>
+            <br />
+            <span class="green-text">
+              <b>Used</b> FTE
+              <b>{{sumFTAused(user.OBJ.tasks)}}</b>
+            </span>
+          </div>
+        </div>
+        <!-- second coll -->
+        <div class="col m10">
+          <!-- card container structure -->
+          <div v-for="task in user.OBJ.tasks" v-bind:key="task.id" class="col m2 s12">
+            <div
+              class="card blue-grey"
+              v-bind:class="task.task_status=='In progress'?'darken-2':'lighten-3'"
+            >
+              <!-- card tittle -->
+              <div class="card-content white-text">
+                <!-- project category -->
+                <span class="truncate">
+                  <b>{{task.task_ProjCat}}</b>
+                  <br />
+                  {{task.task_project}}
+                </span>
                 <span
-                  @click="MultiUser(opt)"
-                  v-for="opt in FireUsersArray"
-                  v-bind:key="opt.id"
-                  v-bind:class="{'mySingleSelected':SelectedUsers.indexOf(opt.OBJ.UID)>-1}" class="mySingle chip">
-                    {{opt.OBJ.name}}
-                  </span>
-            </div>
-         </div>
-        <!-- user tasks -->
-        <div v-for="user in xFilteredUsersArr" v-bind:key="user.id" class="z-depth-1">
-            <div  class="row valign-wrapper" style="border-bottom: #484545 solid 1px; ">
-                <!-- first coll -->
-                <div class="col m2">
-                    <span class="chip">
-                    {{user.OBJ.name}}
+                  class="task-title"
+                  v-bind:class="task.task_status=='In progress'?'cyan-text text-lighten-3':'black-text'"
+                >
+                  <span
+                    class="tooltipped"
+                    data-position="top"
+                    v-bind:data-tooltip="task.task_name"
+                  >{{task.task_name}}</span>
                 </span>
-                    <div class="row"><b>{{user.OBJ.tasks.length}}</b> tasks</div>
-                    <div class="row blue-text"><b>Estimated</b> FTE <b>{{sumFTA(user.OBJ.tasks)}}</b><br/>
-                    <span class="green-text"><b>Used</b> FTE <b>{{sumFTAused(user.OBJ.tasks)}}</b></span></div>
-
+                <div class="row" style="margin-left:0px">
+                  <div class="chip col">{{task.task_status}}</div>
+                  <span class="col">{{task.task_deadline_short}}</span>
+                  <br />
                 </div>
-                <!-- second coll -->
-                <div class="col m10">
-                    <!-- card container structure -->
-                    <div v-for="task in user.OBJ.tasks" v-bind:key="task.id" class="col m2 s12">
-                        <div class="card blue-grey" v-bind:class="task.task_status=='In progress'?'darken-2':'lighten-3'">
-                            <!-- card tittle -->
-                            <div class="card-content white-text">
-                                <!-- project category -->
-                              <span class="truncate">
-                                  {{task.task_project}}
-                              </span>
-                              <span class="task-title" v-bind:class="task.task_status=='In progress'?'cyan-text text-lighten-3':'black-text'">
-                                  <span class="tooltipped" data-position="top" v-bind:data-tooltip="task.task_name">
-                                    {{task.task_name}}
-                                  </span>
-                              </span>
-                                <div class="row" style="margin-left:0px">
-                                    <div class="chip col">{{task.task_status}}</div>
-                                    <span class="col">{{task.task_deadline_short}}</span>
-                                    <br/>
-                                </div>
-                                <div class="row" style="margin-left:0px">
-                                    <div  class="blue-text col text-lighten-3"
-                                    :class="{'text-darken-4':['In progress','Not started','Not allocated'].indexOf(task.task_status)==-1}">{{task.task_FTE}} FTE</div>
-                                    <div v-if="task.task_usedFTE!=undefined && task.task_usedFTE!=''"
-                                    :class="{'text-darken-4':['In progress','Not started','Not allocated'].indexOf(task.task_status)==-1}" class="green-text col ">{{task.task_usedFTE}} FTE</div>
-                                </div>
-                                <hr/>
-                                <!-- START icon container -->
-                                <div v-if="isManager" class="row iconContainer">
-                                    <div class="col m3">
-                                        <router-link class="tooltipped" data-position="top" data-tooltip="<span style='font-size:small'>Edit</span>" v-bind:to="{name:'edit-task_mng',params:{task_id:task.id},query:{uid:task.task_owner,mnext:'viewusers'} }">
-                                            <i class="fas fa-edit"></i>
-                                        </router-link>
-                                    </div>
-                                    <div v-if="task.task_status!='Completed' && task.task_status!='Canceled'" class="col m3">
-                                      <span v-bind:class="{'myBtn':!task.task_completed}" >
-                                        <i class="tooltipped fas" data-position="top" data-tooltip="<span style='font-size:small'>Complete</span>" @click="CompleteTask(task)" v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'" ></i>
-                                      </span>
-                                    </div>
-                                    <div class="col m3">
-                                        <span class="myBtn">
-                                            <i class="tooltipped far" data-position="top" data-tooltip="<span style='font-size:small'>In progress/on hold</span>" @click="StartStop(task)" v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'" ></i>
-                                        </span>
-                                    </div>
-                                     <div class="col m3">
-                                        <span class="myBtn tooltip">
-                                            <i class="tooltipped fas fa-ban" data-position="top" data-tooltip="<span style='font-size:small'>Cancel</span>" @click="CancelTask(task)" ></i>
-                                        </span>
-                                    </div>
-                                </div>
-                                <!-- END icon container -->
-                            </div>
-                        </div>
-                    </div>
+                <div class="row" style="margin-left:0px">
+                  <div
+                    class="blue-text col text-lighten-3"
+                    :class="{'text-darken-4':['In progress','Not started','Not allocated'].indexOf(task.task_status)==-1}"
+                  >{{task.task_FTE}} FTE</div>
+                  <div
+                    v-if="task.task_usedFTE!=undefined && task.task_usedFTE!=''"
+                    :class="{'text-darken-4':['In progress','Not started','Not allocated'].indexOf(task.task_status)==-1}"
+                    class="green-text col"
+                  >{{task.task_usedFTE}} FTE</div>
                 </div>
-
+                <hr />
+                <!-- START icon container -->
+                <div v-if="isManager" class="row iconContainer">
+                  <div class="col m3">
+                    <router-link
+                      class="tooltipped"
+                      data-position="top"
+                      data-tooltip="<span style='font-size:small'>Edit</span>"
+                      v-bind:to="{name:'edit-task_mng',params:{task_id:task.id},query:{uid:task.task_owner,mnext:'viewusers'} }"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </router-link>
+                  </div>
+                  <div
+                    v-if="task.task_status!='Completed' && task.task_status!='Canceled'"
+                    class="col m3"
+                  >
+                    <span v-bind:class="{'myBtn':!task.task_completed}">
+                      <i
+                        class="tooltipped fas"
+                        data-position="top"
+                        data-tooltip="<span style='font-size:small'>Complete</span>"
+                        @click="CompleteTask(task)"
+                        v-bind:class="task.task_completed ? 'fa-clipboard-check' : 'fa-check'"
+                      ></i>
+                    </span>
+                  </div>
+                  <div class="col m3">
+                    <span class="myBtn">
+                      <i
+                        class="tooltipped far"
+                        data-position="top"
+                        data-tooltip="<span style='font-size:small'>In progress/on hold</span>"
+                        @click="StartStop(task)"
+                        v-bind:class="task.task_status=='In progress' ? 'fa-stop-circle' : 'fa-play-circle'"
+                      ></i>
+                    </span>
+                  </div>
+                  <div class="col m3">
+                    <span class="myBtn tooltip">
+                      <i
+                        class="tooltipped fas fa-ban"
+                        data-position="top"
+                        data-tooltip="<span style='font-size:small'>Cancel</span>"
+                        @click="CancelTask(task)"
+                      ></i>
+                    </span>
+                  </div>
+                </div>
+                <!-- END icon container -->
+              </div>
             </div>
+          </div>
         </div>
-        <div v-if="isManager" class="fixed-action-btn">
-          <router-link v-bind:to="{name:'new-task',query:{mnext:'viewusers'}}" class="btn-floating btn-large red">
-            <i class="fa fa-plus"></i>
-          </router-link>
-        </div>
+      </div>
+    </div>
+    <div v-if="isManager" class="fixed-action-btn">
+      <router-link
+        v-bind:to="{name:'new-task',query:{mnext:'viewusers'}}"
+        class="btn-floating btn-large red"
+      >
+        <i class="fa fa-plus"></i>
+      </router-link>
+    </div>
 
-      <!-- Modal Structure -->
+    <!-- Modal Structure -->
     <modal
       :FTAarray="FTAarray"
       :UsedFTAarray="UsedFTAarray"
       :GotTarget="GotTarget"
       :targetTask="targetTask"
       infoType="both"
-
       v-on:updateFTE="updateFTEs($event)"
       v-on:AddInfo="AddInfo($event)"
     ></modal>
-
-
-    </div>
+  </div>
 </template>
 
 <script>
@@ -168,7 +229,7 @@
 import firebase from "firebase";
 import fireList from "./fireLists";
 import RTDB from "./firebaseInitRTDB";
-import modal from "./Modal"
+import modal from "./Modal";
 var moment = require("moment");
 
 export default {
@@ -178,13 +239,19 @@ export default {
   data() {
     return {
       //   users: fireList.OwnersList,
-      showDateFilter: localStorage.getItem("viewUser_ShowDate")?JSON.parse(localStorage.getItem("viewUser_ShowDate")):true,
-      Datefilter_start:localStorage.getItem("viewUser_FilterStart")?JSON.parse(localStorage.getItem("viewUser_FilterStart")):moment()
-        .weekday(1)
-        .format("YYYY-MM-DD"),
-      Datefilter_end:localStorage.getItem("viewUser_FilterEnd")?JSON.parse(localStorage.getItem("viewUser_FilterEnd")): moment()
-        .weekday(5)
-        .format("YYYY-MM-DD"),
+      showDateFilter: localStorage.getItem("viewUser_ShowDate")
+        ? JSON.parse(localStorage.getItem("viewUser_ShowDate"))
+        : true,
+      Datefilter_start: localStorage.getItem("viewUser_FilterStart")
+        ? JSON.parse(localStorage.getItem("viewUser_FilterStart"))
+        : moment()
+            .weekday(1)
+            .format("YYYY-MM-DD"),
+      Datefilter_end: localStorage.getItem("viewUser_FilterEnd")
+        ? JSON.parse(localStorage.getItem("viewUser_FilterEnd"))
+        : moment()
+            .weekday(5)
+            .format("YYYY-MM-DD"),
       StatusesList: fireList.statusesList,
       SelectedStatus: localStorage.getItem("viewUser_StatusesFilterObj")
         ? JSON.parse(localStorage.getItem("viewUser_StatusesFilterObj"))
@@ -202,13 +269,13 @@ export default {
       SelectedManager: localStorage.getItem("viewUser_CreatorsFilterObj")
         ? JSON.parse(localStorage.getItem("viewUser_CreatorsFilterObj"))
         : [],
-        FTAarray: fireList.FTEList,
-        UsedFTAarray: fireList.usedFTEArrList,
-      GotTarget:false,
+      FTAarray: fireList.FTEList,
+      UsedFTAarray: fireList.usedFTEArrList,
+      GotTarget: false,
       displayFTA: true,
       hours: null,
-      targetTask:null,
-      QActStat:"",
+      targetTask: null,
+      QActStat: ""
     };
   },
   updated() {
@@ -217,37 +284,43 @@ export default {
 
   mounted() {
     this.GetFire_users();
-    $('.modal').modal();
-    },
+    $(".modal").modal();
+  },
   methods: {
-    AddCurentDateFilter(){
-      this.Datefilter_start=moment()
+    AddCurentDateFilter() {
+      this.Datefilter_start = moment()
         .weekday(1)
-        .format("YYYY-MM-DD")
-      this.Datefilter_end=moment()
+        .format("YYYY-MM-DD");
+      this.Datefilter_end = moment()
         .weekday(5)
-        .format("YYYY-MM-DD")
-      this.showDateFilter=true
+        .format("YYYY-MM-DD");
+      this.showDateFilter = true;
     },
-    ClearDateFilter(){
-      this.showDateFilter=false
-      this.Datefilter_start=null
-      this.Datefilter_end=null
+    ClearDateFilter() {
+      this.showDateFilter = false;
+      this.Datefilter_start = null;
+      this.Datefilter_end = null;
 
-      this.ADDTasksIncat()
+      this.ADDTasksIncat();
     },
-    AddInfo(typ){
-      let updObj={}
-            updObj.tStatus= this.targetTask.newStatus
-            updObj.tFTEused= this.targetTask.task_usedFTE
+    AddInfo(typ) {
+      let updObj = {};
+      updObj.tStatus = this.targetTask.newStatus;
+      updObj.tFTEused = this.targetTask.task_usedFTE;
 
-        if (this.targetTask.newStatus=="Completed" || this.targetTask.newStatus=="Canceled")
-          {
-            updObj.tClosedDate= moment().format("YYYY-MM-DD")
-            }
-       RTDB.ref(
-            "/USERS/" +   this.targetTask.task_owner  + "/TASKS/" + this.targetTask.id + "/"
-          ).update(updObj);
+      if (
+        this.targetTask.newStatus == "Completed" ||
+        this.targetTask.newStatus == "Canceled"
+      ) {
+        updObj.tClosedDate = moment().format("YYYY-MM-DD");
+      }
+      RTDB.ref(
+        "/USERS/" +
+          this.targetTask.task_owner +
+          "/TASKS/" +
+          this.targetTask.id +
+          "/"
+      ).update(updObj);
 
       // if (typ=='save'){
       //   if (this.targetTask.task_usedFTE == null){
@@ -268,10 +341,9 @@ export default {
       //   M.Modal.getInstance($("#modal1")).close()
       //   this.task_FTE= null
       //   this.hours= null
-
     },
-    updateFTEs (val) {
-      this.targetTask.task_usedFTE=val
+    updateFTEs(val) {
+      this.targetTask.task_usedFTE = val;
     },
     MultiStatus(opt) {
       var objVue = this;
@@ -349,7 +421,7 @@ export default {
         .orderByChild("isOwner")
         .equalTo(true)
         .on("value", querySnapshot => {
-          objVue.FireUsersArray=[]
+          objVue.FireUsersArray = [];
           const queryOBJ = querySnapshot.val();
           for (var prop in queryOBJ) {
             // console.log(queryOBJ[prop].tName);
@@ -364,13 +436,16 @@ export default {
             // add user tasks if active
 
             for (var prop in queryTaskOBJ) {
-              if (queryTaskOBJ[prop].t_isActive && !queryTaskOBJ[prop].isPrivate) {
+              if (
+                queryTaskOBJ[prop].t_isActive &&
+                !queryTaskOBJ[prop].isPrivate
+              ) {
                 // queryTaskOBJ[prop].id = prop;
                 // data.OBJ.tasks.push(queryTaskOBJ[prop]);
 
-                 if (queryTaskOBJ[prop].tOwner==undefined){
-                   console.log(queryTaskOBJ[prop])
-                 }
+                if (queryTaskOBJ[prop].tOwner == undefined) {
+                  console.log(queryTaskOBJ[prop]);
+                }
 
                 const TskData = {
                   id: prop,
@@ -470,11 +545,14 @@ export default {
         "viewUser_FilterStart",
         JSON.stringify(objVue.Datefilter_start)
       );
-       localStorage.setItem(
+      localStorage.setItem(
         "viewUser_FilterEnd",
         JSON.stringify(objVue.Datefilter_end)
       );
-      localStorage.setItem("viewUser_ShowDate",JSON.stringify(objVue.showDateFilter))
+      localStorage.setItem(
+        "viewUser_ShowDate",
+        JSON.stringify(objVue.showDateFilter)
+      );
       // filter displayed information
 
       // setup filters
@@ -554,21 +632,20 @@ export default {
       });
     },
     CompleteTask(task) {
-      this.targetTask=task
-      this.hours=40 * this.targetTask.task_usedFTE
-      this.GotTarget=true
-      this.targetTask.newStatus ="Completed"
+      this.targetTask = task;
+      this.hours = 40 * this.targetTask.task_usedFTE;
+      this.GotTarget = true;
+      this.targetTask.newStatus = "Completed";
 
-      M.Modal.getInstance($("#modal1")).open()
-
+      M.Modal.getInstance($("#modal1")).open();
     },
-     CancelTask(task) {
-      this.targetTask=task
-      this.hours=40 * this.targetTask.task_usedFTE
-      this.GotTarget=true
+    CancelTask(task) {
+      this.targetTask = task;
+      this.hours = 40 * this.targetTask.task_usedFTE;
+      this.GotTarget = true;
 
-      this.targetTask.newStatus="Canceled"
-        M.Modal.getInstance($("#modal1")).open()
+      this.targetTask.newStatus = "Canceled";
+      M.Modal.getInstance($("#modal1")).open();
       //  if (task.task_status=="In progress"){
       // }else{
       //     if (!task.task_completed) {
@@ -590,32 +667,30 @@ export default {
 
       //   }
       // }
-
-
     },
-     StartStop(task) {
-      this.targetTask=task
-      this.hours=40 * this.targetTask.task_usedFTE
-      this.GotTarget=true
+    StartStop(task) {
+      this.targetTask = task;
+      this.hours = 40 * this.targetTask.task_usedFTE;
+      this.GotTarget = true;
       this.targetTask.newStatus =
-            task.task_status == "In progress" ? "On hold" : "In progress";
+        task.task_status == "In progress" ? "On hold" : "In progress";
 
       // this.QActStat=task.task_status == "In progress" ? "On hold" : "In progress"
-      if (this.targetTask.newStatus!="In progress"){
-        M.Modal.getInstance($("#modal1")).open()
-      }else{
-      // var newStatus =
-      //   task.task_status == "In progress" ? "On hold" : "In progress";
-      RTDB.ref("/USERS/" + task.task_owner + "/TASKS/" + task.id + "/")
-        .update({
-          tStatus: this.targetTask.newStatus
-        })
-        .then(docRef => {
-          $(".material-tooltip").removeAttr("style");
-        })
-        .catch(function(error) {
-          console.error("Error writing document CompleteTask: ", error);
-        });
+      if (this.targetTask.newStatus != "In progress") {
+        M.Modal.getInstance($("#modal1")).open();
+      } else {
+        // var newStatus =
+        //   task.task_status == "In progress" ? "On hold" : "In progress";
+        RTDB.ref("/USERS/" + task.task_owner + "/TASKS/" + task.id + "/")
+          .update({
+            tStatus: this.targetTask.newStatus
+          })
+          .then(docRef => {
+            $(".material-tooltip").removeAttr("style");
+          })
+          .catch(function(error) {
+            console.error("Error writing document CompleteTask: ", error);
+          });
       }
     },
     sumFTA(TaskArray) {

@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Dashboard from "@/components/Dashboard";
+import iTime from "@/components/iTime";
 import Backlog from "@/components/BackLog";
 
 // import ViewAll from "@/components/ViewAll";
@@ -31,6 +32,14 @@ let router = new Router({
       path: "/",
       name: "dashboard",
       component: Dashboard,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: "/itime",
+      name: "iTime",
+      component: iTime,
       meta: {
         requiresAuth: true
       }
@@ -171,17 +180,20 @@ router.beforeEach((to, from, next) => {
         var UID = firebase.auth().currentUser.uid;
 
         RTDB.ref("/USERS/")
-        .orderByKey()
-        .equalTo(UID)
-        .once("value", querySnapshot => {
-          if (querySnapshot.val()[UID].isManager ||firebase.auth().currentUser.email == "ciprian.ciresaru@ipsos.com") {            
-            next();
-          } else {
-            next({
-              path: "/"
-            });
-          }
-        });
+          .orderByKey()
+          .equalTo(UID)
+          .once("value", querySnapshot => {
+            if (
+              querySnapshot.val()[UID].isManager ||
+              firebase.auth().currentUser.email == "ciprian.ciresaru@ipsos.com"
+            ) {
+              next();
+            } else {
+              next({
+                path: "/"
+              });
+            }
+          });
 
         // db.collection("Users")
         //   .doc(firebase.auth().currentUser.uid)

@@ -6,16 +6,16 @@
       <button type="button" @click="runF1" class="btn">Get data</button>
     </div>
     <div class="row">
-          <div class="input-field col">
-            <input id="StartDate" type="date" placeholder="start date" v-model="task_start">
-            <label class="active">Start date:</label>
-          </div>
-          <div class="input-field col">
-            <input id="DeadLine" type="date" placeholder="Task deadline" v-model="task_deadline">
-            <label class="active">Deadline:</label>
-          </div>
-    </div>      
-    <!-- <div class="row" v-if="GotUsers >= tasks.length && tasks.length>0">        
+      <div class="input-field col">
+        <input id="StartDate" type="date" placeholder="start date" v-model="task_start" />
+        <label class="active">Start date:</label>
+      </div>
+      <div class="input-field col">
+        <input id="DeadLine" type="date" placeholder="Task deadline" v-model="task_deadline" />
+        <label class="active">Deadline:</label>
+      </div>
+    </div>
+    <!-- <div class="row" v-if="GotUsers >= tasks.length && tasks.length>0">
         <b>Step2:</b> <button type="button" @click="runF2" class="btn blue">Get file</button>
     </div>-->
     <div class="row" v-if="GotUsers">
@@ -24,12 +24,19 @@
     </div>
 
     <div class="row" v-if="forCip">
-      <hr>
+      <hr />
       <H3>Mark older tasks as archived</H3>
-      <button type="button" @click="DoArchive()" class="btn red">Archive tasks</button>
+      <input class="col s4" type="date" placeholder="start date" v-model="Datefilter_start" />
+      <button type="button" @click="DoArchive()" class="btn orange">Archive tasks</button>
     </div>
     <div class="row" v-if="forCip">
-      <hr>
+      <h3>Move tasks to backup</h3>
+      <hr />
+      <input class="col s4" type="date" placeholder="start date" v-model="Datefilter_start" />
+      <button type="button" @click="MoveToBkp" class="btn red">
+        <i class="material-icons left">delete_forever</i> Back it up
+      </button>
+      <hr />
       <H3>Cip custom export</H3>
       <div class="row">
         <b>Step1:</b>
@@ -46,11 +53,12 @@
     </div>
   </div>
 </template>
-      
+
     <script>
 import db from "./old_firebaseInit";
 import firebase from "firebase";
 import RTDB from "./firebaseInitRTDB";
+import RTDB_bkp from "./firebaseInit_bkpRTDB";
 
 var moment = require("moment");
 
@@ -65,14 +73,65 @@ export default {
       MyDB: [],
       task_start: null,
       task_deadline: null,
-      FilteredTasks:[]
+      FilteredTasks: [],
+      Datefilter_start: "2019-02-01"
     };
   },
   created() {
     this.forCip =
       firebase.auth().currentUser.email == "ciprian.ciresaru@ipsos.com";
+    //  firebase
+    //   .auth()
+    //   .signInWithEmailAndPassword(this.email, this.password)
   },
   methods: {
+    MoveToBkp() {
+      var objVue = this;
+      let UserTasks = {};
+      RTDB.ref("USERS/backlog/TASKS")
+        .once("value", querySnapshot => {
+          const queryTskOBJ = querySnapshot.val();
+          var ActiveDate = moment(this.Datefilter_start, "YYYY-MM-DD");
+          // debugger;
+          for (var Tprop in queryTskOBJ) {
+            if (
+              moment(queryTskOBJ[Tprop].tDeadline, "YYYY-MM-DD").isBefore(
+                ActiveDate
+              )
+            ) {
+              console.log(Tprop);
+              // move task
+              UserTasks[Tprop] = queryTskOBJ[Tprop];
+            }
+          }
+        })
+        .then(res => {
+          //move task
+          RTDB_bkp.ref("USERS/backlog/TASKS")
+            .update(UserTasks)
+            .then(result => {
+              console.log("moved", UserTasks);
+              // DELETE old tasks
+              // for (var Tprop in UserTasks) {
+              //   RTDB.ref("USERS/backlog/TASKS/" + Tprop)
+              //     .remove()
+              //     .then(res => {
+              //       console.log("removed" + Tprop);
+              //     })
+              //     .catch(err => {
+              //       console.log(err);
+              //     });
+              // }
+            })
+            .catch(err => {
+              console.log(err);
+            });
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+
     DoArchive() {
       var objVue = this;
 
@@ -81,7 +140,7 @@ export default {
       RTDB.ref("USERS")
         .once("value", querySnapshot => {
           const queryOBJ = querySnapshot.val();
-          var ActiveDate = moment("02/01/2019", "MM/DD/YYYY");
+          var ActiveDate = moment(this.Datefilter_start, "YYYY-MM-DD");
 
           for (var prop in queryOBJ) {
             const queryTskOBJ = queryOBJ[prop].TASKS;
@@ -170,28 +229,29 @@ export default {
       RTDB.ref("USERS")
         .once("value", querySnapshot => {
           objVue.MyDB = querySnapshot.val();
-          
+
           // filter tasks
-           Object.keys(objVue.MyDB).forEach( user=> {
-             
-             Object.keys(objVue.MyDB[user].TASKS).forEach( task=> {          
-              //  console.log(objVue.MyDB[user].TASKS[task].tStart)   
-               if (
-                  moment(objVue.MyDB[user].TASKS[task].tStart, "YYYY-MM-DD").isAfter(
-                    moment(objVue.task_start, "YYYY-MM-DD")
-                  )&&
-                  moment(objVue.MyDB[user].TASKS[task].tDeadline, "YYYY-MM-DD").isBefore(
-                    moment(objVue.task_deadline, "YYYY-MM-DD")
-                  )&& !objVue.MyDB[user].TASKS[task].isPrivate
-               ){
-                 objVue.FilteredTasks.push(objVue.MyDB[user].TASKS[task])
-               }
-             })
-           })
+          Object.keys(objVue.MyDB).forEach(user => {
+            Object.keys(objVue.MyDB[user].TASKS).forEach(task => {
+              //  console.log(objVue.MyDB[user].TASKS[task].tStart)
+              if (
+                moment(
+                  objVue.MyDB[user].TASKS[task].tStart,
+                  "YYYY-MM-DD"
+                ).isAfter(moment(objVue.task_start, "YYYY-MM-DD")) &&
+                moment(
+                  objVue.MyDB[user].TASKS[task].tDeadline,
+                  "YYYY-MM-DD"
+                ).isBefore(moment(objVue.task_deadline, "YYYY-MM-DD")) &&
+                !objVue.MyDB[user].TASKS[task].isPrivate
+              ) {
+                objVue.FilteredTasks.push(objVue.MyDB[user].TASKS[task]);
+              }
+            });
+          });
           // debugger
         })
         .then(succ => {
-
           objVue.exportDB(objVue.FilteredTasks);
         });
     },
@@ -350,8 +410,7 @@ export default {
   }
 };
 </script>
-      
-      
+
+
 <style>
 </style>
-      
