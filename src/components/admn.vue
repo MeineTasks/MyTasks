@@ -87,8 +87,27 @@ export default {
   methods: {
     MoveToBkp() {
       var objVue = this;
+      RTDB.ref("USERS").once("value", querySnapshot => {
+        const queryOBJ = querySnapshot.val();
+
+        Object.keys(queryOBJ).forEach(oKey => {
+          // console.log(queryOBJ[oKey].Label);
+          // if (oKey == "3AhFIsBUHnOf8hHUbFzd969PUNA3") {
+          objVue.BackupUser(oKey, queryOBJ[oKey].Label);
+          // }
+        });
+      });
+    },
+    BackupUser(UID, ulabel) {
+      var objVue = this;
       let UserTasks = {};
-      RTDB.ref("USERS/backlog/TASKS")
+      RTDB_bkp.ref("USERS/" + UID)
+        .update({ Label: ulabel })
+        .catch(err => {
+          console.log(err);
+        });
+
+      RTDB.ref("USERS/" + UID + "/TASKS")
         .once("value", querySnapshot => {
           const queryTskOBJ = querySnapshot.val();
           var ActiveDate = moment(this.Datefilter_start, "YYYY-MM-DD");
@@ -97,7 +116,8 @@ export default {
             if (
               moment(queryTskOBJ[Tprop].tDeadline, "YYYY-MM-DD").isBefore(
                 ActiveDate
-              )
+              ) &&
+              !queryTskOBJ[Tprop].t_isActive
             ) {
               console.log(Tprop);
               // move task
@@ -106,22 +126,24 @@ export default {
           }
         })
         .then(res => {
+          //set label
+
           //move task
-          RTDB_bkp.ref("USERS/backlog/TASKS")
+          RTDB_bkp.ref("USERS/" + UID + "/TASKS")
             .update(UserTasks)
             .then(result => {
               console.log("moved", UserTasks);
               // DELETE old tasks
-              // for (var Tprop in UserTasks) {
-              //   RTDB.ref("USERS/backlog/TASKS/" + Tprop)
-              //     .remove()
-              //     .then(res => {
-              //       console.log("removed" + Tprop);
-              //     })
-              //     .catch(err => {
-              //       console.log(err);
-              //     });
-              // }
+              for (var Tprop in UserTasks) {
+                RTDB.ref("USERS/" + UID + "/TASKS/" + Tprop)
+                  .remove()
+                  // .then(res => {
+                  //   console.log("removed" + Tprop);
+                  // })
+                  .catch(err => {
+                    console.log(err);
+                  });
+              }
             })
             .catch(err => {
               console.log(err);
@@ -131,7 +153,6 @@ export default {
           console.log(err);
         });
     },
-
     DoArchive() {
       var objVue = this;
 
