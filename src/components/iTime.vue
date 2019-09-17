@@ -9,19 +9,25 @@
     </div>
     <div class="row" v-if="iReady">
       <div v-for="(iRec,key) in itimeObj" :key="key" class="row">
-        <div class="row iHead" v-for="(recList,keyList) in iRec.List" :key="keyList">
-          <span class="col s5">{{iRec.LblProj}}</span>
-          <span class="col s5">{{keyList}}</span>
-          <span>{{GetSum(recList.tasks)}} hours</span>
-          <div class="taskCard col s3" v-for="(task,indx) in recList.tasks" :key="indx">
-            <div class="taskTitle">
-              <h6>{{task.task_name}}</h6>
-            </div>
-            <div>{{task.task_projectCategory}}</div>
-            <div>{{task.task_project}}</div>
-            <div class="taskUsed">
-              Used Fte:
-              <b>{{task.task_usedFTE*40}} hours</b>
+        <div v-for="(recList,keyList) in iRec.List" :key="keyList">
+          <div class="row iHead">
+            <span>{{iRec.LblProj}}</span>
+            <span class="separator">></span>
+            <span>{{keyList}}</span>
+            <span class="separator">=</span>
+            <span>{{GetSum(recList.tasks)}} hours</span>
+          </div>
+          <div class="row">
+            <div class="taskCard col s3" v-for="(task,indx) in recList.tasks" :key="indx">
+              <div class="taskTitle">
+                <h6>{{task.task_name}}</h6>
+              </div>
+              <div>{{task.task_projectCategory}}</div>
+              <div>{{task.task_project}}</div>
+              <div class="taskUsed">
+                Used Fte:
+                <b>{{task.task_usedFTE*40}} hours</b>
+              </div>
             </div>
           </div>
         </div>
@@ -208,7 +214,7 @@ export default {
             proj: "P2611955 - it-a&e-programmatic sample",
             task: "Implementation"
           },
-          hasOth: false,
+          hasOth: true,
           iObj: {
             ikey: "P26126105",
             proj: "P26126105 - cpetence sup raes initiatives",
@@ -244,6 +250,7 @@ export default {
         return false;
       }
       var UID = firebase.auth().currentUser.uid;
+      // var UID = "RQS8CP3AqyYGLjolErv1JPD3OE53";
       var vueObj = this;
       vueObj.isLoading = true;
 
@@ -291,6 +298,7 @@ export default {
 
       this.fireTasks.forEach(elm => {
         //check in range
+
         if (
           moment(vueObj.weekFilter)
             .day(1)
@@ -298,7 +306,6 @@ export default {
         ) {
           return false;
         }
-
         let tCat = elm.task_projectCategory;
         let tProj = elm.task_project;
         let iTimeKey = null;
@@ -502,11 +509,15 @@ h6 {
 }
 .iHead {
   background: lightgrey;
+  font-weight: bold;
 }
 .taskCard {
   background: white;
   border: solid 1px grey;
   border-radius: 5px;
   margin: 5px;
+}
+.separator {
+  margin: 0 10px;
 }
 </style>
