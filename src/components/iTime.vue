@@ -89,8 +89,8 @@ export default {
           proj: [],
           hasOth: false,
           iObj: {
-            ikey: "P26126106",
-            proj: "P26126106 - cpetence sup mkt inno&npd",
+          ikey: "P26126108",
+            proj: "P26126108 - cptence sup other inno&npd",
             task: "Implementation"
           }
         },
@@ -135,8 +135,8 @@ export default {
           proj: [],
           hasOth: false,
           iObj: {
-            ikey: "P26126106",
-            proj: "P26126106 - cpetence sup mkt inno&npd",
+            ikey: "P26126108",
+            proj: "P26126108 - cptence sup other inno&npd",
             task: "Implementation"
           }
         },
