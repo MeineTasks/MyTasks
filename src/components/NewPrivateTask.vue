@@ -68,7 +68,7 @@
             </div>
           </div>
           <button type="submit" class="btn brown lighten-1">Save</button>
-          <router-link to="/view/cols" class="btn grey">Cancel</router-link>
+          <router-link to="/" class="btn grey">Cancel</router-link>
       </form>
   </div>
 </div>

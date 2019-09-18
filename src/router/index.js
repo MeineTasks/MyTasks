@@ -220,7 +220,7 @@ router.beforeEach((to, from, next) => {
       if (to.name == "login") {
         //console.log("#2.1.1")
         next({
-          path: "/view/cols",
+          path: "/",
           query: {
             redirect: to.fullPath
           }
