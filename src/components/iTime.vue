@@ -68,8 +68,8 @@ export default {
           proj: [],
           hasOth: false,
           iObj: {
-            ikey: "P26126107",
-            proj: "P26126107 - cpetence sup connect inno&npd",
+           ikey: "P26126108",
+            proj: "P26126108 - cptence sup other inno&npd",
             task: "Implementation"
           }
         },
