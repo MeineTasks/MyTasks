@@ -230,221 +230,247 @@
     </div>
     <!-- Modal -->
     <div id="modal2" class="modal">
-      <div class="modal-content">
-        <h3>Edit task</h3>
-        <div class="row MyContainer" v-if="targetTask">
-          <form class="col s12">
-            <div class="row">
-              <div class="input-field col s12">
-                <input placeholder="Task name" type="text" v-model="targetTask.task_name" required />
-                <label class="active">Name:</label>
-              </div>
-            </div>
-            <!-- details -->
-            <div class="row">
-              <div class="input-field col s12">
-                <label for="textarea1" class="active">Details:</label>
-                <textarea
-                  id="textarea1"
-                  placeholder="Task details"
-                  v-model="targetTask.task_description"
-                />
-              </div>
-            </div>
-            <!-- timings -->
-            <div class="row">
-              <div class="input-field col">
-                <input
-                  id="StartDate"
-                  type="date"
-                  placeholder="start date"
-                  v-model="targetTask.task_start"
-                />
-                <label class="active">Start date:</label>
-              </div>
-              <div class="input-field col">
-                <input
-                  id="DeadLine"
-                  type="date"
-                  placeholder="Task deadline"
-                  v-model="targetTask.task_deadline"
-                />
-                <label class="active">Deadline:</label>
-              </div>
-
-              <div id="FTAcontainer" v-if="targetTask.task_projectCategory!='Personal'">
-                <!-- FTA estimated-->
-                <span>
-                  <span v-if="displayFTA" class="FTEcont">
-                    <select
-                      v-model="targetTask.task_FTE"
-                      style="display:inline;width:70px"
-                      @change="updateFTE('fte')"
-                    >
-                      <option v-for="fta in FTAarray" v-bind:key="fta.id" v-bind:value="fta">{{fta}}</option>
-                    </select>
-                    <span>
-                      <b>Estimated</b> FTE
-                    </span>
-                  </span>
-                  <span v-else>
-                    <select
-                      v-model="targetTask.hours"
-                      style="display:inline;width:70px"
-                      @change="updateFTE('hours')"
-                    >
-                      <option
-                        v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
-                        v-bind:key="fta.id"
-                        v-bind:value="fta*40"
-                      >{{fta*40}}</option>
-                    </select>
-                    <span>
-                      <b>Estimated</b> Hours
-                    </span>
-                  </span>
-                </span>
-                <!-- FTA used-->
-                <span id="UsedFTE" class="FTEcont">
-                  <span v-if="displayFTA">
-                    <select
-                      v-model="targetTask.task_usedFTE"
-                      style="display:inline;width:70px"
-                      @change="updateUsedFTE('fte')"
-                    >
-                      <option
-                        v-for="fta in UsedFTAarray"
-                        v-bind:key="fta.id"
-                        v-bind:value="fta"
-                      >{{fta}}</option>
-                    </select>
-                    <span>
-                      <b>Used</b> FTE
-                    </span>
-                  </span>
-                  <span v-else>
-                    <select
-                      v-model="targetTask.UsedHours"
-                      style="display:inline;width:70px"
-                      @change="updateUsedFTE('hours')"
-                    >
-                      <option
-                        v-for="fta in UsedFTAarray.filter(itm=>itm!='TBD')"
-                        v-bind:key="fta.id"
-                        v-bind:value="fta*40"
-                      >{{fta*40}}</option>
-                    </select>
-                    <span>
-                      <b>Used</b> Hours
-                    </span>
-                  </span>
-                </span>
-                <div class="switch">
-                  <label>
-                    Hours
-                    <input v-model="displayFTA" type="checkbox" />
-                    <span class="lever"></span>
-                    FTE
-                  </label>
+      <div v-if="targetTask">
+        <div class="modal-content">
+          <h3>Edit task</h3>
+          <div class="row MyContainer">
+            <form class="col s12">
+              <div class="row">
+                <div class="input-field col s12">
+                  <input
+                    placeholder="Task name"
+                    type="text"
+                    v-model="targetTask.task_name"
+                    required
+                  />
+                  <label class="active">Name:</label>
                 </div>
               </div>
-            </div>
-            <!-- status -->
-            <div class="row">
-              <div class="input-field col s12">
-                <label class="active">Status:</label>
-                <div class="input-field">
-                  <span
-                    @click="StatusUpdateFTE(opt,true)"
-                    v-for="opt in nStatusesList.filter(opt=>opt!='Not allocated')"
-                    v-bind:key="opt.id"
-                    v-bind:class="{'mySingleSelected':targetTask.task_status==opt}"
-                    class="mySingle chip"
-                  >{{opt}}</span>
+              <!-- details -->
+              <div class="row">
+                <div class="input-field col s12">
+                  <label for="textarea1" class="active">Details:</label>
+                  <textarea
+                    id="textarea1"
+                    placeholder="Task details"
+                    v-model="targetTask.task_description"
+                  />
                 </div>
               </div>
-            </div>
-            <!-- arhived -->
-            <div class="row">
-              <div class="input-field col s12">
-                <select
-                  required
-                  style="display:block;width:70px;margin-top: 10px;"
-                  v-model="targetTask.task_isActive"
-                >
-                  <option>Yes</option>
-                  <option>No</option>
-                </select>
-                <label class="active">Is archived:</label>
-                <span class="info">
-                  By setting this to
-                  <b>Yes</b> the task will be moved to archived category
-                </span>
-              </div>
-            </div>
-            <!-- Attachement -->
-            <div class="row">
-              <div class="input-field col s12">
-                <label for="textarea1" class="active">Attachment:</label>
-
-                <div v-for="attach in targetTask.task_attachement" v-bind:key="attach.id">
-                  <span id="Attachment_span" v-html="attach"></span>
-                  <i
-                    class="fas fa-minus-square red-text"
-                    style="cursor:pointer"
-                    @click="RemoveHyperlink(attach)"
-                  ></i>
+              <!-- timings -->
+              <div class="row">
+                <div class="input-field col">
+                  <input
+                    id="StartDate"
+                    type="date"
+                    placeholder="start date"
+                    v-model="targetTask.task_start"
+                  />
+                  <label class="active">Start date:</label>
+                </div>
+                <div class="input-field col">
+                  <input
+                    id="DeadLine"
+                    type="date"
+                    placeholder="Task deadline"
+                    v-model="targetTask.task_deadline"
+                  />
+                  <label class="active">Deadline:</label>
                 </div>
 
-                <div style="margin-top:10px" class="helperfield row">
-                  <div class="input-field col m4">
-                    <label for="linkDetails" class="col">File URL path:</label>
-                    <input id="linkDetails" type="text" v-model="detail_link" />
+                <div id="FTAcontainer" v-if="targetTask.task_projectCategory!='Personal'">
+                  <!-- FTA estimated-->
+                  <span>
+                    <span v-if="displayFTA" class="FTEcont">
+                      <select
+                        v-model="targetTask.task_FTE"
+                        style="display:inline;width:70px"
+                        @change="updateFTE('fte')"
+                      >
+                        <option
+                          v-for="fta in FTAarray"
+                          v-bind:key="fta.id"
+                          v-bind:value="fta"
+                        >{{fta}}</option>
+                      </select>
+                      <span>
+                        <b>Estimated</b> FTE
+                      </span>
+                    </span>
+                    <span v-else>
+                      <select
+                        v-model="targetTask.hours"
+                        style="display:inline;width:70px"
+                        @change="updateFTE('hours')"
+                      >
+                        <option
+                          v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
+                          v-bind:key="fta.id"
+                          v-bind:value="fta*40"
+                        >{{fta*40}}</option>
+                      </select>
+                      <span>
+                        <b>Estimated</b> Hours
+                      </span>
+                    </span>
+                  </span>
+                  <!-- FTA used-->
+                  <span id="UsedFTE" class="FTEcont">
+                    <span v-if="displayFTA">
+                      <select
+                        v-model="targetTask.task_usedFTE"
+                        style="display:inline;width:70px"
+                        @change="updateUsedFTE('fte')"
+                      >
+                        <option
+                          v-for="fta in UsedFTAarray"
+                          v-bind:key="fta.id"
+                          v-bind:value="fta"
+                        >{{fta}}</option>
+                      </select>
+                      <span>
+                        <b>Used</b> FTE
+                      </span>
+                    </span>
+                    <span v-else>
+                      <select
+                        v-model="targetTask.UsedHours"
+                        style="display:inline;width:70px"
+                        @change="updateUsedFTE('hours')"
+                      >
+                        <option
+                          v-for="fta in UsedFTAarray.filter(itm=>itm!='TBD')"
+                          v-bind:key="fta.id"
+                          v-bind:value="fta*40"
+                        >{{fta*40}}</option>
+                      </select>
+                      <span>
+                        <b>Used</b> Hours
+                      </span>
+                    </span>
+                  </span>
+                  <div class="switch">
+                    <label>
+                      Hours
+                      <input v-model="displayFTA" type="checkbox" />
+                      <span class="lever"></span>
+                      FTE
+                    </label>
                   </div>
-                  <div class="col m2 input-field">
-                    <label for="linkhyper" class="col">Link caption:</label>
-                    <input id="linkhyper" type="text" v-model="detail_title" />
+                </div>
+              </div>
+              <!-- status -->
+              <div class="row">
+                <div class="input-field col s12">
+                  <label class="active">Status:</label>
+                  <div class="input-field">
+                    <span
+                      @click="StatusUpdateFTE(opt,true)"
+                      v-for="opt in nStatusesList.filter(opt=>opt!='Not allocated')"
+                      v-bind:key="opt.id"
+                      v-bind:class="{'mySingleSelected':targetTask.task_status==opt}"
+                      class="mySingle chip"
+                    >{{opt}}</span>
                   </div>
-                  <a
-                    @click="AddHyperlink()"
-                    class="waves-effect waves-light btn-small col cyan darken-2"
-                    style="margin-right: 10px;"
+                </div>
+              </div>
+              <!-- arhived -->
+              <div class="row">
+                <div class="input-field col s12">
+                  <select
+                    required
+                    style="display:block;width:70px;margin-top: 10px;"
+                    v-model="targetTask.task_isActive"
                   >
-                    <i class="material-icons">public</i>
-                    Add attachment hyperlink
-                  </a>
+                    <option>Yes</option>
+                    <option>No</option>
+                  </select>
+                  <label class="active">Is archived:</label>
+                  <span class="info">
+                    By setting this to
+                    <b>Yes</b> the task will be moved to archived category
+                  </span>
                 </div>
               </div>
-            </div>
-            <!-- created by -->
-            <div class="row">
-              <div class="input-field col s12 info">
-                <span>
-                  Task category :
-                  <b>{{targetTask.task_project}}</b> >
-                  <b>{{targetTask.task_projectCategory}}</b>
-                </span>
-                <br />
-                <span>
-                  Task created by :
-                  <b>{{targetTask.task_createdBy}}</b>
-                </span>
+              <!-- Attachement -->
+              <div class="row">
+                <div class="input-field col s12">
+                  <label for="textarea1" class="active">Attachment:</label>
+
+                  <div v-for="attach in targetTask.task_attachement" v-bind:key="attach.id">
+                    <span id="Attachment_span" v-html="attach"></span>
+                    <i
+                      class="fas fa-minus-square red-text"
+                      style="cursor:pointer"
+                      @click="RemoveHyperlink(attach)"
+                    ></i>
+                  </div>
+
+                  <div style="margin-top:10px" class="helperfield row">
+                    <div class="input-field col m4">
+                      <label for="linkDetails" class="col">File URL path:</label>
+                      <input id="linkDetails" type="text" v-model="detail_link" />
+                    </div>
+                    <div class="col m2 input-field">
+                      <label for="linkhyper" class="col">Link caption:</label>
+                      <input id="linkhyper" type="text" v-model="detail_title" />
+                    </div>
+                    <a
+                      @click="AddHyperlink()"
+                      class="waves-effect waves-light btn-small col cyan darken-2"
+                      style="margin-right: 10px;"
+                    >
+                      <i class="material-icons">public</i>
+                      Add attachment hyperlink
+                    </a>
+                  </div>
+                </div>
               </div>
-            </div>
-          </form>
+              <!-- created by -->
+              <div class="row">
+                <div class="input-field col s12 info">
+                  <span>
+                    Task category :
+                    <b>{{targetTask.task_project}}</b> >
+                    <b>{{targetTask.task_projectCategory}}</b>
+                  </span>
+                  <br />
+                  <span>
+                    Task created by :
+                    <b>{{targetTask.task_createdBy}}</b>
+                  </span>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn black" @click="cancelUpdate()">Cancel</button>
-        <button type="button" class="btn" @click="updateTask()">Save</button>
-        <div class="left">
-          <a @click="updateTask('Clone')" class="btn waves-effect waves-light deep-orange accent-3">
-            <span class="right">
-              <i class="material-icons">check</i>
-              <i class="material-icons">filter_none</i>
+        <div class="modal-footer">
+          <button type="button" class="btn black" @click="cancelUpdate()">Cancel</button>
+          <button type="button" class="btn" @click="updateTask()">Save</button>
+          <div class="left">
+            <span v-if="targetTask.ShowTweek">
+              <label for="taskWeek">Set task week for exended</label>
+              <input
+                id="taskWeek"
+                type="week"
+                placeholder="start date"
+                @change="VerifyTdate()"
+                v-model="targetTask.taskWeek"
+              />
             </span>
-            Complete & extend |
-          </a>
+
+            <a
+              @click="updateTask('Clone')"
+              class="btn waves-effect waves-light deep-orange accent-3"
+              :class="{disabled:disableExtend}"
+            >
+              <span class="right">
+                <i class="material-icons">check</i>
+                <i class="material-icons">filter_none</i>
+              </span>
+              Complete & extend |
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -499,8 +525,8 @@ export default {
       task_attachement: [],
       SelectedProjCat: null,
       displayFTA: true,
-
-      targetTask: null,
+      disableExtend: false,
+      targetTask: {},
 
       Header: [
         { txt: "Task name", m: "m2", sby: "task_name", hasSort: true },
@@ -604,6 +630,17 @@ export default {
     $(".tooltipped").tooltip();
   },
   methods: {
+    VerifyTdate() {
+      this.disableExtend = true;
+
+      if (
+        moment(this.targetTask.taskWeek)
+          .weekday(5)
+          .isAfter(moment())
+      ) {
+        this.disableExtend = false;
+      }
+    },
     AddInfo() {
       let updObj = {};
       updObj.tStatus = this.targetTask.newStatus;
@@ -628,9 +665,28 @@ export default {
       this.targetTask.task_usedFTE = val;
     },
     EditTask(task) {
-      this.targetTask = JSON.parse(JSON.stringify(task));
+      // this.targetTask = JSON.parse(JSON.stringify(task));
+      let vueObj = this;
+      Object.keys(task).forEach(tkey => {
+        vueObj.$set(vueObj.targetTask, tkey, task[tkey]);
+      });
+
+      this.targetTask.taskWeek = "";
+      this.targetTask.ShowTweek = false;
+
+      if (
+        moment(this.targetTask.task_deadline, "YYYY-MM-DD HH:MM")
+          .weekday(8)
+          .isBefore(moment())
+      ) {
+        this.targetTask.ShowTweek = true;
+        this.disableExtend = true;
+      }
+
       this.targetTask.hours = this.targetTask.task_FTE * 40;
-      this.targetTask.UsedHours = this.targetTask.task_usedFTE?this.targetTask.task_usedFTE * 40:null;
+      this.targetTask.UsedHours = this.targetTask.task_usedFTE
+        ? this.targetTask.task_usedFTE * 40
+        : null;
       this.targetTask.task_description = this.targetTask.task_description.replace(
         /<br\/>/g,
         "\n"
@@ -729,12 +785,22 @@ export default {
 
         //extend timings with one week
         var TaskObj = querySnapshot.val();
-        TaskObj.tStart = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
-          .weekday(8)
-          .format("YYYY-MM-DD");
-        TaskObj.tDeadline = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
-          .weekday(12)
-          .format("YYYY-MM-DD");
+
+        if (vueObj.targetTask.ShowTweek) {
+          TaskObj.tStart = moment(vueObj.targetTask.taskWeek)
+            .weekday(1)
+            .format("YYYY-MM-DD");
+          TaskObj.tDeadline = moment(vueObj.targetTask.taskWeek)
+            .weekday(5)
+            .format("YYYY-MM-DD");
+        } else {
+          TaskObj.tStart = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
+            .weekday(8)
+            .format("YYYY-MM-DD");
+          TaskObj.tDeadline = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
+            .weekday(12)
+            .format("YYYY-MM-DD");
+        }
         TaskObj.tStatus = "In progress";
         //AlexP
         TaskObj.tFTE = "TBD";

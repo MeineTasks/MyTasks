@@ -5,171 +5,243 @@
       <form @submit.prevent="updateTask" class="col s12">
         <div class="row">
           <div class="input-field col s12">
-            <input placeholder="Task name" type="text" v-model="task_name"
-              required>
+            <input placeholder="Task name" type="text" v-model="task_name" required />
             <label class="active">Name:</label>
           </div>
         </div>
         <!-- details -->
         <div class="row">
           <div class="input-field col s12">
-            <textarea id="textarea1" placeholder="Task details" v-model="task_details"
-              />
+            <textarea id="textarea1" placeholder="Task details" v-model="task_details" />
             <label for="textarea1" class="active">Details:</label>
-
-            
           </div>
         </div>
         <!-- timings -->
         <div class="row">
           <div class="input-field col">
-            <input id="StartDate" type="date" placeholder="start date"
-              v-model="task_start">
+            <input id="StartDate" type="date" placeholder="start date" v-model="task_start" />
             <label class="active">Start date:</label>
           </div>
           <div class="input-field col">
-            <input id="DeadLine" type="date" placeholder="Task deadline"
-              v-model="task_deadline">
+            <input id="DeadLine" type="date" placeholder="Task deadline" v-model="task_deadline" />
             <label class="active">Deadline:</label>
           </div>
         </div>
         <div class="row">
           Task FTE:
           <blockquote>If you close the task (set the status to either Canceled, On hold, Completed) and leave the used FTE blank, will use the value from Estimated if not equal to TBD</blockquote>
-        </div>  
-          <div class="row">
-            <div class="col s6 right-align blue-text">
+        </div>
+        <div class="row">
+          <div class="col s6 right-align blue-text">
             <!-- FTA estimated-->
-              <span v-if="displayFTA" class="FTEcont">
-                <select  v-model="task_FTE" style="display:inline;width:70px"  @change="updateFTE('fte')" class="blue-text">
-                      <option v-for="fta in FTAarray" v-bind:key="fta.id"
-                        v-bind:value="fta">{{fta}}</option>
-                    </select> 
-                    <span>Estimated FTE</span>
-              </span>    
-              <span v-else>
-                <select v-model="hours" style="display:inline;width:70px" @change="updateFTE('hours')" class="blue-text">
-                        <option v-for="fta in FTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
-                          v-bind:value="fta*40">{{fta*40}}</option>
-                      </select> 
-                  <span>Estimated Hours</span>   
-              </span>
-            </div>
-            <div class="col s6 green-text">
-              <!-- FTA used-->
-              <span v-if="displayFTA" class="FTEcont ">          
-                <select  v-model="task_usedFTE" style="display:inline;width:70px"  @change="updateUsedFTE('fte')" class="green-text text-darken-2">
-                      <option v-for="fta in UsedFTAarray" v-bind:key="fta.id"
-                        v-bind:value="fta">{{fta}}</option>
-                    </select> 
-                    <span>Used FTE</span>
-              </span>    
-              <span v-else>
-                <select v-model="UsedHours" style="display:inline;width:70px" @change="updateUsedFTE('hours')" class="green-text text-darken-2">
-                        <option v-for="fta in UsedFTAarray.filter(itm=>itm!='TBD')" v-bind:key="fta.id"
-                          v-bind:value="fta*40">{{fta*40}}</option>
-                      </select> 
-                  <span>Used Hours</span>   
-              </span>
-            </div>
+            <span v-if="displayFTA" class="FTEcont">
+              <select
+                v-model="task_FTE"
+                style="display:inline;width:70px"
+                @change="updateFTE('fte')"
+                class="blue-text"
+              >
+                <option v-for="fta in FTAarray" v-bind:key="fta.id" v-bind:value="fta">{{fta}}</option>
+              </select>
+              <span>Estimated FTE</span>
+            </span>
+            <span v-else>
+              <select
+                v-model="hours"
+                style="display:inline;width:70px"
+                @change="updateFTE('hours')"
+                class="blue-text"
+              >
+                <option
+                  v-for="fta in FTAarray.filter(itm=>itm!='TBD')"
+                  v-bind:key="fta.id"
+                  v-bind:value="fta*40"
+                >{{fta*40}}</option>
+              </select>
+              <span>Estimated Hours</span>
+            </span>
           </div>
+          <div class="col s6 green-text">
+            <!-- FTA used-->
+            <span v-if="displayFTA" class="FTEcont">
+              <select
+                v-model="task_usedFTE"
+                style="display:inline;width:70px"
+                @change="updateUsedFTE('fte')"
+                class="green-text text-darken-2"
+              >
+                <option v-for="fta in UsedFTAarray" v-bind:key="fta.id" v-bind:value="fta">{{fta}}</option>
+              </select>
+              <span>Used FTE</span>
+            </span>
+            <span v-else>
+              <select
+                v-model="UsedHours"
+                style="display:inline;width:70px"
+                @change="updateUsedFTE('hours')"
+                class="green-text text-darken-2"
+              >
+                <option
+                  v-for="fta in UsedFTAarray.filter(itm=>itm!='TBD')"
+                  v-bind:key="fta.id"
+                  v-bind:value="fta*40"
+                >{{fta*40}}</option>
+              </select>
+              <span>Used Hours</span>
+            </span>
+          </div>
+        </div>
 
-         <div class="row">
-            <div class="col s6 offset-s4 switch">
-              <label>
-                Hours
-                <input v-model="displayFTA" type="checkbox">
-                <span class="lever"></span>
-                FTE
-              </label>
-            </div>
-         </div> 
-          
+        <div class="row">
+          <div class="col s6 offset-s4 switch">
+            <label>
+              Hours
+              <input v-model="displayFTA" type="checkbox" />
+              <span class="lever"></span>
+              FTE
+            </label>
+          </div>
+        </div>
 
-              
         <!-- projects category -->
-          <div class="row">
-              <div class="input-field col s12">
-              <label class="active">Category:</label>
-              <div class="input-field">
-                  <span @click="SelectedProjCat=opt,getProjects(true)" v-for="opt in ProjectsCat" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProjCat==opt}" class="mySingle chip">
-                    {{opt}}
-                  </span>
-                  <a @click="showNewProjCat=true" v-if="!showNewProjCat" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>
-                  <input v-if="showNewProjCat" v-model="AddNewProjCat" v-on:keydown.enter.prevent="addProjCategory" v-on:keydown.esc.prevent="DelProjCategory" placeholder="Add a new value and then 'pres Enter' or 'Esc' to remove it" type="text">
-                </div>
-              </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <label class="active">Category:</label>
+            <div class="input-field">
+              <span
+                @click="SelectedProjCat=opt,getProjects(true)"
+                v-for="opt in ProjectsCat"
+                v-bind:key="opt.id"
+                v-bind:class="{'mySingleSelected':SelectedProjCat==opt}"
+                class="mySingle chip"
+              >{{opt}}</span>
+              <a
+                @click="showNewProjCat=true"
+                v-if="!showNewProjCat"
+                class="btn-floating btn-small waves-effect waves-light red"
+              >
+                <i class="material-icons">add</i>
+              </a>
+              <input
+                v-if="showNewProjCat"
+                v-model="AddNewProjCat"
+                v-on:keydown.enter.prevent="addProjCategory"
+                v-on:keydown.esc.prevent="DelProjCategory"
+                placeholder="Add a new value and then 'pres Enter' or 'Esc' to remove it"
+                type="text"
+              />
+            </div>
           </div>
+        </div>
 
-          <!-- project list -->
-          <div v-if="showProject" class="row">
-            <div class="input-field col s12">              
-                <label class="active">Project:</label>
-                <div class="input-field">
-                  <span @click="SelectedProj=opt" v-for="opt in ProjectsList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedProj==opt}" class="mySingle chip">
-                {{opt}}
-              </span>
-                  <a @click="showNewProj=true" v-if="!showNewProj" class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">add</i></a>                  
-                   <input v-if="showNewProj" v-model="AddNewProj" v-on:keydown.enter.prevent="addProj" v-on:keydown.esc.prevent="DelProj" placeholder="Add a new value and then 'pres Enter' or 'Esc' to remove it" type="text">
-                </div>
-            </div>  
+        <!-- project list -->
+        <div v-if="showProject" class="row">
+          <div class="input-field col s12">
+            <label class="active">Project:</label>
+            <div class="input-field">
+              <span
+                @click="SelectedProj=opt"
+                v-for="opt in ProjectsList"
+                v-bind:key="opt.id"
+                v-bind:class="{'mySingleSelected':SelectedProj==opt}"
+                class="mySingle chip"
+              >{{opt}}</span>
+              <a
+                @click="showNewProj=true"
+                v-if="!showNewProj"
+                class="btn-floating btn-small waves-effect waves-light red"
+              >
+                <i class="material-icons">add</i>
+              </a>
+              <input
+                v-if="showNewProj"
+                v-model="AddNewProj"
+                v-on:keydown.enter.prevent="addProj"
+                v-on:keydown.esc.prevent="DelProj"
+                placeholder="Add a new value and then 'pres Enter' or 'Esc' to remove it"
+                type="text"
+              />
+            </div>
           </div>
-          <!-- status -->
-          <div class="row">
-              <div class="input-field col s12">
-              <label class="active">Status:</label>
-                <div class="input-field">
-                  <span @click="StatusUpdateFTE(opt,true)" v-for="opt in nStatusesList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':nSelectedStatus==opt}" class="mySingle chip">
-                    {{opt}}
-                  </span>
-                  </div>
-              </div>
+        </div>
+        <!-- status -->
+        <div class="row">
+          <div class="input-field col s12">
+            <label class="active">Status:</label>
+            <div class="input-field">
+              <span
+                @click="StatusUpdateFTE(opt,true)"
+                v-for="opt in nStatusesList"
+                v-bind:key="opt.id"
+                v-bind:class="{'mySingleSelected':nSelectedStatus==opt}"
+                class="mySingle chip"
+              >{{opt}}</span>
+            </div>
           </div>
-            <!-- feedBack -->
-          <div class="row">
-             <label>
-                <input type="checkbox" class="filled-in" checked="checked" v-model="task_feedback"/>
-                <span>Request feedback</span>
-              </label>
-              <div v-if="task_feedback">
-                <input placeholder="Feedback email" type="text" class="col m2 validate" v-model="task_fbkEmail" required>
-                 <span id="emailDomain">@ipsos.com</span>
-              </div>
-              
-          </div> 
-           <!-- priority -->
-          <div class="row" v-if="SelectedOwner.Label=='xBacklog'">
-              <div class="input-field col s12">
-              <label class="active">Priority:</label>
-                <div class="input-field">
-                  <span @click="task_priority=opt" v-for="opt in PiorityArr" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':task_priority==opt}" class="mySingle chip">
-                    {{opt}}
-                  </span>
-                  </div>
-              </div>
+        </div>
+        <!-- feedBack -->
+        <div class="row">
+          <label>
+            <input type="checkbox" class="filled-in" checked="checked" v-model="task_feedback" />
+            <span>Request feedback</span>
+          </label>
+          <div v-if="task_feedback">
+            <input
+              placeholder="Feedback email"
+              type="text"
+              class="col m2 validate"
+              v-model="task_fbkEmail"
+              required
+            />
+            <span id="emailDomain">@ipsos.com</span>
           </div>
-          <!-- Owners -->
-          <div class="row">
-            <div class="input-field col s12">
+        </div>
+        <!-- priority -->
+        <div class="row" v-if="SelectedOwner.Label=='xBacklog'">
+          <div class="input-field col s12">
+            <label class="active">Priority:</label>
+            <div class="input-field">
+              <span
+                @click="task_priority=opt"
+                v-for="opt in PiorityArr"
+                v-bind:key="opt.id"
+                v-bind:class="{'mySingleSelected':task_priority==opt}"
+                class="mySingle chip"
+              >{{opt}}</span>
+            </div>
+          </div>
+        </div>
+        <!-- Owners -->
+        <div class="row">
+          <div class="input-field col s12">
             <label class="active">Owner:</label>
-               <div class="input-field">
-                <div v-if="!showUsers" >
-                  <b>{{initialOwner.Label}}</b><br/>
-                  <a @click="showUsers=true" style="z-index:0" class="btn waves-effect waves-light blue darken-3">
-                    <i class="material-icons right">assignment_ind</i>Change owner
-                  </a>
-                </div>
-
-                <div v-if="showUsers" class="row">
-                    <div class="input-field col s12">
-                        <span @click="SelectedOwner=opt" v-for="opt in ownersList" v-bind:key="opt.id" v-bind:class="{'mySingleSelected':SelectedOwner.UID==opt.UID}" class="mySingle chip">
-                          {{opt.Label}}
-                        </span>
-                    </div>
-                </div>
+            <div class="input-field">
+              <div v-if="!showUsers">
+                <b>{{initialOwner.Label}}</b>
+                <br />
+                <a
+                  @click="showUsers=true"
+                  style="z-index:0"
+                  class="btn waves-effect waves-light blue darken-3"
+                >
+                  <i class="material-icons right">assignment_ind</i>Change owner
+                </a>
               </div>
+
+              <div v-if="showUsers" class="row">
+                <div class="input-field col s12">
+                  <span
+                    @click="SelectedOwner=opt"
+                    v-for="opt in ownersList"
+                    v-bind:key="opt.id"
+                    v-bind:class="{'mySingleSelected':SelectedOwner.UID==opt.UID}"
+                    class="mySingle chip"
+                  >{{opt.Label}}</span>
+                </div>
               </div>
             </div>
+          </div>
+        </div>
 
         <div class="row">
           <div class="input-field col s12">
@@ -179,57 +251,82 @@
                 <option>Yes</option>
                 <option>No</option>
               </select>
-            </div>  
+            </div>
             <span class="info">
-              By setting this to <b>Yes</b> the task will only be visible in 'My All' view
+              By setting this to
+              <b>Yes</b> the task will only be visible in 'My All' view
             </span>
           </div>
         </div>
-          <!-- Created by -->
-          <div class="row">
-              <div class="input-field col s12">
-                <label class="active">Created by:</label>
-                <div class="input-field">
-                 <span v-for="mng in ManagersArray" v-bind:key="mng.id" v-bind:class="{'mySingleSelected':task_createdBy==mng.OBJ.UID}" class="mySingle chip">
-                    {{mng.OBJ.name}}
-                  </span>
-                </div>  
-              </div>
+        <!-- Created by -->
+        <div class="row">
+          <div class="input-field col s12">
+            <label class="active">Created by:</label>
+            <div class="input-field">
+              <span
+                v-for="mng in ManagersArray"
+                v-bind:key="mng.id"
+                v-bind:class="{'mySingleSelected':task_createdBy==mng.OBJ.UID}"
+                class="mySingle chip"
+              >{{mng.OBJ.name}}</span>
+            </div>
           </div>
-          <!-- Attachement -->
-            <!-- details -->
+        </div>
+        <!-- Attachement -->
+        <!-- details -->
         <div class="row">
           <div class="input-field col s12">
             <label for="textarea1" class="active">Attachment:</label>
             <div v-for="attach in task_attachement" v-bind:key="attach.id">
-              <span id="Attachment_span" v-html="attach" >                
-              </span>              
-              <i class="fas fa-minus-square green-text" style="cursor:pointer" @click="RemoveHyperlink(attach)"></i>
+              <span id="Attachment_span" v-html="attach"></span>
+              <i
+                class="fas fa-minus-square green-text"
+                style="cursor:pointer"
+                @click="RemoveHyperlink(attach)"
+              ></i>
             </div>
             <div style="margin-top:10px" class="helperfield row">
-                <div class="input-field col m4">
-                  <label for="linkDetails" class="col">File URL path:</label>
-                  <input id="linkDetails" type="text" v-model="detail_link">
-                </div>
-                <div class="col m2 input-field">
-                  <label for="linkhyper"  class="col">Link caption:</label>
-                  <input id="linkhyper" type="text" v-model="detail_title">
-                </div>
-                <a @click="AddHyperlink()" class="waves-effect waves-light btn-small col cyan darken-2" style="margin-right: 10px;">
-                  <i class="material-icons">public</i>              
-                  Add attachment hyperlink
-                </a>              
+              <div class="input-field col m4">
+                <label for="linkDetails" class="col">File URL path:</label>
+                <input id="linkDetails" type="text" v-model="detail_link" />
+              </div>
+              <div class="col m2 input-field">
+                <label for="linkhyper" class="col">Link caption:</label>
+                <input id="linkhyper" type="text" v-model="detail_title" />
+              </div>
+              <a
+                @click="AddHyperlink()"
+                class="waves-effect waves-light btn-small col cyan darken-2"
+                style="margin-right: 10px;"
+              >
+                <i class="material-icons">public</i>
+                Add attachment hyperlink
+              </a>
             </div>
           </div>
         </div>
-     <!-- navigation -->
+        <!-- navigation -->
         <div class="row MyFixed" style="width:100%">
           <div class="col left" style="margin-left:37px;z-index:100">
             <button type="submit" class="btn">Save</button>
-            <router-link  v-bind:to="{name:$route.query.mnext}" class="btn grey">Cancel</router-link>
+            <router-link v-bind:to="{name:$route.query.mnext}" class="btn grey">Cancel</router-link>
           </div>
           <div class="right">
-            <a @click="updateTask('Clone')" class="btn waves-effect waves-light blue-grey lighten-2">
+            <span v-if="ShowTweek">
+              <label for="taskWeek">Set task week for exended</label>
+              <input
+                id="taskWeek"
+                type="week"
+                placeholder="start date"
+                @change="VerifyTdate()"
+                v-model="taskWeek"
+              />
+            </span>
+            <a
+              @click="updateTask('Clone')"
+              class="btn waves-effect waves-light blue-grey lighten-2"
+              :class="{disabled:disableExtend}"
+            >
               <span class="right">
                 <i class="material-icons">check</i>
                 <i class="material-icons">filter_none</i>
@@ -260,12 +357,12 @@ export default {
     return {
       FTAarray: fireList.FTEList,
       UsedFTAarray: fireList.usedFTEArrList,
-      PiorityArr:["Low","Normal","High"],
+      PiorityArr: ["Low", "Normal", "High"],
       task_FTE: null,
       task_usedFTE: null,
-      ShowFTE:"estimated",
+      ShowFTE: "estimated",
       hours: this.task_FTE * 4,
-      UsedHours:this.task_usedFTE * 4,
+      UsedHours: this.task_usedFTE * 4,
       displayFTA: true,
 
       showDetails: false,
@@ -282,11 +379,11 @@ export default {
       task_details: "",
       task_start: null,
       task_deadline: null,
-      task_priority:null,
+      task_priority: null,
       task_status: null,
-      task_project: null,     
-      task_feedback:false,
-      task_fbkEmail:"", 
+      task_project: null,
+      task_feedback: false,
+      task_fbkEmail: "",
       task_isActive: null,
       task_createdBy: null,
       Statuses: fireList.statusesList,
@@ -302,8 +399,12 @@ export default {
       SelectedProj: null,
       AddNewProj: null,
 
+      taskWeek: "",
+      disableExtend: false,
+      ShowTweek: false,
+
       nStatusesList: fireList.statusesList,
-      nSelectedStatus: "In progress",      
+      nSelectedStatus: "In progress",
 
       ownersList: fireList.OwnersList,
       SelectedOwner: { Label: null, UID: null },
@@ -311,37 +412,46 @@ export default {
     };
   },
   methods: {
-     updateUsedFTE (type) {
-      if (type == 'fte') {
+    VerifyTdate() {
+      this.disableExtend = true;
 
-        this.UsedHours = 40 * this.task_usedFTE
-      } else {
-        this.task_usedFTE = (this.UsedHours / 40).toFixed(2)
+      if (
+        moment(this.taskWeek)
+          .weekday(5)
+          .isAfter(moment())
+      ) {
+        this.disableExtend = false;
       }
     },
-    updateFTE (type) {
-      if (type == 'fte') {
-
-        this.hours = 40 * this.task_FTE
+    updateUsedFTE(type) {
+      if (type == "fte") {
+        this.UsedHours = 40 * this.task_usedFTE;
       } else {
-        this.task_FTE = (this.hours / 40).toFixed(2)
+        this.task_usedFTE = (this.UsedHours / 40).toFixed(2);
       }
     },
-    StatusUpdateFTE(opt,anim){      
-      this.nSelectedStatus=opt
+    updateFTE(type) {
+      if (type == "fte") {
+        this.hours = 40 * this.task_FTE;
+      } else {
+        this.task_FTE = (this.hours / 40).toFixed(2);
+      }
+    },
+    StatusUpdateFTE(opt, anim) {
+      this.nSelectedStatus = opt;
       // let initialShow=this.ShowFTE
 
-      if (opt=="Canceled" || opt=="Completed" || opt=="On hold"){
-        this.ShowFTE="used"
-      //   if ((this.task_usedFTE=="TBD" ||this.task_usedFTE=="") && opt=="Completed" ){
-      //     this.task_usedFTE=this.task_FTE
-      //      $(".FTEcont select").eq(1).css("border", "solid green 1px")
-      //   }else{
-      //      $(".FTEcont select").eq(1).css("border", "1px solid #f2f2f2")
-      //   }
-      }else{
-        this.ShowFTE="estimated"
-      }      
+      if (opt == "Canceled" || opt == "Completed" || opt == "On hold") {
+        this.ShowFTE = "used";
+        //   if ((this.task_usedFTE=="TBD" ||this.task_usedFTE=="") && opt=="Completed" ){
+        //     this.task_usedFTE=this.task_FTE
+        //      $(".FTEcont select").eq(1).css("border", "solid green 1px")
+        //   }else{
+        //      $(".FTEcont select").eq(1).css("border", "1px solid #f2f2f2")
+        //   }
+      } else {
+        this.ShowFTE = "estimated";
+      }
       // if (initialShow!=this.ShowFTE && anim){
       //   setTimeout(function(){ $(".FTEcont").effect( "pulsate", {times:3}, 3000 ) }, 500);
       // }
@@ -363,24 +473,30 @@ export default {
         return false;
       }
       //feedback
-      if (this.task_feedback && this.task_fbkEmail.indexOf(".")==-1){        
+      if (this.task_feedback && this.task_fbkEmail.indexOf(".") == -1) {
         M.toast({ html: "Email should contain at least one dot" });
         return false;
       }
-      
-      if (this.ShowFTE=='used' && (this.task_usedFTE==null ||this.task_usedFTE=="") && this.task_FTE=="TBD" ) {
+
+      if (
+        this.ShowFTE == "used" &&
+        (this.task_usedFTE == null || this.task_usedFTE == "") &&
+        this.task_FTE == "TBD"
+      ) {
         M.toast({ html: `Used FTE should not be null` });
-        $(".FTEcont select").eq(1).css("border", "solid red 1px")
+        $(".FTEcont select")
+          .eq(1)
+          .css("border", "solid red 1px");
         return false;
       }
       //recodare used FTE pt comozi
       if (
         //this.ShowFTE=='used' &&
-      (this.task_usedFTE==null ||this.task_usedFTE=="") 
-      && this.task_FTE!="TBD" 
-      && (this.nSelectedStatus=="Completed" || CloneT)
+        (this.task_usedFTE == null || this.task_usedFTE == "") &&
+        this.task_FTE != "TBD" &&
+        (this.nSelectedStatus == "Completed" || CloneT)
       ) {
-        this.task_usedFTE=this.task_FTE
+        this.task_usedFTE = this.task_FTE;
       }
       //validari
       var message = [];
@@ -424,13 +540,14 @@ export default {
 
       if (vueObj.SelectedOwner.UID != vueObj.initialOwner.UID) {
         // move existing task
-         console.log("reasignare");
-         //check for status
-         if (vueObj.SelectedOwner.UID!="backlog" && vueObj.nSelectedStatus=="Not allocated"){
-            vueObj.nSelectedStatus="Not started"
-         }
-
-
+        console.log("reasignare");
+        //check for status
+        if (
+          vueObj.SelectedOwner.UID != "backlog" &&
+          vueObj.nSelectedStatus == "Not allocated"
+        ) {
+          vueObj.nSelectedStatus = "Not started";
+        }
 
         RTDB.ref(
           "/USERS/" +
@@ -463,13 +580,14 @@ export default {
                   tStart: vueObj.task_start,
                   tDeadline: vueObj.task_deadline,
                   tFTE: vueObj.task_FTE ? vueObj.task_FTE : "TBD",
-                  tFTEused:vueObj.task_usedFTE?vueObj.task_usedFTE:"",
-                  tPriority:vueObj.task_priority,
+                  tFTEused: vueObj.task_usedFTE ? vueObj.task_usedFTE : "",
+                  tPriority: vueObj.task_priority,
                   tProject: vueObj.SelectedProj,
                   tProjCateg: vueObj.SelectedProjCat,
                   tStatus: vueObj.nSelectedStatus,
-                  tFbk:this.task_feedback,
-                  tFbkEmail:this.task_fbkEmail.replace("@ipsos.com","")+"@ipsos.com",
+                  tFbk: this.task_feedback,
+                  tFbkEmail:
+                    this.task_fbkEmail.replace("@ipsos.com", "") + "@ipsos.com",
                   tAttach: vueObj.task_attachement,
                   tClosedDate:
                     vueObj.nSelectedStatus == "Completed"
@@ -508,7 +626,6 @@ export default {
                 });
             });
         });
-
       } else {
         // save the update
         RTDB.ref(
@@ -524,13 +641,14 @@ export default {
             tStart: this.task_start,
             tDeadline: this.task_deadline,
             tFTE: this.task_FTE ? this.task_FTE : "TBD",
-            tFTEused:this.task_usedFTE?this.task_usedFTE:"",
-            tPriority:this.task_priority,
+            tFTEused: this.task_usedFTE ? this.task_usedFTE : "",
+            tPriority: this.task_priority,
             tProject: this.SelectedProj,
             tProjCateg: this.SelectedProjCat,
             tStatus: this.nSelectedStatus,
-            tFbk:this.task_feedback,
-          tFbkEmail:this.task_fbkEmail.replace("@ipsos.com","")+"@ipsos.com",
+            tFbk: this.task_feedback,
+            tFbkEmail:
+              this.task_fbkEmail.replace("@ipsos.com", "") + "@ipsos.com",
             tClosedDate:
               this.nSelectedStatus == "Completed"
                 ? moment().format("YYYY-MM-DD")
@@ -566,7 +684,7 @@ export default {
         })
         .catch(err => {
           console.log(err);
-        });      
+        });
     },
     DelProjCategory(opt) {
       var vueObj = this;
@@ -576,7 +694,7 @@ export default {
           .then(function() {
             vueObj.AddNewProjCat = null;
             vueObj.showNewProjCat = false;
-          });        
+          });
       } else {
         vueObj.showNewProjCat = false;
       }
@@ -613,17 +731,27 @@ export default {
 
         //extend timings with one week
         var TaskObj = querySnapshot.val();
-        TaskObj.tStart = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
-          .weekday(8)
-          .format("YYYY-MM-DD");
-        TaskObj.tDeadline = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
-          .weekday(12)
-          .format("YYYY-MM-DD");
+        if (vueObj.ShowTweek) {
+          TaskObj.tStart = moment(vueObj.taskWeek)
+            .weekday(1)
+            .format("YYYY-MM-DD");
+          TaskObj.tDeadline = moment(vueObj.taskWeek)
+            .weekday(5)
+            .format("YYYY-MM-DD");
+        } else {
+          TaskObj.tStart = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
+            .weekday(8)
+            .format("YYYY-MM-DD");
+          TaskObj.tDeadline = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
+            .weekday(12)
+            .format("YYYY-MM-DD");
+        }
+
         TaskObj.tStatus = "In progress";
         //AlexP
-        TaskObj.tFTE="TBD"
-        TaskObj.tFTEused=""
-        
+        TaskObj.tFTE = "TBD";
+        TaskObj.tFTEused = "";
+
         // add new task on same user
         RTDB.ref("/USERS/" + vueObj.$route.query.uid + "/TASKS/")
           .push(TaskObj)
@@ -726,12 +854,12 @@ export default {
 
       objVue.task_name = queryOBJ.tName;
       objVue.task_details = queryOBJ.tDescription;
-      objVue.task_start = queryOBJ.tStart?queryOBJ.tStart:"";
-      objVue.task_deadline = queryOBJ.tDeadline?queryOBJ.tDeadline:"";
+      objVue.task_start = queryOBJ.tStart ? queryOBJ.tStart : "";
+      objVue.task_deadline = queryOBJ.tDeadline ? queryOBJ.tDeadline : "";
       objVue.task_FTE = queryOBJ.tFTE ? queryOBJ.tFTE : "";
       objVue.task_usedFTE = queryOBJ.tFTEused ? queryOBJ.tFTEused : "";
       objVue.nSelectedStatus = queryOBJ.tStatus;
-      objVue.task_priority=queryOBJ.tPriority?queryOBJ.tPriority:"";
+      objVue.task_priority = queryOBJ.tPriority ? queryOBJ.tPriority : "";
       objVue.SelectedProjCat = queryOBJ.tProjCateg;
       objVue.SelectedProj = queryOBJ.tProject;
       objVue.SelectedOwner = queryOBJ.tOwner
@@ -741,8 +869,10 @@ export default {
       objVue.task_attachement = queryOBJ.tAttach ? queryOBJ.tAttach : [];
 
       objVue.task_feedback = queryOBJ.tFbk ? queryOBJ.tFbk : false;
-      objVue.task_fbkEmail = queryOBJ.tFbkEmail ? queryOBJ.tFbkEmail.replace("@ipsos.com","") : "";
-      
+      objVue.task_fbkEmail = queryOBJ.tFbkEmail
+        ? queryOBJ.tFbkEmail.replace("@ipsos.com", "")
+        : "";
+
       objVue.task_createdBy = queryOBJ.CreatedBy;
 
       objVue.task_isActive = queryOBJ.t_isActive ? "No" : "Yes";
@@ -765,12 +895,20 @@ export default {
       objVue.ProjectsCat.sort();
       // calculate inital FTE
       if (objVue.task_FTE != "TBD") {
-        objVue.hours = objVue.task_FTE * 40
+        objVue.hours = objVue.task_FTE * 40;
       }
       if (objVue.task_usedFTE != null) {
-        objVue.UsedHours = objVue.task_usedFTE * 40
+        objVue.UsedHours = objVue.task_usedFTE * 40;
       }
-      this.StatusUpdateFTE(objVue.nSelectedStatus,false)
+      this.StatusUpdateFTE(objVue.nSelectedStatus, false);
+      if (
+        moment(objVue.task_deadline, "YYYY-MM-DD HH:MM")
+          .weekday(8)
+          .isBefore(moment())
+      ) {
+        objVue.ShowTweek = true;
+        objVue.disableExtend = true;
+      }
     });
 
     //set managers
@@ -804,8 +942,8 @@ export default {
         //   }
         // });
       });
-    $(".material-tooltip").remove();   
-    
+    $(".material-tooltip").remove();
+
     //this.UsedFTAarray.splice(2,0,"0")
   },
   mounted() {
@@ -859,10 +997,10 @@ label {
   background-color: white;
   padding: 10px;
 }
-#emailDomain{
+#emailDomain {
   top: 10px;
-    position: relative;
-    color: gray
+  position: relative;
+  color: gray;
 }
 </style>
 

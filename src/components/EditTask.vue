@@ -5,7 +5,7 @@
       <form @submit.prevent="updateTask" class="col s12">
         <div class="row">
           <div class="input-field col s12">
-            <input placeholder="Task name" type="text" v-model="task_name" required>
+            <input placeholder="Task name" type="text" v-model="task_name" required />
             <label class="active">Name:</label>
           </div>
         </div>
@@ -13,17 +13,17 @@
         <div class="row">
           <div class="input-field col s12">
             <label for="textarea1" class="active">Details:</label>
-            <textarea id="textarea1" placeholder="Task details" v-model="task_details"/>
+            <textarea id="textarea1" placeholder="Task details" v-model="task_details" />
           </div>
         </div>
         <!-- timings -->
         <div class="row">
           <div class="input-field col">
-            <input id="StartDate" type="date" placeholder="start date" v-model="task_start">
+            <input id="StartDate" type="date" placeholder="start date" v-model="task_start" />
             <label class="active">Start date:</label>
           </div>
           <div class="input-field col">
-            <input id="DeadLine" type="date" placeholder="Task deadline" v-model="task_deadline">
+            <input id="DeadLine" type="date" placeholder="Task deadline" v-model="task_deadline" />
             <label class="active">Deadline:</label>
           </div>
           <!-- FTA estimated v-if="ShowFTE=='estimated'"-->
@@ -87,7 +87,7 @@
           <div class="switch">
             <label>
               Hours
-              <input v-model="displayFTA" type="checkbox">
+              <input v-model="displayFTA" type="checkbox" />
               <span class="lever"></span>
               FTE
             </label>
@@ -144,11 +144,11 @@
             <div style="margin-top:10px" class="helperfield row">
               <div class="input-field col m4">
                 <label for="linkDetails" class="col">File URL path:</label>
-                <input id="linkDetails" type="text" v-model="detail_link">
+                <input id="linkDetails" type="text" v-model="detail_link" />
               </div>
               <div class="col m2 input-field">
                 <label for="linkhyper" class="col">Link caption:</label>
-                <input id="linkhyper" type="text" v-model="detail_title">
+                <input id="linkhyper" type="text" v-model="detail_title" />
               </div>
               <a
                 @click="AddHyperlink()"
@@ -168,7 +168,7 @@
               Task category :
               <b>{{SelectedProjCat}}</b>
             </span>
-            <br>
+            <br />
             <span>
               Task created by :
               <b>{{task_createdBy}}</b>
@@ -182,9 +182,20 @@
             <router-link to="/" class="btn grey">Cancel</router-link>
           </div>
           <div class="right">
+            <span v-if="ShowTweek">
+              <label for="taskWeek">Set task week for exended</label>
+              <input
+                id="taskWeek"
+                type="week"
+                placeholder="start date"
+                @change="VerifyTdate()"
+                v-model="taskWeek"
+              />
+            </span>
             <a
               @click="updateTask('Clone')"
               class="btn waves-effect waves-light deep-orange accent-3"
+              :class="{disabled:disableExtend}"
             >
               <span class="right">
                 <i class="material-icons">check</i>
@@ -236,6 +247,9 @@ export default {
       task_createdBy: null,
       SelectedProjCat: null,
       displayFTA: true,
+      taskWeek: "",
+      disableExtend: false,
+      ShowTweek: false,
       // SelectedProj:null,
 
       // Statuses: fireList.statusesList,
@@ -256,6 +270,17 @@ export default {
     };
   },
   methods: {
+    VerifyTdate() {
+      this.disableExtend = true;
+
+      if (
+        moment(this.taskWeek)
+          .weekday(5)
+          .isAfter(moment())
+      ) {
+        this.disableExtend = false;
+      }
+    },
     updateUsedFTE(type) {
       if (type == "fte") {
         this.UsedHours = 40 * this.task_usedFTE;
@@ -362,6 +387,22 @@ export default {
 
         //extend timings with one week
         var TaskObj = querySnapshot.val();
+        if (vueObj.ShowTweek) {
+          TaskObj.tStart = moment(vueObj.taskWeek)
+            .weekday(1)
+            .format("YYYY-MM-DD");
+          TaskObj.tDeadline = moment(vueObj.taskWeek)
+            .weekday(5)
+            .format("YYYY-MM-DD");
+        } else {
+          TaskObj.tStart = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
+            .weekday(8)
+            .format("YYYY-MM-DD");
+          TaskObj.tDeadline = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
+            .weekday(12)
+            .format("YYYY-MM-DD");
+        }
+
         TaskObj.tStart = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
           .weekday(8)
           .format("YYYY-MM-DD");
@@ -474,6 +515,15 @@ export default {
         objVue.UsedHours = objVue.task_usedFTE * 40;
       }
       this.StatusUpdateFTE(objVue.nSelectedStatus, false);
+
+      if (
+        moment(objVue.task_deadline, "YYYY-MM-DD HH:MM")
+          .weekday(8)
+          .isBefore(moment())
+      ) {
+        objVue.ShowTweek = true;
+        objVue.disableExtend = true;
+      }
     });
 
     $(".material-tooltip").css("opacity", 0);
