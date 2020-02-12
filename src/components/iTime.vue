@@ -32,6 +32,7 @@
           </div>
         </div>
       </div>
+      <div id="Luk" style="display:none" v-html="GenItimeOut()"></div>
     </div>
   </div>
 </template>
@@ -68,7 +69,7 @@ export default {
           proj: [],
           hasOth: false,
           iObj: {
-           ikey: "P26126108",
+            ikey: "P26126108",
             proj: "P26126108 - cptence sup other inno&npd",
             task: "Implementation"
           }
@@ -95,7 +96,7 @@ export default {
           proj: [],
           hasOth: false,
           iObj: {
-          ikey: "P26126108",
+            ikey: "P26126108",
             proj: "P26126108 - cptence sup other inno&npd",
             task: "Implementation"
           }
@@ -358,6 +359,25 @@ export default {
         }
       });
       this.iReady = true;
+    },
+    GenItimeOut() {
+      let vueObj = this;
+      let OutArr = [];
+      Object.keys(vueObj.itimeObj).forEach(key => {
+        let iRec = vueObj.itimeObj[key];
+
+        Object.keys(iRec.List).forEach(keyList => {
+          const OutItime = {};
+
+          let recList = iRec.List[keyList];
+
+          (OutItime.itimeProj = iRec.LblProj),
+            (OutItime.itimeAct = keyList),
+            (OutItime.hours = vueObj.GetSum(recList.tasks));
+          OutArr.push(OutItime);
+        });
+      });
+      return JSON.stringify(OutArr);
     }
   }
 };
