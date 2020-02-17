@@ -1,7 +1,7 @@
 <template>
   <div id="dashboard" style="margin: 0px 50px;">
     <div class="row">
-      <input type="week" placeholder="start date" v-model="weekFilter" />
+      <input id="DateInp" type="week" placeholder="start date" v-model="weekFilter" />
       <div class="btn" @click="GetFireTask()">Get tasks</div>
     </div>
     <div class="progress" v-if="isLoading">
@@ -33,6 +33,7 @@
         </div>
       </div>
       <div id="Luk" style="display:none" v-html="GenItimeOut()"></div>
+      <div class="btn-flat blue" @click="SendToitime()">Send to iTime</div>
     </div>
   </div>
 </template>
@@ -229,6 +230,12 @@ export default {
   created() {
     //get active
     // this.GetFireTask(true);
+    let vueObj = this;
+    $(document).ready(function() {
+      $("#DateInp").on("change", function(evt) {
+        vueObj.weekFilter = evt.target.value;
+      });
+    });
   },
   mounted() {
     // $(".modal").modal();
@@ -243,6 +250,18 @@ export default {
         }
       });
       return (sum * 40).toFixed(2);
+    },
+    SendToitime() {
+      let email = firebase.auth().currentUser.email;
+      let subj =
+        'Trigger iTime for week "' +
+        this.weekFilter +
+        '", "' +
+        moment(this.weekFilter)
+          .day(7)
+          .format("YYYY-MM-DD") +
+        '" started';
+      window.open("mailto:" + email + "?subject=" + subj);
     },
     GetFireTask() {
       this.fireTasks = [];
