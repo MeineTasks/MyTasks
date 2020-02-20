@@ -676,7 +676,7 @@ export default {
 
       if (
         moment(this.targetTask.task_deadline, "YYYY-MM-DD HH:MM")
-          .weekday(8)
+          .add(8, "days")
           .isBefore(moment())
       ) {
         this.targetTask.ShowTweek = true;

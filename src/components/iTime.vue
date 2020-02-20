@@ -63,7 +63,7 @@ export default {
           iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
-            task: "Product research & development"
+            task: "Product research and development"
           }
         },
         "Creative Excellence": {
@@ -103,7 +103,7 @@ export default {
           }
         },
         Internal: {
-          proj: ["EDM1", "EDM2"],
+          proj: ["EDM1", "EDM2", "Askia"],
           EDM1: {
             ikey: "P2612319",
             proj: "P2612319 - iis internal ws4 edm1",
@@ -112,6 +112,11 @@ export default {
           EDM2: {
             ikey: "P2612320",
             proj: "P2612320 - iis internal ws4 edm2",
+            task: "Implementation"
+          },
+          Askia: {
+            ikey: "P2611404",
+            proj: "P2611404 - askia initiative",
             task: "Implementation"
           },
           hasOth: true,
@@ -253,15 +258,17 @@ export default {
     },
     SendToitime() {
       let email = firebase.auth().currentUser.email;
+      let body = this.GenItimeOut().replace(/\&/g, "##");
+      console.log(body);
       let subj =
         'Trigger iTime for week "' +
         this.weekFilter +
         '", "' +
         moment(this.weekFilter)
           .day(7)
-          .format("YYYY-MM-DD") +
+          .format("DD-MM-YYYY") +
         '" started';
-      window.open("mailto:" + email + "?subject=" + subj);
+      window.open("mailto:" + email + "?subject=" + subj + "&body=" + body);
     },
     GetFireTask() {
       this.fireTasks = [];
