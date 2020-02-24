@@ -395,6 +395,7 @@ export default {
             .weekday(5)
             .format("YYYY-MM-DD");
         } else {
+          //add 1 week to current
           TaskObj.tStart = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
             .weekday(8)
             .format("YYYY-MM-DD");
@@ -403,12 +404,6 @@ export default {
             .format("YYYY-MM-DD");
         }
 
-        TaskObj.tStart = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
-          .weekday(8)
-          .format("YYYY-MM-DD");
-        TaskObj.tDeadline = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
-          .weekday(12)
-          .format("YYYY-MM-DD");
         TaskObj.tStatus = "In progress";
         //AlexP
         TaskObj.tFTE = "TBD";
@@ -518,7 +513,7 @@ export default {
 
       if (
         moment(objVue.task_deadline, "YYYY-MM-DD HH:MM")
-          .weekday(8)
+          .add(8, "days")
           .isBefore(moment())
       ) {
         objVue.ShowTweek = true;

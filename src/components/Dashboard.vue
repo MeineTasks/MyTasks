@@ -794,6 +794,7 @@ export default {
             .weekday(5)
             .format("YYYY-MM-DD");
         } else {
+          //add 1 week to current
           TaskObj.tStart = moment(TaskObj.tDeadline, "YYYY-MM-DD HH:MM")
             .weekday(8)
             .format("YYYY-MM-DD");
