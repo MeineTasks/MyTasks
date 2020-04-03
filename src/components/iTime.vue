@@ -57,85 +57,87 @@ export default {
       iReady: false,
       weekFilter: "",
       MapObj: {
+        Admin: {
+          proj: ["Medical", "Special event", "Other","Training Participant","Vacation"],
+          Medical: {
+            ikey: "Admin",
+            proj: "Administration",
+            task: "Illness - full day"
+          },
+
+          "Special event": {
+            ikey: "Admin",
+            proj: "Administration",
+            task: "Administration and management"
+          },
+          Other: {
+            ikey: "Admin",
+            proj: "Administration",
+            task: "Administration and management"
+          },
+          "Training Participant": {
+            ikey: "Admin",
+            proj: "Administration",
+            task: "Training, e-learning courses / Training, in person – external / Training, in person – internal / Training, webinar"
+          },
+          Vacation: {
+            ikey: "Admin",
+            proj: "Administration",
+            task: "Vacation Full Day / Compensated Time-Off"
+          },
+          hasOth: true,
+          iObj: {
+            ikey: "Admin",
+            proj: "Administration",
+            task: "Administration and management"
+          }
+        },
+        "Application Management": {
+          proj: [],
+          hasOth: false,
+          iObj: {
+            ikey: "P2612506",
+            proj: "P2612506 - competence, automation & innov",
+            task: "Implementation"
+          }
+        },
+        Askia: {
+          proj: [],
+          hasOth: false,
+          iObj: {
+            ikey: "P2611404",
+            proj: "P2611404 - askia initiative",
+            task: "Implementation"
+          }
+        },          
         Automations: {
           proj: [],
           hasOth: false,
           iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
-            task: "Product research and development"
+            task: "Implementation"
           }
         },
         "Creative Excellence": {
           proj: [],
           hasOth: false,
           iObj: {
-            ikey: "P26126108",
-            proj: "P26126108 - cptence sup other inno&npd",
+            ikey: "P2612506",
+            proj: "P2612506 - competence, automation & innov",
             task: "Implementation"
           }
         },
-        "Cross-SL (business)": {
+        "Cross-SL": {
           proj: [],
           hasOth: false,
           iObj: {
-            ikey: "P26126108",
-            proj: "P26126108 - cptence sup other inno&npd",
-            task: "Implementation"
-          }
-        },
-        "Cross-SL (internal)": {
-          proj: [],
-          hasOth: false,
-          iObj: {
-            ikey: "P26126108",
-            proj: "P26126108 - cptence sup other inno&npd",
+            ikey: "P2612506",
+            proj: "P2612506 - competence, automation & innov",
             task: "Implementation"
           }
         },
         Innovation: {
-          proj: [],
-          hasOth: false,
-          iObj: {
-            ikey: "P26126108",
-            proj: "P26126108 - cptence sup other inno&npd",
-            task: "Implementation"
-          }
-        },
-        Internal: {
-          proj: ["EDM1", "EDM2", "Askia"],
-          EDM1: {
-            ikey: "P2612319",
-            proj: "P2612319 - iis internal ws4 edm1",
-            task: "Implementation"
-          },
-          EDM2: {
-            ikey: "P2612320",
-            proj: "P2612320 - iis internal ws4 edm2",
-            task: "Implementation"
-          },
-          Askia: {
-            ikey: "P2611404",
-            proj: "P2611404 - askia initiative",
-            task: "Implementation"
-          },
-          hasOth: true,
-          iObj: {
-            ikey: "P2612506",
-            proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
-          }
-        },
-        IT: {
-          proj: [],
-          hasOth: false,
-          iObj: {
-            ikey: "P2612506",
-            proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
-          }
-        },
-        MIS: {
           proj: [],
           hasOth: false,
           iObj: {
@@ -148,15 +150,6 @@ export default {
           proj: [],
           hasOth: false,
           iObj: {
-            ikey: "P26126108",
-            proj: "P26126108 - cptence sup other inno&npd",
-            task: "Implementation"
-          }
-        },
-        Oth: {
-          proj: [],
-          hasOth: false,
-          iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
             task: "Implementation"
@@ -166,37 +159,57 @@ export default {
           proj: [],
           hasOth: false,
           iObj: {
-            ikey: "P26145001",
-            proj: "P26145001 - picasso",
+            ikey: "P2612506",
+            proj: "P2612506 - competence, automation & innov",
+            task: "Implementation"
+          }
+        },        
+        "Process Redesign": {
+          proj: [],
+          hasOth: false,
+          iObj: {
+            ikey: "P2612506",
+            proj: "P2612506 - competence, automation & innov",
             task: "Implementation"
           }
         },
         Production: {
-          proj: ["Custom request - chargeable", "Picasso", "Trainings"],
-          "Custom request - chargeable": {
+          proj: ["Custom request (chargeable)", "Custom request (non-chargeable)", "Recruitment Tests Scoring","New Hire Training","Support"],
+
+          "Custom request (chargeable)": {
             ikey: "SID",
-            proj: "Project Job-Book number",
-            task: "Other tasks on project (Chargeable)"
+            proj: "project jobnumber",
+            task: "Client Changes Work"
           },
 
-          Picasso: {
-            ikey: "P26145001",
-            proj: "P26145001 - picasso",
-            task: "Implementation"
-          },
-          Trainings: {
+          "Custom request (non-chargeable)": {
             ikey: "P2612306",
             proj: "P2612306 - competence support",
+            task: "Implementation"
+          },
+          "Recruitment Tests Scoring": {
+            ikey: "P2612306",
+            proj: "P2612306 - competence support",
+            task: "Implementation"
+          },
+          "New Hire Training": {
+            ikey: "AdminTrainer",
+            proj: "Administration",
             task: "Training (trainer)"
+          },
+          "Support": {
+            ikey: "SID/P2612306",
+            proj: "project jobnumber / P2612306 - competence support",
+            task: "Other tasks on project / Implementation"
           },
           hasOth: true,
           iObj: {
-            ikey: "P2612306",
-            proj: "P2612306 - competence support",
+            ikey: "P2612506",
+            proj: "P2612506 - competence, automation & innov",
             task: "Implementation"
           }
         },
-        QA: {
+        "Projects and Initiatives": {
           proj: [],
           hasOth: false,
           iObj: {
@@ -205,32 +218,25 @@ export default {
             task: "Implementation"
           }
         },
-        Quality: {
-          proj: [],
-          hasOth: false,
-          iObj: {
-            ikey: "P2612506",
-            proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
-          }
-        },
-        RAES: {
+        "Respondent Access": {
           proj: ["Programmatic Sample"],
+
           "Programmatic Sample": {
             ikey: "P2611955",
             proj: "P2611955 - it-a&e-programmatic sample",
             task: "Implementation"
           },
+
           hasOth: true,
           iObj: {
-            ikey: "P26126105",
-            proj: "P26126105 - cpetence sup raes initiatives",
+            ikey: "P2612506",
+            proj: "P2612506 - competence, automation & innov",
             task: "Implementation"
           }
-        }
+        },
       },
       itimeObj: {}
-    };
+    }
   },
   created() {
     //get active
