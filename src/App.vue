@@ -18,11 +18,11 @@ import Navbar from "./components/Navbar";
 // import db from "./components/firebaseInit";
 import firebase from "firebase";
 import RTDB from "./components/firebaseInitRTDB";
-
+import EventBus from "./eventBus";
 
 export default {
   name: "App",
-  components: { Navbar },
+  components: { Navbar},
   data() {
     return {
       isLoggedIn: false,
@@ -37,6 +37,7 @@ export default {
       logData: [],
       chartData: [],
       scrollTop:1,
+      emailMap:{},
     };
   },
   mounted() {    
@@ -59,84 +60,53 @@ export default {
             vueObj.isManager = true;
           }
         });
+      //get user emails
+      RTDB.ref("/LISTS/EmailMap")
+        .orderByKey()
+        .once("value", querySnapshot => {
+          this.emailMap=querySnapshot.val()
+        });
     }
-
-    // if (false)  {
-
-    //   RTDB.ref("/USERS/" + UID + "/TASKS/")
-    //     .orderByChild("t_isActive")
-    //     .equalTo(true)
-    //     .on("value", querySnapshot => {
-    //       vueObj.tasksDashboard = [];
-    //       //this.tasksAllview = [];
-
-    //       // function taskCalculated(Deadline) {
-    //       //   var aziEOD = new Date().setHours(24);
-    //       //   var aziSOD = new Date().setHours(0);
-    //       //   var Calculated = { tCategory: null, tDelayed: null };
-    //       //   // console.log(Deadline)
-    //       //   // console.log(new Date(Deadline))
-    //       //   if (Deadline == null || Deadline == "") {
-    //       //     Calculated.tCategory = "1";
-    //       //     Calculated.tDelayed = false;
-    //       //   } else if (new Date(Deadline) < new Date(aziSOD)) {
-    //       //     Calculated.tCategory = "2";
-    //       //     Calculated.tDelayed = true;
-    //       //   } else if (new Date(Deadline) < new Date(aziEOD)) {
-    //       //     Calculated.tCategory = "2";
-    //       //     Calculated.tDelayed = false;
-    //       //   } else {
-    //       //     Calculated.tCategory = "3";
-    //       //     Calculated.tDelayed = false;
-    //       //   }
-    //       //   return Calculated;
-    //       // }
-    //       // console.log(querySnapshot.val());
-    //       const queryOBJ = querySnapshot.val();
-    //       for (var prop in queryOBJ) {
-    //         // var tskCalculated = taskCalculated(queryOBJ[prop].tDeadline);
-
-    //         // console.log(queryOBJ[prop].tName);
-    //         const data = {
-    //           id: prop,
-    //           task_name: queryOBJ[prop].tName,
-    //           task_description: queryOBJ[prop].tDescription.replace(
-    //             /\n/g,
-    //             "<br/>"
-    //           ),
-    //           task_projectCategory: queryOBJ[prop].tProjCateg,
-    //           task_project: queryOBJ[prop].tProject,
-    //           task_attachement: queryOBJ[prop].tAttach
-    //             ? queryOBJ[prop].tAttach
-    //             : [],
-    //           task_deadline: queryOBJ[prop].tDeadline,
-    //           task_FTE: queryOBJ[prop].tFTE ? queryOBJ[prop].tFTE : "none",
-    //           task_usedFTE: queryOBJ[prop].tFTEused ? queryOBJ[prop].tFTEused : null,
-    //           task_status: queryOBJ[prop].tStatus,
-    //           task_completed: queryOBJ[prop].tStatus == "Completed",
-    //           task_canceled: queryOBJ[prop].tStatus == "Canceled",
-    //           task_inProgress: queryOBJ[prop].tStatus == "In progress",
-    //           task_onHold: queryOBJ[prop].tStatus == "On hold",
-    //           task_notStarted: queryOBJ[prop].tStatus == "Not started",
-    //           t_isPrivate: queryOBJ[prop].tProjCateg == "Personal",
-    //           task_isActive: queryOBJ[prop].t_isActive,
-    //           // task_Category: tskCalculated.tCategory,
-    //           // task_Delayed: tskCalculated.tDelayed
-    //         };
-
-    //         vueObj.tasksDashboard.push(data);
-    //       }
-
-    //       this.tasksMyActive = this.tasksDashboard.filter(function(task) {
-    //         return (
-    //           task.task_status == "In progress" || task.task_status == "On hold" ||task.task_status == "Not started" 
-    //         );
-    //       });
-    //       this.SetGraphic();
-    //     });
-    // }
-  },  
+  },
+  created(){
+    EventBus.$on("sendEmail",(data)=>{
+      this.sendEmail(data);
+		})
+  }, 
   methods: {
+    async sendEmail (
+      data={
+        "mailto":["alexandru.popescu@ipsos.com"],
+        "mailBody":"Placeholder mail body",
+        "emailSubject":"Placeholder mail subject",
+        "mailCC":["alexandru.popescu@ipsos.com"]
+      }){
+      
+
+      let options = {
+          method: 'POST',
+          headers: new Headers({'content-type': 'application/json'}),
+          // mode: 'no-cors'
+      };
+      options.body = JSON.stringify(data);
+      let response  = await fetch('http://comp.ipsosinteractive.com/api/sendmail', options)
+      .catch((error) => {
+        console.log('Error:', error.message);        
+        M.toast({ html: error.message});
+        this.$router.push({ name: this.$route.query.mnext });
+        return "{\"error\":"+error.message+"}";
+      })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+      })
+      .then((responseJson) => {
+        console.log(responseJson);
+        M.toast({ html: responseJson.emailResult});
+        this.$router.push({ name: this.$route.query.mnext });
+      })
+    },
     SetGraphic() {
       this.chartData = [];
 
