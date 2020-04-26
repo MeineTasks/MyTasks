@@ -281,12 +281,12 @@ export default {
   updated() {
     $(".tooltipped").tooltip();
   },
-
-  mounted() {
-    this.GetFire_users();
-    $(".modal").modal();
-  },
   methods: {
+    //method that sets the scrollTop property in parent App
+    //in order to be reused when returning to component
+    updateScrollTop() {
+      this.$parent.scrollTop=window.scrollY;
+    },    
     AddCurentDateFilter() {
       this.Datefilter_start = moment()
         .weekday(1)
@@ -724,7 +724,22 @@ export default {
       });
       return sum.toFixed(2);
     }
-  }
+  },
+  mounted() {
+    this.GetFire_users();
+    $(".modal").modal();
+    //function that is called when page is fully loaded
+    //this function sets the vertical scroll to the previous position on viewUsers page
+    //add also an event that updates the scrollTop property in parent App
+    this.$nextTick(()=>{
+          window.scrollTo(1,this.$parent.scrollTop-70)
+          window.addEventListener('scroll', this.updateScrollTop, false);
+      });
+  },
+  beforeDestroy() {
+    window.removeEventListener('scroll', this.updateScrollTop, false);
+    console.log("scroll event removed");
+  },  
 };
 </script>
 

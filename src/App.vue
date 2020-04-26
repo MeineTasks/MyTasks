@@ -35,7 +35,8 @@ export default {
       tasksAllview: [],
       tasksMyActive: [],
       logData: [],
-      chartData: []
+      chartData: [],
+      scrollTop:1,
     };
   },
   mounted() {    
