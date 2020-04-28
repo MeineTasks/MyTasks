@@ -89,7 +89,7 @@ export default {
           // mode: 'no-cors'
       };
       options.body = JSON.stringify(data);
-      let response  = await fetch('http://comp.ipsosinteractive.com/api/sendmail', options)
+      let response  = await fetch('https://comp.ipsosinteractive.com/api/sendmail', options)
       .catch((error) => {
         console.log('Error:', error.message);        
         M.toast({ html: error.message});
