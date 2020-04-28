@@ -158,7 +158,7 @@ import fireList from "./fireLists";
 import firebase from "firebase";
 
 import RTDB from "./firebaseInitRTDB";
-
+import EventBus from "../eventBus";
 var moment = require("moment");
 
 export default {
@@ -213,9 +213,18 @@ export default {
       SelectedStatus: "Not started",
       Selected_Priority:"Normal",
       SelectedOwners:[],
-      
+      createdByLabel:"",      
       // SelectedOwner: { Label: null, UID: null }
     };
+  },
+  created(){
+    let currUserLabel = RTDB.ref("/USERS/" + firebase.auth().currentUser.uid + "/Label")
+    currUserLabel.once("value", querySnapshot => {
+      this.createdByLabel=querySnapshot.val();
+    }, function (errorObject) {
+      console.log("The read failed: " + errorObject.code);
+      this.createdByLabel="";
+    })
   },
   methods: {
     updateDeadline() {
@@ -361,8 +370,30 @@ export default {
             .catch(error => console.log(err));
           })
         }
+        this.SelectedOwners.forEach(owner=>{
+          let emailBody =` A new recurrent task was assigned in MeineTasks:<br/><br/>
+          
+          Task name : ${this.task_name}<br/>
+          Task category: ${this.SelectedProjCat}<br/>
+          Task project: ${this.SelectedProj}<br/>
+          Task details: ${this.task_details}<br/>
+          Task start date: ${this.task_start}<br/>
+          Number of weeks: ${this.Recurencies}<br/>
+          Task created by: ${this.createdByLabel}<br/>
+          `;
+          let emailSubject = `New Task assigned to ${owner.Label}`
+          let emailCC=['IISCompetenceTasks@ipsos.com']
+          let emailTO=[this.$parent.emailMap[owner.UID]]
+          console.log(emailTO)
+          let data={
+            "mailto":["alexandru.popescu@ipsos.com"],
+            "mailBody":emailBody,
+            "emailSubject":emailSubject,
+            "mailCC":["alexandru.popescu@ipsos.com"]
+          }
+          EventBus.$emit('sendEmail',data, false);
+        })
         this.$router.push({ name: this.$route.query.mnext });
-
       }else{
       // return true;
         RTDB.ref("/USERS/" + this.SelectedOwners[0].UID + "/TASKS/")
@@ -387,7 +418,27 @@ export default {
           })
           .then(docRef => {
             RTDB.ref("/LISTS/").off();
-            this.$router.push({ name: this.$route.query.mnext });
+            let emailBody =` A new task was assigned in MeineTasks:<br/><br/>
+            
+            Task name : ${this.task_name}<br/>
+            Task category: ${this.SelectedProjCat}<br/>
+            Task project: ${this.SelectedProj}<br/>
+            Task details: ${this.task_details}<br/>
+            Task start date: ${this.task_start}<br/>
+            Task end date: ${this.task_deadline}<br/>
+            Task created by: ${this.createdByLabel}<br/>
+            `;
+            let emailSubject = `New Task assigned to ${this.SelectedOwners[0].Label}`
+            let emailCC=['IISCompetenceTasks@ipsos.com']
+            let emailTO=[this.$parent.emailMap[this.SelectedOwners[0].UID]]
+            console.log(emailTO)
+            let data={
+              "mailto":["alexandru.popescu@ipsos.com"],
+              "mailBody":emailBody,
+              "emailSubject":emailSubject,
+              "mailCC":["alexandru.popescu@ipsos.com"]
+            }
+            EventBus.$emit('sendEmail',data, true);                          
           })
           .catch(error => console.log(err));
       }
