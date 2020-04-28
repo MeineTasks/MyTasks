@@ -69,8 +69,8 @@ export default {
     }
   },
   created(){
-    EventBus.$on("sendEmail",(data)=>{
-      this.sendEmail(data);
+    EventBus.$on("sendEmail",(data,moveToNextPage)=>{
+      this.sendEmail(data,moveToNextPage);
 		})
   }, 
   methods: {
@@ -80,7 +80,7 @@ export default {
         "mailBody":"Placeholder mail body",
         "emailSubject":"Placeholder mail subject",
         "mailCC":["alexandru.popescu@ipsos.com"]
-      }){
+      }, moveToNextPage=true){
       
 
       let options = {
@@ -104,7 +104,8 @@ export default {
       .then((responseJson) => {
         console.log(responseJson);
         M.toast({ html: responseJson.emailResult});
-        this.$router.push({ name: this.$route.query.mnext });
+        if (moveToNextPage)
+          this.$router.push({ name: this.$route.query.mnext });
       })
     },
     SetGraphic() {
