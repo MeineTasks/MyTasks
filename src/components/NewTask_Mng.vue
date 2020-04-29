@@ -386,10 +386,10 @@ export default {
           let emailTO=[this.$parent.emailMap[owner.UID]]
           console.log(emailTO)
           let data={
-            "mailto":["alexandru.popescu@ipsos.com"],
+            "mailto":emailTO,
             "mailBody":emailBody,
             "emailSubject":emailSubject,
-            "mailCC":["alexandru.popescu@ipsos.com"]
+            "mailCC":emailCC
           }
           EventBus.$emit('sendEmail',data, false);
         })
@@ -433,10 +433,10 @@ export default {
             let emailTO=[this.$parent.emailMap[this.SelectedOwners[0].UID]]
             console.log(emailTO)
             let data={
-              "mailto":["alexandru.popescu@ipsos.com"],
+              "mailto":emailTO,
               "mailBody":emailBody,
               "emailSubject":emailSubject,
-              "mailCC":["alexandru.popescu@ipsos.com"]
+              "mailCC":emailCC
             }
             EventBus.$emit('sendEmail',data, true);                          
           })

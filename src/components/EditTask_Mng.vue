@@ -619,10 +619,10 @@ export default {
                 let emailTO=[this.$parent.emailMap[vueObj.SelectedOwner.UID]]
                 console.log(emailTO)
                 let data={
-                  "mailto":["alexandru.popescu@ipsos.com"],
+                  "mailto":emailTO,
                   "mailBody":emailBody,
                   "emailSubject":emailSubject,
-                  "mailCC":["alexandru.popescu@ipsos.com"]
+                  "mailCC":emailCC
                 }
                 EventBus.$emit('sendEmail',data, false);
 
