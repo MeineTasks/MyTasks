@@ -83,7 +83,7 @@ export default {
           Vacation: {
             ikey: "Admin",
             proj: "Administration",
-            task: "Vacation Full Day / Compensated Time-Off"
+            task: "Vacation Full Day / Company Holiday (Statutory)/ Compensated Time-Off"
           },
           hasOth: true,
           iObj: {
