@@ -64,7 +64,6 @@ export default {
             proj: "Administration",
             task: "Illness - full day"
           },
-
           "Special event": {
             ikey: "Admin",
             proj: "Administration",
@@ -98,7 +97,7 @@ export default {
           iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
+            task: "Product research & development"
           }
         },
         Askia: {
@@ -107,7 +106,7 @@ export default {
           iObj: {
             ikey: "P2611404",
             proj: "P2611404 - askia initiative",
-            task: "Implementation"
+            task: "Product research & development"
           }
         },          
         Automations: {
@@ -116,7 +115,7 @@ export default {
           iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
+            task: "Product research & development"
           }
         },
         "Creative Excellence": {
@@ -125,7 +124,7 @@ export default {
           iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
+            task: "Product research & development"
           }
         },
         "Cross-SL": {
@@ -134,7 +133,7 @@ export default {
           iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
+            task: "Product research & development"
           }
         },
         Innovation: {
@@ -143,7 +142,7 @@ export default {
           iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
+            task: "Product research & development"
           }
         },
         MSU: {
@@ -152,16 +151,16 @@ export default {
           iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
+            task: "Product research & development"
           }
         },
         Picasso: {
           proj: [],
           hasOth: false,
           iObj: {
-            ikey: "P2612506",
-            proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
+            ikey: "P26145001",
+            proj: "P26145001 - picasso",
+            task: "Product research & development"
           }
         },        
         "Process Redesign": {
@@ -170,7 +169,7 @@ export default {
           iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
+            task: "Product research & development"
           }
         },
         Production: {
@@ -179,34 +178,34 @@ export default {
           "Custom request (chargeable)": {
             ikey: "SID",
             proj: "project jobnumber",
-            task: "Client Changes Work"
+            task: "Recoverable IT work on jobs"
           },
 
           "Custom request (non-chargeable)": {
             ikey: "P2612306",
             proj: "P2612306 - competence support",
-            task: "Implementation"
+            task: "Product research & development"
           },
           "Recruitment Tests Scoring": {
             ikey: "P2612306",
             proj: "P2612306 - competence support",
-            task: "Implementation"
+            task: "Product research & development"
           },
           "New Hire Training": {
             ikey: "AdminTrainer",
             proj: "Administration",
-            task: "Training (trainer)"
+            task: "Product research & development"
           },
           "Support": {
             ikey: "SID/P2612306",
             proj: "project jobnumber / P2612306 - competence support",
-            task: "Other tasks on project / Implementation"
+            task: "Product research & development"
           },
           hasOth: true,
           iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
+            task: "Product research & development"
           }
         },
         "Projects and Initiatives": {
@@ -215,7 +214,7 @@ export default {
           iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
+            task: "Product research & development"
           }
         },
         "Respondent Access": {
@@ -224,14 +223,14 @@ export default {
           "Programmatic Sample": {
             ikey: "P2611955",
             proj: "P2611955 - it-a&e-programmatic sample",
-            task: "Implementation"
+            task: "Product research & development"
           },
 
           hasOth: true,
           iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
-            task: "Implementation"
+            task: "Product research & development"
           }
         },
       },
