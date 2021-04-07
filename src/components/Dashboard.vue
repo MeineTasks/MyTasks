@@ -805,7 +805,13 @@ export default {
         TaskObj.tStatus = "In progress";
         //AlexP
         TaskObj.tFTE = "TBD";
-        TaskObj.tFTEused = "";
+        if (firebase.auth().currentUser.email == "ciprian.ciresaru@ipsos.com"){
+          TaskObj.tFTE = "1.00";
+          TaskObj.tFTEused = "1.00";
+        }else{
+          TaskObj.tFTEused = "";
+        }
+
 
         // add new task on same user
         RTDB.ref("/USERS/" + firebase.auth().currentUser.uid + "/TASKS/")
