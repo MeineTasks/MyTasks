@@ -117,16 +117,23 @@ export default {
             proj: "P2612506 - competence, automation & innov",
             task: "Product research & development"
           }
-        },
+        },    
         "Creative Excellence": {
-          proj: [],
-          hasOth: false,
+          proj: ["Early Stage Product Screening"],
+
+          "Early Stage Product Screening": {
+            ikey: "P26126158",
+            proj: "P26126158 - Early Stage Screening",
+            task: "Product research and development"
+          },
+
+          hasOth: true,
           iObj: {
             ikey: "P2612506",
             proj: "P2612506 - competence, automation & innov",
             task: "Product research & development"
           }
-        },
+        },               
         "Cross-SL": {
           proj: [],
           hasOth: false,

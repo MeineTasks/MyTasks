@@ -1,7 +1,40 @@
 <template>
   <div id="dashboard" style="margin: 0px 50px;">
+    <!-- filter -->
+    <div class="row z-depth-2 filterContainer brown lighten-4">
+      <div class="col m12 s12 " >              
+        <span class="tooltipped" data-position="right" 
+            data-tooltip="Click for multiple selections">
+            Filter by category :</span>
+          <div id="listStat">
+            <span 
+              @click="FilterByCateg(opt)"
+              
+              v-for="opt in categoryList" 
+              v-bind:key="opt" 
+              v-bind:class="{'mySingleSelected':selectedCategoryList.indexOf(opt)>-1}" class="mySingle chip">
+                {{opt}}
+            </span>
+          </div> 
+      </div> 
+      <div class="col m12 s12 " >              
+        <span class="tooltipped" data-position="right" 
+            data-tooltip="Click for multiple selections">
+            Show columns :</span>
+          <div id="listStat">
+            <span 
+              @click="FilterColumns(column.txt)"
+              
+              v-for="column in Header" 
+              v-bind:key="column.txt" 
+              v-bind:class="{'mySingleSelected':selectedColumnList.indexOf(column.txt)>-1}" class="mySingle chip">
+                {{column.txt}}
+            </span>
+          </div> 
+      </div> 
+    </div>
     <div class="row hide-on-small-only myHeader blue-grey lighten-4">
-      <h6 v-for="itm in Header" :key="itm.txt" class="col s12" 
+      <h6 v-for="itm in Header" :key="itm.txt" v-if="selectedColumnList.indexOf(itm.txt)>-1" class="col s12" 
         :class="[itm.m,{'sorted':itm.txt==HSorted},{'clickable':itm.hasSort}]" 
         @click="HeaderClick(itm)">
           {{itm.txt}}
@@ -18,27 +51,27 @@
       </h6>
     </div>
     <!-- view not started  -->
-    <div v-for="task in tasksBackLog" v-bind:key="task.id" class="row" :class="task.task_priority">
-      <div class="col m2 s12">
+    <div v-for="task in tasksBackLogFilter" v-bind:key="task.id" class="row" :class="task.task_priority">
+      <div v-if="selectedColumnList.indexOf('Task name')>-1" class="col m2 s12">
         <span>
           <b>{{task.task_name}}</b>
         </span>
       </div>
-      <div class="col m3 s12 tskDetails" v-html="task.task_description"></div>
-      <div class="col m1 s12">
+      <div v-if="selectedColumnList.indexOf('Description')>-1" class="col m3 s12 tskDetails" v-html="task.task_description"></div>
+      <div v-if="selectedColumnList.indexOf('Attachment')>-1" class="col m1 s12">
         <div v-for="attach in task.task_attachement" v-bind:key="attach.id">
           <span id="Attachment_span" v-html="attach"></span>
         </div>
       </div>
-      <div class="col m1 s12 truncate">
+      <div v-if="selectedColumnList.indexOf('Project')>-1" class="col m1 s12 truncate">
         <i>{{task.task_project}}</i>
       </div>
-      <div class="col m1 s12 ">
+      <div v-if="selectedColumnList.indexOf('Priority')>-1" class="col m1 s12 ">
         <span class="chip valign-wrapper" :class="'ch_'+task.task_priority">{{task.task_priority}}</span>
       </div>
-      <div class="col m1 s12">{{task.task_deadline}}</div>
-      <div class="col m1 s12">{{task.task_FTE}}</div>
-      <div class="col m1 s12">
+      <div v-if="selectedColumnList.indexOf('Deadline')>-1" class="col m1 s12">{{task.task_deadline}}</div>
+      <div v-if="selectedColumnList.indexOf('FTE')>-1" class="col m1 s12">{{task.task_FTE}}</div>
+      <div v-if="selectedColumnList.indexOf('Volunteers')>-1" class="col m1 s12">
         <span  v-if="task.task_vol.length!=0">
           <span class="chip truncate" v-for="om in task.task_vol" :key="om">{{om}}</span>
         </span>
@@ -100,24 +133,32 @@ export default {
   data() {
     return {
       // isLoggedIn: false,
-      Header:[
-        {txt:"Task name",m:"m2",sby:"task_name",hasSort:true},
-        {txt:"Description",m:"m3",sby:"task_description",hasSort:true},
-        {txt:"Attachment",m:"m1 truncate",sby:"",hasSort:false},
-        {txt:"Project",m:"m1 truncate",sby:"task_project",hasSort:true},
-        {txt:"Priority",m:"m1 truncate",sby:"task_PriorNum",hasSort:true},
-        {txt:"Deadline",m:"m1 truncate",sby:"task_deadline",hasSort:true},
-        {txt:"FTE",m:"m1 truncate",sby:"task_FTE",hasSort:true},
-        {txt:"Volunteers",m:"m1 truncate",sby:"task_vol",hasSort:true},
+      Header:{
+        "Task name":{txt:"Task name",m:"m2",sby:"task_name",hasSort:true},
+        "Description":{txt:"Description",m:"m3",sby:"task_description",hasSort:true},
+        "Attachment":{txt:"Attachment",m:"m1 truncate",sby:"",hasSort:false},
+        "Project":{txt:"Project",m:"m1 truncate",sby:"task_project",hasSort:true},
+        "Priority":{txt:"Priority",m:"m1 truncate",sby:"task_PriorNum",hasSort:true},
+        "Deadline":{txt:"Deadline",m:"m1 truncate",sby:"task_deadline",hasSort:true},
+        "FTE":{txt:"FTE",m:"m1 truncate",sby:"task_FTE",hasSort:true},
+        "Volunteers":{txt:"Volunteers",m:"m1 truncate",sby:"task_vol",hasSort:true},
         
-        ],
+      },
       HSorted:"Priority",
       tasksBackLog:[],
+      tasksBackLogFilter:[],
       hasDone: false,
       viewDone: null,
       currUserName:null,
       // tasks: this.tasksBackLog,
-      SortBy:"task_PriorNum"
+      SortBy:"task_PriorNum",
+      categoryList:[],
+      selectedCategoryList:localStorage.getItem("backlog_selectedCategoryList")
+        ? JSON.parse(localStorage.getItem("backlog_selectedCategoryList"))
+        : [],
+      selectedColumnList:localStorage.getItem("backlog_selectedColumnList")
+        ? JSON.parse(localStorage.getItem("backlog_selectedColumnList"))
+        : ["Task name","Description","Attachment","Project","Priority","Deadline","FTE","Volunteers"],      
     };
   },
   mounted(){
@@ -132,12 +173,19 @@ export default {
         .equalTo(true)
         .on("value", querySnapshot => {
           vueObj.tasksBackLog = [];
+          // console.log(vueObj.tasksBackLogFilter)
+          vueObj.tasksBackLogFilter = [];
+          vueObj.categoryList = [];
           //this.tasksAllview = [];
           
           // console.log(querySnapshot.val());
           const queryOBJ = querySnapshot.val();
           for (var prop in queryOBJ) {
             if (queryOBJ[prop].tStatus=="Not allocated"){
+              let category = queryOBJ[prop].tProjCateg;
+              if (vueObj.categoryList.indexOf(category)==-1)
+                vueObj.categoryList.push(category);
+              // console.log(queryOBJ[prop].tProjCateg)
 
               // console.log(queryOBJ[prop].tName);
               const data = {
@@ -165,11 +213,14 @@ export default {
               data.task_iVol=data.task_vol.indexOf(this.currUserName)>-1,
               data.task_PriorNum=["High","Normal","Low"].indexOf(data.task_priority)
               vueObj.tasksBackLog.push(data);
+              if (vueObj.selectedCategoryList.length>0 && vueObj.selectedCategoryList.indexOf(data.task_projectCategory)>-1)
+                vueObj.tasksBackLogFilter.push(data);
             }
             
 
           }
           vueObj.tasksBackLog.sort(vueObj.sortMNG)
+          vueObj.tasksBackLogFilter.sort(vueObj.sortMNG)
           
           // this.SetGraphic();
         });
@@ -184,6 +235,37 @@ export default {
   },
   
   methods: {
+    FilterByCateg(category){
+      const index = this.selectedCategoryList.indexOf(category);
+      if (index>-1)
+        this.selectedCategoryList.splice(index, 1);
+      else
+        this.selectedCategoryList.push(category)
+      this.tasksBackLogFilter=[]
+      for (let task of this.tasksBackLog){
+          // console.log("task ",task.task_projectCategory)
+          // console.log("tasks selected ",this.selectedCategoryList)
+          if (this.selectedCategoryList.indexOf(task.task_projectCategory)>-1)
+            this.tasksBackLogFilter.push(task);
+      }
+      // console.log(this.tasksBackLogFilter);
+      localStorage.setItem(
+        "backlog_selectedCategoryList",
+        JSON.stringify(this.selectedCategoryList)
+      );
+    },
+    FilterColumns(columnName){
+      const index = this.selectedColumnList.indexOf(columnName);
+      if (index>-1)
+        this.selectedColumnList.splice(index, 1);
+      else
+        this.selectedColumnList.push(columnName)
+    //  console.log(this.selectedColumnList)
+      localStorage.setItem(
+        "backlog_selectedColumnList",
+        JSON.stringify(this.selectedColumnList)
+      );
+    },
     VolMe(task){
       if(!task.task_iVol){  
           task.task_vol.push(this.currUserName)
@@ -349,5 +431,12 @@ h6 {
     color: #024e4d;
     font-size: 20px;
     font-weight: bold;
+}
+.mySingleSelected {
+  background: #689aa7;
+  color: white;
+}
+.mySingle {
+  cursor: pointer;
 }
 </style>
