@@ -292,7 +292,8 @@ export default {
     },
     DoSort(by){
       this.SortBy=by
-      this.tasksBackLog.sort(this.sortMNG)
+      // this.tasksBackLog.sort(this.sortMNG)
+      this.tasksBackLogFilter.sort(this.sortMNG)
     },
 
     sortMNG(a, b) {
