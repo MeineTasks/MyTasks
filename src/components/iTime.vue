@@ -58,7 +58,7 @@ export default {
       weekFilter: "",
       MapObj: {
         Admin: {
-          proj: ["Medical", "Special event", "Other","Training Participant","Vacation"],
+          proj: ["Medical", "Special event", "Other","Training Participant","Vacation","Authorized leave"],
           Medical: {
             ikey: "Admin",
             proj: "Administration",
@@ -68,6 +68,11 @@ export default {
             ikey: "Admin",
             proj: "Administration",
             task: "Administration and management"
+          },
+          "Authorized leave": {
+            ikey: "Admin",
+            proj: "Administration",
+            task: "Paid (Authorized) Leave"
           },
           Other: {
             ikey: "Admin",
