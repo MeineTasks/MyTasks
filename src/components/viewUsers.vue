@@ -714,6 +714,7 @@ export default {
       TaskArray.forEach(task => {
         if (
           task.task_usedFTE != undefined &&
+          task.task_usedFTE != "TBD" &&
           task.task_usedFTE != null &&
           task.task_usedFTE != "" //&&
           //task.task_status == "In progress"
